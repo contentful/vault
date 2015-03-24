@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.annotation.Annotation;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
@@ -12,6 +13,7 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
+import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
@@ -60,13 +62,28 @@ public class ModelProcessor extends AbstractProcessor {
   }
 
   private void parseContentType(Element element) {
-    String id = element.getAnnotation(ContentType.class).id();
+    String id = element.getAnnotation(ContentType.class).value();
     if (id.isEmpty()) {
       error(element, "@%s id may not be empty. (%s)",
           ContentType.class.getSimpleName(),
           ((TypeElement) element).getQualifiedName());
     }
-    // TODO
+
+    for (Element enclosedElement : element.getEnclosedElements()) {
+      Field field = enclosedElement.getAnnotation(Field.class);
+      if (field == null) {
+        continue;
+      }
+
+      String fieldId = field.value();
+      if (fieldId.isEmpty()) {
+        error(enclosedElement, "@%s id may not be empty. (%s.%s)", Field.class.getSimpleName(),
+            ((TypeElement) element).getQualifiedName(),
+            enclosedElement.getSimpleName());
+      }
+
+      // TODO add injection to targets list
+    }
   }
 
   private void parsingError(Element element, Class<? extends Annotation> annotation, Exception e) {
