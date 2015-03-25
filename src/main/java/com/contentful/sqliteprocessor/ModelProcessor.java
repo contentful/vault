@@ -87,6 +87,7 @@ public class ModelProcessor extends AbstractProcessor {
     }
 
     Set<Member> members = new LinkedHashSet<Member>();
+    Set<String> memberIds = new LinkedHashSet<String>();
     for (Element enclosedElement : element.getEnclosedElements()) {
       Field field = enclosedElement.getAnnotation(Field.class);
       if (field == null) {
@@ -98,6 +99,16 @@ public class ModelProcessor extends AbstractProcessor {
         error(enclosedElement, "@%s id may not be empty. (%s.%s)", Field.class.getSimpleName(),
             typeElement.getQualifiedName(),
             enclosedElement.getSimpleName());
+        return;
+      }
+
+      if (!memberIds.add(id)) {
+        error(element,
+            "@%s for the same id (\"%s\") was used multiple times in the same class. (%s)",
+            Field.class.getSimpleName(),
+            id,
+            typeElement.getQualifiedName());
+        return;
       }
 
       String fieldName = enclosedElement.getSimpleName().toString();

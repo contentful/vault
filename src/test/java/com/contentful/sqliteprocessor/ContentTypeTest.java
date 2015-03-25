@@ -70,7 +70,7 @@ public class ContentTypeTest {
         .withErrorContaining("@Field id may not be empty. (test.Test.text)");
   }
 
-  @Test public void failsWithSameId() throws Exception {
+  @Test public void failsWithSameContentTypeId() throws Exception {
     JavaFileObject source = JavaFileObjects.forSourceString("test.Test",
         Joiner.on('\n').join(
             "package test;",
@@ -89,5 +89,26 @@ public class ContentTypeTest {
         .withErrorContaining(Joiner.on("").join(
             "@ContentTypeInjection for \"cid\" cannot be used on multiple classes. ",
             "(test.Test.Test2)"));
+  }
+
+  @Test public void failsWithSameFieldId() throws Exception {
+    JavaFileObject source = JavaFileObjects.forSourceString("test.Test",
+        Joiner.on('\n').join(
+            "package test;",
+            "import com.contentful.sqliteprocessor.ContentType;",
+            "import com.contentful.sqliteprocessor.Field;",
+            "@ContentType(\"cid\")",
+            "public class Test {",
+            "  @Field(\"a\") String thing1;",
+            "  @Field(\"a\") String thing2;",
+            "}"
+        ));
+
+    ASSERT.about(javaSource()).that(source)
+        .processedWith(processors())
+        .failsToCompile()
+        .withErrorContaining(Joiner.on("").join(
+            "@Field for the same id (\"cid\") was used multiple ",
+            "times in the same class. (test.Test)"));
   }
 }
