@@ -1,7 +1,7 @@
 package com.contentful.sqliteprocessor;
 
-import com.sun.org.apache.xml.internal.security.utils.Base64;
 import java.util.Set;
+import org.apache.commons.codec.binary.Base64;
 
 final class ContentTypeInjection {
   final String id;
@@ -48,7 +48,7 @@ final class ContentTypeInjection {
   }
 
   private void emitCreateTable(StringBuilder builder) {
-    String code = Base64.encode(getFqcn().getBytes()).replaceAll("=", "");
+    String code = Base64.encodeBase64String(getFqcn().getBytes()).replaceAll("=", "");
     String tableName = String.format("entry_%s", code);
 
     String indent = "  ";
