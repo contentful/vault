@@ -121,7 +121,7 @@ public class ModelProcessor extends AbstractProcessor {
         error(element,
             "@%s for the same id (\"%s\") was used multiple times in the same class. (%s)",
             Field.class.getSimpleName(),
-            id,
+            fieldId,
             typeElement.getQualifiedName());
         return;
       }

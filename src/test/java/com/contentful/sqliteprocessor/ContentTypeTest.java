@@ -66,10 +66,15 @@ public class ContentTypeTest {
   }
 
   @Test public void failsWithSameContentTypeId() throws Exception {
-    JavaFileObject source = JavaFileObjects.forSourceString("test.Test",
-        Joiner.on('\n').join("package test;", "import com.contentful.sqliteprocessor.ContentType;",
-            "@ContentType(\"cid\")", "public class Test {", "  @ContentType(\"cid\")",
-            "  public class Test2 {", "  }", "}"));
+    JavaFileObject source = JavaFileObjects.forSourceString("test.Test", Joiner.on('\n').join(
+        "package test;",
+        "import com.contentful.sqliteprocessor.ContentType;",
+        "@ContentType(\"cid\")",
+        "public class Test {",
+        "  @ContentType(\"cid\")",
+        "  public class Test2 {",
+        "  }",
+        "}"));
 
     ASSERT.about(javaSource()).that(source)
         .processedWith(processors())
@@ -80,17 +85,20 @@ public class ContentTypeTest {
   }
 
   @Test public void failsWithSameFieldId() throws Exception {
-    JavaFileObject source = JavaFileObjects.forSourceString("test.Test",
-        Joiner.on('\n').join("package test;", "import com.contentful.sqliteprocessor.ContentType;",
-            "import com.contentful.sqliteprocessor.Field;", "@ContentType(\"cid\")",
-            "public class Test {", "  @Field(\"a\") String thing1;",
-            "  @Field(\"a\") String thing2;", "}"));
+    JavaFileObject source = JavaFileObjects.forSourceString("test.Test", Joiner.on('\n').join(
+        "package test;", "import com.contentful.sqliteprocessor.ContentType;",
+        "import com.contentful.sqliteprocessor.Field;",
+        "@ContentType(\"cid\")",
+        "public class Test {",
+        "  @Field(\"a\") String thing1;",
+        "  @Field(\"a\") String thing2;",
+        "}"));
 
     ASSERT.about(javaSource()).that(source)
         .processedWith(processors())
         .failsToCompile()
         .withErrorContaining(Joiner.on("").join(
-            "@Field for the same id (\"cid\") was used multiple ",
+            "@Field for the same id (\"a\") was used multiple ",
             "times in the same class. (test.Test)"));
   }
 }
