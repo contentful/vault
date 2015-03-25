@@ -1,11 +1,11 @@
 package com.contentful.sqliteprocessor;
 
 import autovalue.shaded.com.google.common.auto.service.AutoService;
+import com.contentful.sqliteprocessor.ContentTypeInjection.Member;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.annotation.Annotation;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
@@ -13,7 +13,6 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
-import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
@@ -23,6 +22,8 @@ import static javax.tools.Diagnostic.Kind.ERROR;
 
 @AutoService(Processor.class)
 public class ModelProcessor extends AbstractProcessor {
+  public static final String SUFFIX = "$Sqlite";
+
   private Elements elementUtils;
   private Types typeUtils;
   private Filer filer;
@@ -46,29 +47,42 @@ public class ModelProcessor extends AbstractProcessor {
 
   @Override
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-    findAndParseTargets(roundEnv);
-
+    Set<ContentTypeInjection> targets = findAndParseTargets(roundEnv);
+    for (ContentTypeInjection target : targets) {
+      // TODO inject
+    }
     return true;
   }
 
-  private void findAndParseTargets(RoundEnvironment env) {
+  private Set<ContentTypeInjection> findAndParseTargets(RoundEnvironment env) {
+    Set<ContentTypeInjection> targets = new LinkedHashSet<ContentTypeInjection>();
     for (Element element : env.getElementsAnnotatedWith(ContentType.class)) {
       try {
-        parseContentType(element);
+        parseContentType(element, targets);
       } catch (Exception e) {
         parsingError(element, ContentType.class, e);
       }
     }
+    return targets;
   }
 
-  private void parseContentType(Element element) {
+  private void parseContentType(Element element, Set<ContentTypeInjection> targets) {
+    TypeElement typeElement = (TypeElement) element;
     String id = element.getAnnotation(ContentType.class).value();
     if (id.isEmpty()) {
       error(element, "@%s id may not be empty. (%s)",
           ContentType.class.getSimpleName(),
-          ((TypeElement) element).getQualifiedName());
+          typeElement.getQualifiedName());
     }
 
+    if (hasContentTypeInjectionWithId(targets, id)) {
+      error(element, "@%s for \"%s\" cannot be used on multiple classes. (%s)",
+          ContentTypeInjection.class.getSimpleName(),
+          id,
+          typeElement.getQualifiedName());
+    }
+
+    Set<Member> members = new LinkedHashSet<Member>();
     for (Element enclosedElement : element.getEnclosedElements()) {
       Field field = enclosedElement.getAnnotation(Field.class);
       if (field == null) {
@@ -78,12 +92,41 @@ public class ModelProcessor extends AbstractProcessor {
       String fieldId = field.value();
       if (fieldId.isEmpty()) {
         error(enclosedElement, "@%s id may not be empty. (%s.%s)", Field.class.getSimpleName(),
-            ((TypeElement) element).getQualifiedName(),
+            typeElement.getQualifiedName(),
             enclosedElement.getSimpleName());
       }
 
-      // TODO add injection to targets list
+      String fieldName = enclosedElement.getSimpleName().toString();
+      String className = enclosedElement.asType().toString();
+      members.add(new Member(fieldId, fieldName, className));
     }
+
+    String targetType = typeElement.getQualifiedName().toString();
+    String classPackage = getPackageName(typeElement);
+    String className = getClassName(typeElement, classPackage) + SUFFIX;
+
+    ContentTypeInjection injection = new ContentTypeInjection(
+        id, classPackage, className, targetType, members);
+
+    targets.add(injection);
+  }
+
+  private boolean hasContentTypeInjectionWithId(Set<ContentTypeInjection> targets, String id) {
+    for (ContentTypeInjection target : targets) {
+      if (id.equals(target.id)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private String getPackageName(TypeElement type) {
+    return elementUtils.getPackageOf(type).getQualifiedName().toString();
+  }
+
+  private static String getClassName(TypeElement type, String packageName) {
+    int packageLen = packageName.length() + 1;
+    return type.getQualifiedName().toString().substring(packageLen).replace('.', '$');
   }
 
   private void parsingError(Element element, Class<? extends Annotation> annotation, Exception e) {

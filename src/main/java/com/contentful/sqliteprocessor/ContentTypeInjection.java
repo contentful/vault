@@ -1,22 +1,32 @@
 package com.contentful.sqliteprocessor;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.Set;
 
 final class ContentTypeInjection {
-  private final String classPackage;
-  private final String className;
-  private final String targetClass;
-  private final Map<String, Class> fields;
+  final String id;
+  final String classPackage;
+  final String className;
+  final String targetClass;
+  final Set<Member> members;
 
-  public ContentTypeInjection(String classPackage, String className, String targetClass) {
+  public ContentTypeInjection(String id, String classPackage, String className, String targetClass,
+      Set<Member> members) {
+    this.id = id;
     this.classPackage = classPackage;
     this.className = className;
     this.targetClass = targetClass;
-    this.fields = new LinkedHashMap<String, Class>();
+    this.members = members;
   }
 
-  public void addField(String id, Class clazz) {
-    fields.put(id, clazz);
+  final static class Member {
+    final String remoteId;
+    final String fieldName;
+    final String className;
+
+    public Member(String remoteId, String fieldName, String className) {
+      this.remoteId = remoteId;
+      this.fieldName = fieldName;
+      this.className = className;
+    }
   }
 }

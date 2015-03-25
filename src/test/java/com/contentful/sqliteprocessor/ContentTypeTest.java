@@ -69,4 +69,25 @@ public class ContentTypeTest {
         .failsToCompile()
         .withErrorContaining("@Field id may not be empty. (test.Test.text)");
   }
+
+  @Test public void failsWithSameId() throws Exception {
+    JavaFileObject source = JavaFileObjects.forSourceString("test.Test",
+        Joiner.on('\n').join(
+            "package test;",
+            "import com.contentful.sqliteprocessor.ContentType;",
+            "@ContentType(\"cid\")",
+            "public class Test {",
+            "  @ContentType(\"cid\")",
+            "  public class Test2 {",
+            "  }",
+            "}"
+        ));
+
+    ASSERT.about(javaSource()).that(source)
+        .processedWith(processors())
+        .failsToCompile()
+        .withErrorContaining(Joiner.on("").join(
+            "@ContentTypeInjection for \"cid\" cannot be used on multiple classes. ",
+            "(test.Test.Test2)"));
+  }
 }
