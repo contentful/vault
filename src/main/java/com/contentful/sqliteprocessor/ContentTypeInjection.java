@@ -48,7 +48,7 @@ final class ContentTypeInjection {
   }
 
   private void emitCreateTable(StringBuilder builder) {
-    String code = Base64.encodeBase64String(getFqcn().getBytes()).replaceAll("=", "");
+    String code = Base64.encodeBase64String(id.getBytes()).replaceAll("=", "").toLowerCase();
     String tableName = String.format("entry_%s", code);
 
     String indent = "  ";
