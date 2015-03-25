@@ -89,7 +89,8 @@ public class ContentTypeTest {
 
   @Test public void failsWithSameFieldId() throws Exception {
     JavaFileObject source = JavaFileObjects.forSourceString("test.Test", Joiner.on('\n').join(
-        "package test;", "import com.contentful.sqliteprocessor.ContentType;",
+        "package test;",
+        "import com.contentful.sqliteprocessor.ContentType;",
         "import com.contentful.sqliteprocessor.Field;",
         "@ContentType(\"cid\")",
         "public class Test {",
@@ -107,7 +108,8 @@ public class ContentTypeTest {
 
   @Test public void failsForInvalidType() throws Exception {
     JavaFileObject source = JavaFileObjects.forSourceString("test.Test", Joiner.on('\n').join(
-        "package test;", "import com.contentful.sqliteprocessor.ContentType;",
+        "package test;",
+        "import com.contentful.sqliteprocessor.ContentType;",
         "import com.contentful.sqliteprocessor.Field;",
         "import java.util.Date;",
         "@ContentType(\"cid\")",
