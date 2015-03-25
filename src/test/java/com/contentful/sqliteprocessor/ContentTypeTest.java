@@ -21,7 +21,7 @@ public class ContentTypeTest {
         "  @Field(\"fid\") String text;",
         "}"));
 
-    JavaFileObject expectedSource = JavaFileObjects.forSourceString("test/Test$Sqlite",
+    JavaFileObject expectedSource = JavaFileObjects.forSourceString("test/Test$QLite",
         TestUtils.readTestResource("content_type_injection_java.txt"));
 
     ASSERT.about(javaSource()).that(source)

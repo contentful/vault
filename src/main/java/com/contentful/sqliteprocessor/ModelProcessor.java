@@ -27,7 +27,7 @@ import static javax.tools.Diagnostic.Kind.ERROR;
 
 @AutoService(Processor.class)
 public class ModelProcessor extends AbstractProcessor {
-  public static final String SUFFIX = "$Sqlite";
+  public static final String SUFFIX = "$QLite";
 
   private Elements elementUtils;
   private Types typeUtils;
