@@ -78,10 +78,12 @@ final class ContentTypeInjection {
   }
 
   private String sqliteTypeForMember(Member member) {
-    if (String.class.getName().equals(member.className)) {
+    String cls = member.className;
+    if (String.class.getName().equals(cls)) {
       return "STRING";
+    } else if (Boolean.class.getName().equals(cls)) {
+      return "INT";
     }
-
     // TODO
     return "";
   }

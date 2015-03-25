@@ -18,7 +18,8 @@ public class ContentTypeTest {
         "import com.contentful.sqliteprocessor.Field;",
         "@ContentType(\"cid\")",
         "public class Test {",
-        "  @Field(\"fid\") String text;",
+        "  @Field(\"boolean\") Boolean fBoolean;",
+        "  @Field(\"text\") String fText;",
         "}"));
 
     JavaFileObject expectedSource = JavaFileObjects.forSourceString("test/Test$QLite",

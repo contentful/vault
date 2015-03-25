@@ -4,6 +4,7 @@ public class Test$QLite {
   public static final String CREATE = "CREATE TABLE `entry_dGVzdC5UZXN0JFFMaXRl` ("
       + "`_ID` INTEGER PRIMARY KEY AUTOINCREMENT,"
       + "`remote_id` STRING NOT NULL,"
-      + "`text` STRING"
+      + "`fBoolean` INT,"
+      + "`fText` STRING"
       + ");"
 }
