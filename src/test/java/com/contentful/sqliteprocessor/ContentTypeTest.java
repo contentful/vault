@@ -19,6 +19,7 @@ public class ContentTypeTest {
         "@ContentType(\"cid\")",
         "public class Test {",
         "  @Field(\"boolean\") Boolean fBoolean;",
+        "  @Field(\"integer\") Integer fInteger;",
         "  @Field(\"text\") String fText;",
         "}"));
 

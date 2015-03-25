@@ -5,6 +5,7 @@ public class Test$QLite {
       + "`_ID` INTEGER PRIMARY KEY AUTOINCREMENT,"
       + "`remote_id` STRING NOT NULL,"
       + "`fBoolean` INT,"
+      + "`fInteger` INT,"
       + "`fText` STRING"
       + ");"
 }

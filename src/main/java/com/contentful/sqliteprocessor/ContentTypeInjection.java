@@ -83,6 +83,8 @@ final class ContentTypeInjection {
       return "STRING";
     } else if (Boolean.class.getName().equals(cls)) {
       return "INT";
+    } else if (Integer.class.getName().equals(cls)) {
+      return "INT";
     }
     // TODO
     return "";
