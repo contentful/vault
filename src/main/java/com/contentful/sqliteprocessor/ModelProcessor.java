@@ -127,7 +127,7 @@ public class ModelProcessor extends AbstractProcessor {
       }
 
       String className = enclosedElement.asType().toString();
-      if (ContentTypeInjection.sqliteType(className) == null) {
+      if (SqliteUtils.typeForClass(className) == null) {
         error(element,
             "@%s specified for unsupported type (\"%s\"). (%s.%s)",
             Field.class.getSimpleName(),

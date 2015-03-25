@@ -67,7 +67,7 @@ final class ContentTypeInjection {
       builder.append(indent).append("  + \"`")
           .append(member.fieldName)
           .append("` ")
-          .append(sqliteType(member.className));
+          .append(SqliteUtils.typeForClass(member.className));
 
       if (i < list.length - 1) {
         builder.append(',');
@@ -75,19 +75,5 @@ final class ContentTypeInjection {
       builder.append("\"\n");
     }
     builder.append(indent).append("  + \");\";\n");
-  }
-
-  static String sqliteType(String className) {
-    if (String.class.getName().equals(className)) {
-      return "STRING";
-    } else if (Boolean.class.getName().equals(className)) {
-      return "INT";
-    } else if (Integer.class.getName().equals(className)) {
-      return "INT";
-    } else if (Double.class.getName().equals(className)) {
-      return "DOUBLE";
-    }
-    // TODO MAP
-    return null;
   }
 }
