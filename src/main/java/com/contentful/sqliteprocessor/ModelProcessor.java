@@ -126,8 +126,17 @@ public class ModelProcessor extends AbstractProcessor {
         return;
       }
 
-      String fieldName = enclosedElement.getSimpleName().toString();
       String className = enclosedElement.asType().toString();
+      if (ContentTypeInjection.sqliteType(className) == null) {
+        error(element,
+            "@%s specified for unsupported type (\"%s\"). (%s.%s)",
+            Field.class.getSimpleName(),
+            className,
+            typeElement.getQualifiedName(),
+            enclosedElement.getSimpleName());
+      }
+
+      String fieldName = enclosedElement.getSimpleName().toString();
       members.add(new Member(fieldId, fieldName, className));
     }
 

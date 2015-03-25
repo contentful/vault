@@ -20,6 +20,7 @@ public class ContentTypeTest {
         "public class Test {",
         "  @Field(\"boolean\") Boolean fBoolean;",
         "  @Field(\"integer\") Integer fInteger;",
+        "  @Field(\"double\") Double fDouble;",
         "  @Field(\"text\") String fText;",
         "}"));
 
@@ -102,5 +103,22 @@ public class ContentTypeTest {
         .withErrorContaining(Joiner.on("").join(
             "@Field for the same id (\"a\") was used multiple ",
             "times in the same class. (test.Test)"));
+  }
+
+  @Test public void failsForInvalidType() throws Exception {
+    JavaFileObject source = JavaFileObjects.forSourceString("test.Test", Joiner.on('\n').join(
+        "package test;", "import com.contentful.sqliteprocessor.ContentType;",
+        "import com.contentful.sqliteprocessor.Field;",
+        "import java.util.Date;",
+        "@ContentType(\"cid\")",
+        "public class Test {",
+        "  @Field(\"a\") Date thing;",
+        "}"));
+
+    ASSERT.about(javaSource()).that(source)
+        .processedWith(processors())
+        .failsToCompile()
+        .withErrorContaining(
+            "@Field specified for unsupported type (\"java.util.Date\"). (test.Test.thing)");
   }
 }

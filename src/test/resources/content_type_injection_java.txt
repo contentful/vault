@@ -6,6 +6,7 @@ public class Test$QLite {
       + "`remote_id` STRING NOT NULL,"
       + "`fBoolean` INT,"
       + "`fInteger` INT,"
+      + "`fDouble` DOUBLE,"
       + "`fText` STRING"
       + ");"
 }
