@@ -77,6 +77,7 @@ public class ModelProcessor extends AbstractProcessor {
       error(element, "@%s id may not be empty. (%s)",
           ContentType.class.getSimpleName(),
           typeElement.getQualifiedName());
+      return;
     }
 
     if (hasContentTypeInjectionWithId(targets, id)) {
@@ -84,6 +85,7 @@ public class ModelProcessor extends AbstractProcessor {
           ContentTypeInjection.class.getSimpleName(),
           id,
           typeElement.getQualifiedName());
+      return;
     }
 
     Set<Member> members = new LinkedHashSet<Member>();
