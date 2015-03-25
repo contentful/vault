@@ -5,7 +5,9 @@ import com.contentful.sqliteprocessor.ContentTypeInjection.Member;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.annotation.Annotation;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
@@ -47,15 +49,17 @@ public class ModelProcessor extends AbstractProcessor {
 
   @Override
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-    Set<ContentTypeInjection> targets = findAndParseTargets(roundEnv);
-    for (ContentTypeInjection target : targets) {
+    Map<TypeElement, ContentTypeInjection> targets = findAndParseTargets(roundEnv);
+    for (Map.Entry<TypeElement, ContentTypeInjection> entry : targets.entrySet()) {
       // TODO inject
     }
     return true;
   }
 
-  private Set<ContentTypeInjection> findAndParseTargets(RoundEnvironment env) {
-    Set<ContentTypeInjection> targets = new LinkedHashSet<ContentTypeInjection>();
+  private Map<TypeElement, ContentTypeInjection> findAndParseTargets(RoundEnvironment env) {
+    Map<TypeElement, ContentTypeInjection> targets =
+        new LinkedHashMap<TypeElement, ContentTypeInjection>();
+
     for (Element element : env.getElementsAnnotatedWith(ContentType.class)) {
       try {
         parseContentType(element, targets);
@@ -66,7 +70,7 @@ public class ModelProcessor extends AbstractProcessor {
     return targets;
   }
 
-  private void parseContentType(Element element, Set<ContentTypeInjection> targets) {
+  private void parseContentType(Element element, Map<TypeElement, ContentTypeInjection> targets) {
     TypeElement typeElement = (TypeElement) element;
     String id = element.getAnnotation(ContentType.class).value();
     if (id.isEmpty()) {
@@ -108,11 +112,11 @@ public class ModelProcessor extends AbstractProcessor {
     ContentTypeInjection injection = new ContentTypeInjection(
         id, classPackage, className, targetType, members);
 
-    targets.add(injection);
+    targets.put(typeElement, injection);
   }
 
-  private boolean hasContentTypeInjectionWithId(Set<ContentTypeInjection> targets, String id) {
-    for (ContentTypeInjection target : targets) {
+  private boolean hasContentTypeInjectionWithId(Map<TypeElement, ContentTypeInjection> targets, String id) {
+    for (ContentTypeInjection target : targets.values()) {
       if (id.equals(target.id)) {
         return true;
       }
