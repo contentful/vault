@@ -50,12 +50,21 @@ final class ContentTypeInjection {
   private void emitCreateTable(StringBuilder builder) {
     String code = Base64.encodeBase64String(id.getBytes()).replaceAll("=", "").toLowerCase();
     String tableName = String.format("entry_%s", code);
-
     String indent = "  ";
 
+    // Emit: NAME
     builder.append(indent)
-        .append("public static final String CREATE = \"CREATE TABLE ")
-        .append('`').append(tableName).append("` (\"\n");
+        .append("public static final String NAME = \"")
+        .append(tableName)
+        .append("\";\n\n");
+
+    // Emit: CREATE
+    builder.append(indent)
+        .append("public static final String CREATE = \"CREATE TABLE `\"")
+        .append(" + ")
+        .append("NAME")
+        .append(" + ")
+        .append("\"` (\"\n");
 
     indent = "    ";
     builder.append(indent).append("  + \"`_ID` INTEGER PRIMARY KEY AUTOINCREMENT,\"\n")

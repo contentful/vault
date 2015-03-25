@@ -1,7 +1,9 @@
 package test;
 
 public class Test$QLite {
-  public static final String CREATE = "CREATE TABLE `entry_y2lk` ("
+  public static final String NAME = "entry_y2lk";
+
+  public static final String CREATE = "CREATE TABLE `" + NAME + "` ("
       + "`_ID` INTEGER PRIMARY KEY AUTOINCREMENT,"
       + "`remote_id` STRING NOT NULL,"
       + "`fBoolean` INT,"
