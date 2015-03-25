@@ -1,0 +1,9 @@
+package test;
+
+public class Test$Sqlite {
+  public static final String CREATE = "CREATE TABLE `entry_98494` ("
+      + "`_ID` INTEGER PRIMARY KEY AUTOINCREMENT,"
+      + "`remote_id` STRING NOT NULL,"
+      + "`text` STRING"
+      + ");"
+}

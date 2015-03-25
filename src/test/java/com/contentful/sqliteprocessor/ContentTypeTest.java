@@ -1,5 +1,6 @@
 package com.contentful.sqliteprocessor;
 
+import com.contentful.sqliteprocessor.lib.TestUtils;
 import com.google.common.base.Joiner;
 import com.google.testing.compile.JavaFileObjects;
 import javax.tools.JavaFileObject;
@@ -11,22 +12,17 @@ import static com.google.testing.compile.JavaSourceSubjectFactory.javaSource;
 
 public class ContentTypeTest {
   @Test public void testContentTypeInjection() throws Exception {
-    JavaFileObject source = JavaFileObjects.forSourceString("test.Test",
-        Joiner.on('\n').join(
-            "package test;",
-            "import com.contentful.sqliteprocessor.ContentType;",
-            "import com.contentful.sqliteprocessor.Field;",
-            "@ContentType(\"cid\")",
-            "public class Test {",
-            "  @Field(\"fid\") String text;",
-            "}"
-        ));
+    JavaFileObject source = JavaFileObjects.forSourceString("test.Test", Joiner.on('\n').join(
+        "package test;",
+        "import com.contentful.sqliteprocessor.ContentType;",
+        "import com.contentful.sqliteprocessor.Field;",
+        "@ContentType(\"cid\")",
+        "public class Test {",
+        "  @Field(\"fid\") String text;",
+        "}"));
 
     JavaFileObject expectedSource = JavaFileObjects.forSourceString("test/Test$Sqlite",
-        Joiner.on('\n').join(
-            "package test;",
-            "public class Test$Sqlite {}"
-        ));
+        TestUtils.readTestResource("content_type_injection_java.txt"));
 
     ASSERT.about(javaSource()).that(source)
         .processedWith(processors())
@@ -71,16 +67,9 @@ public class ContentTypeTest {
 
   @Test public void failsWithSameContentTypeId() throws Exception {
     JavaFileObject source = JavaFileObjects.forSourceString("test.Test",
-        Joiner.on('\n').join(
-            "package test;",
-            "import com.contentful.sqliteprocessor.ContentType;",
-            "@ContentType(\"cid\")",
-            "public class Test {",
-            "  @ContentType(\"cid\")",
-            "  public class Test2 {",
-            "  }",
-            "}"
-        ));
+        Joiner.on('\n').join("package test;", "import com.contentful.sqliteprocessor.ContentType;",
+            "@ContentType(\"cid\")", "public class Test {", "  @ContentType(\"cid\")",
+            "  public class Test2 {", "  }", "}"));
 
     ASSERT.about(javaSource()).that(source)
         .processedWith(processors())
@@ -92,16 +81,10 @@ public class ContentTypeTest {
 
   @Test public void failsWithSameFieldId() throws Exception {
     JavaFileObject source = JavaFileObjects.forSourceString("test.Test",
-        Joiner.on('\n').join(
-            "package test;",
-            "import com.contentful.sqliteprocessor.ContentType;",
-            "import com.contentful.sqliteprocessor.Field;",
-            "@ContentType(\"cid\")",
-            "public class Test {",
-            "  @Field(\"a\") String thing1;",
-            "  @Field(\"a\") String thing2;",
-            "}"
-        ));
+        Joiner.on('\n').join("package test;", "import com.contentful.sqliteprocessor.ContentType;",
+            "import com.contentful.sqliteprocessor.Field;", "@ContentType(\"cid\")",
+            "public class Test {", "  @Field(\"a\") String thing1;",
+            "  @Field(\"a\") String thing2;", "}"));
 
     ASSERT.about(javaSource()).that(source)
         .processedWith(processors())
