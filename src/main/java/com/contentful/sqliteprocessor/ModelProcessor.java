@@ -2,8 +2,10 @@ package com.contentful.sqliteprocessor;
 
 import autovalue.shaded.com.google.common.auto.service.AutoService;
 import com.contentful.sqliteprocessor.ContentTypeInjection.Member;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.Writer;
 import java.lang.annotation.Annotation;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -19,6 +21,7 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
+import javax.tools.JavaFileObject;
 
 import static javax.tools.Diagnostic.Kind.ERROR;
 
@@ -51,7 +54,17 @@ public class ModelProcessor extends AbstractProcessor {
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
     Map<TypeElement, ContentTypeInjection> targets = findAndParseTargets(roundEnv);
     for (Map.Entry<TypeElement, ContentTypeInjection> entry : targets.entrySet()) {
-      // TODO inject
+      try {
+        TypeElement typeElement = entry.getKey();
+        ContentTypeInjection injection = entry.getValue();
+        JavaFileObject jfo = filer.createSourceFile(injection.getFqcn(), typeElement);
+        Writer writer = jfo.openWriter();
+        writer.write(injection.brewJava());
+        writer.flush();
+        writer.close();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
     }
     return true;
   }

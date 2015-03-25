@@ -29,4 +29,17 @@ final class ContentTypeInjection {
       this.className = className;
     }
   }
+
+  String getFqcn() {
+    return classPackage + "." + className;
+  }
+
+  String brewJava() {
+    StringBuilder builder = new StringBuilder();
+    builder.append("// Generated code from sqlite-processor.\n")
+        .append("package ").append(classPackage).append(";\n\n")
+        .append("public class ").append(className).append(" {\n")
+        .append("}\n");
+    return builder.toString();
+  }
 }

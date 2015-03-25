@@ -25,15 +25,14 @@ public class ContentTypeTest {
     JavaFileObject expectedSource = JavaFileObjects.forSourceString("test/Test$Sqlite",
         Joiner.on('\n').join(
             "package test;",
-            "class Test$Sqlite {}"
+            "public class Test$Sqlite {}"
         ));
 
     ASSERT.about(javaSource()).that(source)
         .processedWith(processors())
-        .compilesWithoutError();
-        // TODO
-        //.and()
-        //.generatesSources(expectedSource);
+        .compilesWithoutError()
+        .and()
+        .generatesSources(expectedSource);
   }
 
   @Test public void failsContentTypeWithoutId() throws Exception {
