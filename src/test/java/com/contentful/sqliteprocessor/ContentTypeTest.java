@@ -16,12 +16,14 @@ public class ContentTypeTest {
         "package test;",
         "import com.contentful.sqliteprocessor.ContentType;",
         "import com.contentful.sqliteprocessor.Field;",
+        "import java.util.Map;",
         "@ContentType(\"cid\")",
         "public class Test {",
         "  @Field(\"boolean\") Boolean fBoolean;",
         "  @Field(\"integer\") Integer fInteger;",
         "  @Field(\"double\") Double fDouble;",
         "  @Field(\"text\") String fText;",
+        "  @Field(\"map\") Map fMap;",
         "}"));
 
     JavaFileObject expectedSource = JavaFileObjects.forSourceString("test/Test$QLite",

@@ -1,5 +1,7 @@
 package com.contentful.sqliteprocessor;
 
+import java.util.Map;
+
 final class SqliteUtils {
   private SqliteUtils() {
     throw new AssertionError();
@@ -14,8 +16,9 @@ final class SqliteUtils {
       return "INT";
     } else if (Double.class.getName().equals(className)) {
       return "DOUBLE";
+    } else if (Map.class.getName().equals(className)) {
+      return "BLOB";
     }
-    // TODO MAP
     return null;
   }
 }

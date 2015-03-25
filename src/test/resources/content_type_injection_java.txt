@@ -7,6 +7,7 @@ public class Test$QLite {
       + "`fBoolean` INT,"
       + "`fInteger` INT,"
       + "`fDouble` DOUBLE,"
-      + "`fText` STRING"
+      + "`fText` STRING,"
+      + "`fMap` BLOB"
       + ");"
 }
