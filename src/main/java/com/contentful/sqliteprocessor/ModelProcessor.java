@@ -1,6 +1,5 @@
 package com.contentful.sqliteprocessor;
 
-import autovalue.shaded.com.google.common.auto.service.AutoService;
 import com.contentful.sqliteprocessor.ContentTypeInjection.Member;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -14,7 +13,6 @@ import java.util.Set;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
@@ -25,7 +23,6 @@ import javax.tools.JavaFileObject;
 
 import static javax.tools.Diagnostic.Kind.ERROR;
 
-@AutoService(Processor.class)
 public class ModelProcessor extends AbstractProcessor {
   public static final String SUFFIX = "$QLite";
 
