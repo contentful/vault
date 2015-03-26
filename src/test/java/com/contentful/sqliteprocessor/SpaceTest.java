@@ -1,5 +1,6 @@
 package com.contentful.sqliteprocessor;
 
+import com.contentful.sqliteprocessor.lib.TestUtils;
 import com.google.common.base.Joiner;
 import com.google.testing.compile.JavaFileObjects;
 import javax.tools.JavaFileObject;
@@ -10,6 +11,40 @@ import static com.google.common.truth.Truth.ASSERT;
 import static com.google.testing.compile.JavaSourceSubjectFactory.javaSource;
 
 public class SpaceTest {
+  @Test public void testInjection() throws Exception {
+    JavaFileObject source = JavaFileObjects.forSourceString("test.Test", Joiner.on('\n').join(
+        "package test;",
+        "import com.contentful.sqliteprocessor.DbHelper;",
+        "import com.contentful.sqliteprocessor.ContentType;",
+        "import com.contentful.sqliteprocessor.Field;",
+        "import com.contentful.sqliteprocessor.Space;",
+        "import java.util.Arrays;",
+        "import java.util.HashSet;",
+        "import java.util.Set;",
+        "public class Test {",
+        "  @ContentType(\"cid\")",
+        "  class Model {",
+        "    @Field(\"text\") String text;",
+        "  }",
+        "",
+        "  @Space(\"sid\")",
+        "  class Db extends DbHelper {",
+        "    @Override public Set<Class<?>> getIncludedModels() {",
+        "      return new HashSet<Class<?>>(Arrays.<Class<?>>asList(Model.class));",
+        "    }",
+        "  }",
+        "}"));
+
+    JavaFileObject expectedSource = JavaFileObjects.forSourceString("test/Test$Db$$Space",
+        TestUtils.readTestResource("space_injection_java.txt"));
+
+    ASSERT.about(javaSource()).that(source)
+        .processedWith(processors())
+        .compilesWithoutError()
+        .and()
+        .generatesSources(expectedSource);
+  }
+
   @Test public void failsEmptyId() throws Exception {
     JavaFileObject source = JavaFileObjects.forSourceString("test.Test", Joiner.on('\n')
         .join("package test;",
