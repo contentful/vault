@@ -37,11 +37,41 @@ final class ContentTypeInjection {
 
   String brewJava() {
     StringBuilder builder = new StringBuilder();
+
+    // Emit: package
     builder.append("// Generated code from sqlite-processor.\n")
-        .append("package ").append(classPackage).append(";\n\n")
-        .append("public class ").append(className).append(" {\n");
+        .append("package ").append(classPackage).append(";\n\n");
+
+    // Emit: imports
+    builder.append("import ")
+        .append(SqliteHelper.class.getName())
+        .append(";\n\n");
+
+    // Emit: class
+    builder.append("public class ")
+        .append(className)
+        .append(" implements ")
+        .append(SqliteHelper.class.getSimpleName())
+        .append(" {\n");
 
     emitCreateTable(builder);
+
+    String indent = "  ";
+    // Emit: getTableName
+    builder.append(indent)
+        .append("@Override public String getTableName() {\n")
+        .append(indent)
+        .append("  return NAME;\n")
+        .append(indent)
+        .append("}\n\n");
+
+    // Emit: getCreateStatement
+    builder.append(indent)
+        .append("@Override public String getCreateStatement() {\n")
+        .append(indent)
+        .append("  return CREATE;\n")
+        .append(indent)
+        .append("}\n");
 
     builder.append("}\n");
     return builder.toString();
@@ -54,13 +84,13 @@ final class ContentTypeInjection {
 
     // Emit: NAME
     builder.append(indent)
-        .append("public static final String NAME = \"")
+        .append("static final String NAME = \"")
         .append(tableName)
         .append("\";\n\n");
 
     // Emit: CREATE
     builder.append(indent)
-        .append("public static final String CREATE = \"CREATE TABLE `\"")
+        .append("static final String CREATE = \"CREATE TABLE `\"")
         .append(" + ")
         .append("NAME")
         .append(" + ")
@@ -83,6 +113,6 @@ final class ContentTypeInjection {
       }
       builder.append("\"\n");
     }
-    builder.append(indent).append("  + \");\";\n");
+    builder.append(indent).append("  + \");\";\n\n");
   }
 }

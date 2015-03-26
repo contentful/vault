@@ -1,9 +1,11 @@
 package test;
 
-public class Test$QLite {
-  public static final String NAME = "entry_y2lk";
+import com.contentful.sqliteprocessor.SqliteHelper;
 
-  public static final String CREATE = "CREATE TABLE `" + NAME + "` ("
+public class Test$QLite implements SqliteHelper {
+  static final String NAME = "entry_y2lk";
+
+  static final String CREATE = "CREATE TABLE `" + NAME + "` ("
       + "`_ID` INTEGER PRIMARY KEY AUTOINCREMENT,"
       + "`remote_id` STRING NOT NULL,"
       + "`fBoolean` INT,"
@@ -12,4 +14,12 @@ public class Test$QLite {
       + "`fText` STRING,"
       + "`fMap` BLOB"
       + ");";
+
+  @Override public String getTableName() {
+    return NAME;
+  }
+
+  @Override public String getCreateStatement() {
+    return CREATE;
+  }
 }
