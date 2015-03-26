@@ -11,5 +11,5 @@ public class Test$QLite {
       + "`fDouble` DOUBLE,"
       + "`fText` STRING,"
       + "`fMap` BLOB"
-      + ");"
+      + ");";
 }

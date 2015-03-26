@@ -150,7 +150,8 @@ public class ModelProcessor extends AbstractProcessor {
     targets.put(typeElement, injection);
   }
 
-  private boolean hasContentTypeInjectionWithId(Map<TypeElement, ContentTypeInjection> targets, String id) {
+  private boolean hasContentTypeInjectionWithId(Map<TypeElement, ContentTypeInjection> targets,
+      String id) {
     for (ContentTypeInjection target : targets.values()) {
       if (id.equals(target.id)) {
         return true;
