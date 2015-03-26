@@ -1,6 +1,6 @@
 package com.contentful.sqliteprocessor;
 
-public interface SqliteHelper {
+public interface ModelHelper {
   String getTableName();
 
   String getCreateStatement();

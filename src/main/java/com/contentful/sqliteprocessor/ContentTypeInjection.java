@@ -44,14 +44,14 @@ final class ContentTypeInjection {
 
     // Emit: imports
     builder.append("import ")
-        .append(SqliteHelper.class.getName())
+        .append(ModelHelper.class.getName())
         .append(";\n\n");
 
     // Emit: class
     builder.append("public class ")
         .append(className)
         .append(" implements ")
-        .append(SqliteHelper.class.getSimpleName())
+        .append(ModelHelper.class.getSimpleName())
         .append(" {\n");
 
     emitCreateTable(builder);

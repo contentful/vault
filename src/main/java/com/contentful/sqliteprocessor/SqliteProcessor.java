@@ -23,7 +23,7 @@ import javax.tools.JavaFileObject;
 
 import static javax.tools.Diagnostic.Kind.ERROR;
 
-public class ModelProcessor extends AbstractProcessor {
+public class SqliteProcessor extends AbstractProcessor {
   public static final String SUFFIX = "$QLite";
 
   private Elements elementUtils;
