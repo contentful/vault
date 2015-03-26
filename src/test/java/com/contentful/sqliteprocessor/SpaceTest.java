@@ -28,7 +28,6 @@ public class SpaceTest {
     JavaFileObject source = JavaFileObjects.forSourceString("test.Test", Joiner.on('\n')
         .join("package test;",
             "import com.contentful.sqliteprocessor.Space;",
-            "import com.contentful.sqliteprocessor.DbHelper;",
             "@Space(\"id\")",
             "public class Test {",
             "}"));
