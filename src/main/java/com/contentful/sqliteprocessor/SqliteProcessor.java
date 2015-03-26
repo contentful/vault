@@ -72,6 +72,7 @@ public class SqliteProcessor extends AbstractProcessor {
     Map<TypeElement, Injection> targets =
         new LinkedHashMap<TypeElement, Injection>();
 
+    // Parse ContentType injections
     for (Element element : env.getElementsAnnotatedWith(ContentType.class)) {
       try {
         parseContentType(element, targets);
@@ -79,7 +80,27 @@ public class SqliteProcessor extends AbstractProcessor {
         parsingError(element, ContentType.class, e);
       }
     }
+
+    // Parse Space injections
+    for (Element element : env.getElementsAnnotatedWith(Space.class)) {
+      try {
+        parseSpace(element, targets);
+      } catch (Exception e) {
+        parsingError(element, Space.class, e);
+      }
+    }
     return targets;
+  }
+
+  private void parseSpace(Element element, Map<TypeElement, Injection> targets) {
+    TypeElement typeElement = (TypeElement) element;
+    String id = element.getAnnotation(Space.class).value();
+    if (id.isEmpty()) {
+      error(element, "@%s id may not be empty. (%s)",
+          Space.class.getSimpleName(),
+          typeElement.getQualifiedName());
+      return;
+    }
   }
 
   private void parseContentType(Element element, Map<TypeElement, Injection> targets) {
