@@ -8,6 +8,7 @@ import java.io.Writer;
 import java.lang.annotation.Annotation;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.processing.AbstractProcessor;
@@ -17,6 +18,8 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.JavaFileObject;
@@ -98,6 +101,14 @@ public class SqliteProcessor extends AbstractProcessor {
     if (id.isEmpty()) {
       error(element, "@%s id may not be empty. (%s)",
           Space.class.getSimpleName(),
+          typeElement.getQualifiedName());
+      return;
+    }
+
+    if (!isSubtypeOfType(typeElement.asType(), DbHelper.class.getName())) {
+      error(element, "@%s annotated targets must extend \"%s\". (%s)",
+          Space.class.getSimpleName(),
+          DbHelper.class.getName(),
           typeElement.getQualifiedName());
       return;
     }
@@ -200,5 +211,45 @@ public class SqliteProcessor extends AbstractProcessor {
       message = String.format(message, args);
     }
     processingEnv.getMessager().printMessage(ERROR, message, element);
+  }
+
+  private boolean isSubtypeOfType(TypeMirror typeMirror, String otherType) {
+    if (otherType.equals(typeMirror.toString())) {
+      return true;
+    }
+    if (!(typeMirror instanceof DeclaredType)) {
+      return false;
+    }
+    DeclaredType declaredType = (DeclaredType) typeMirror;
+    List<? extends TypeMirror> typeArguments = declaredType.getTypeArguments();
+    if (typeArguments.size() > 0) {
+      StringBuilder typeString = new StringBuilder(declaredType.asElement().toString());
+      typeString.append('<');
+      for (int i = 0; i < typeArguments.size(); i++) {
+        if (i > 0) {
+          typeString.append(',');
+        }
+        typeString.append('?');
+      }
+      typeString.append('>');
+      if (typeString.toString().equals(otherType)) {
+        return true;
+      }
+    }
+    Element element = declaredType.asElement();
+    if (!(element instanceof TypeElement)) {
+      return false;
+    }
+    TypeElement typeElement = (TypeElement) element;
+    TypeMirror superType = typeElement.getSuperclass();
+    if (isSubtypeOfType(superType, otherType)) {
+      return true;
+    }
+    for (TypeMirror interfaceType : typeElement.getInterfaces()) {
+      if (isSubtypeOfType(interfaceType, otherType)) {
+        return true;
+      }
+    }
+    return false;
   }
 }

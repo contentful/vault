@@ -15,7 +15,8 @@ public class SpaceTest {
         .join("package test;",
             "import com.contentful.sqliteprocessor.Space;",
             "@Space(\"\")",
-            "public class Test {", "}"));
+            "public class Test {",
+            "}"));
 
     ASSERT.about(javaSource()).that(source)
         .processedWith(processors())
@@ -23,5 +24,20 @@ public class SpaceTest {
         .withErrorContaining("@Space id may not be empty. (test.Test)");
   }
 
-  // TODO failsInvalidType
+  @Test public void testInvalidType() throws Exception {
+    JavaFileObject source = JavaFileObjects.forSourceString("test.Test", Joiner.on('\n')
+        .join("package test;",
+            "import com.contentful.sqliteprocessor.Space;",
+            "import com.contentful.sqliteprocessor.DbHelper;",
+            "@Space(\"id\")",
+            "public class Test {",
+            "}"));
+
+    ASSERT.about(javaSource()).that(source)
+        .processedWith(processors())
+        .failsToCompile()
+        .withErrorContaining(
+            "@Space annotated targets must extend \"com.contentful.sqliteprocessor.DbHelper\". "
+                + "(test.Test)");
+  }
 }
