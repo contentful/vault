@@ -24,7 +24,7 @@ import javax.tools.JavaFileObject;
 import static javax.tools.Diagnostic.Kind.ERROR;
 
 public class SqliteProcessor extends AbstractProcessor {
-  public static final String SUFFIX = "$QLite";
+  public static final String SUFFIX_MODEL = "$$Model";
 
   private Elements elementUtils;
   private Types typeUtils;
@@ -139,7 +139,7 @@ public class SqliteProcessor extends AbstractProcessor {
 
     String targetType = typeElement.getQualifiedName().toString();
     String classPackage = getPackageName(typeElement);
-    String className = getClassName(typeElement, classPackage) + SUFFIX;
+    String className = getClassName(typeElement, classPackage) + SUFFIX_MODEL;
 
     ContentTypeInjection injection = new ContentTypeInjection(
         id, classPackage, className, targetType, members);

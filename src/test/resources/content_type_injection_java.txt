@@ -1,8 +1,8 @@
 package test;
 
-import com.contentful.sqliteprocessor.SqliteHelper;
+import com.contentful.sqliteprocessor.ModelHelper;
 
-public class Test$QLite implements SqliteHelper {
+public class Test$$Model implements ModelHelper {
   static final String NAME = "entry_y2lk";
 
   static final String CREATE = "CREATE TABLE `" + NAME + "` ("

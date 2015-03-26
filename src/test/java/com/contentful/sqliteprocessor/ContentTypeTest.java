@@ -26,7 +26,7 @@ public class ContentTypeTest {
         "  @Field(\"map\") Map fMap;",
         "}"));
 
-    JavaFileObject expectedSource = JavaFileObjects.forSourceString("test/Test$QLite",
+    JavaFileObject expectedSource = JavaFileObjects.forSourceString("test/Test$$Model",
         TestUtils.readTestResource("content_type_injection_java.txt"));
 
     ASSERT.about(javaSource()).that(source)
