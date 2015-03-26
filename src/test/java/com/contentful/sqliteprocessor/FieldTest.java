@@ -40,8 +40,8 @@ public class FieldTest {
     ASSERT.about(javaSource()).that(source)
         .processedWith(processors())
         .failsToCompile()
-        .withErrorContaining(Joiner.on("").join(
-            "@Field for the same id (\"a\") was used multiple ",
-            "times in the same class. (test.Test)"));
+        .withErrorContaining(
+            "@Field for the same id (\"a\") was used multiple times in the same class."
+                + " (test.Test)");
   }
 }

@@ -112,6 +112,24 @@ public class SqliteProcessor extends AbstractProcessor {
           typeElement.getQualifiedName());
       return;
     }
+
+    if (hasInjection(targets, id, SpaceInjection.class)) {
+      error(element,
+          "@%s for \"%s\" cannot be used on multiple classes. (%s)",
+          Space.class.getSimpleName(),
+          id,
+          typeElement.getQualifiedName());
+      return;
+    }
+
+    String targetType = typeElement.getQualifiedName().toString();
+    String classPackage = getPackageName(typeElement);
+    String className = getClassName(typeElement, classPackage) + SUFFIX_SPACE;
+
+    SpaceInjection injection = new SpaceInjection(
+        id, classPackage, className, targetType);
+
+    targets.put(typeElement, injection);
   }
 
   private void parseContentType(Element element, Map<TypeElement, Injection> targets) {
@@ -124,9 +142,10 @@ public class SqliteProcessor extends AbstractProcessor {
       return;
     }
 
-    if (hasContentTypeInjectionWithId(targets, id)) {
-      error(element, "@%s for \"%s\" cannot be used on multiple classes. (%s)",
-          ContentTypeInjection.class.getSimpleName(),
+    if (hasInjection(targets, id, ContentTypeInjection.class)) {
+      error(element,
+          "@%s for \"%s\" cannot be used on multiple classes. (%s)",
+          ContentType.class.getSimpleName(),
           id,
           typeElement.getQualifiedName());
       return;
@@ -181,10 +200,10 @@ public class SqliteProcessor extends AbstractProcessor {
     targets.put(typeElement, injection);
   }
 
-  private boolean hasContentTypeInjectionWithId(Map<TypeElement, ? extends Injection> targets,
-      String id) {
+  private boolean hasInjection(Map<TypeElement, ? extends Injection> targets,
+      String id, Class<? extends Injection> injectionClass) {
     for (Injection target : targets.values()) {
-      if (id.equals(target.id) && target instanceof ContentTypeInjection) {
+      if (id.equals(target.id) && injectionClass.isInstance(target)) {
         return true;
       }
     }

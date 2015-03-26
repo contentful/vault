@@ -66,9 +66,9 @@ public class ContentTypeTest {
     ASSERT.about(javaSource()).that(source)
         .processedWith(processors())
         .failsToCompile()
-        .withErrorContaining(Joiner.on("").join(
-            "@ContentTypeInjection for \"cid\" cannot be used on multiple classes. ",
-            "(test.Test.Test2)"));
+        .withErrorContaining(
+            "@ContentType for \"cid\" cannot be used on multiple classes."
+                + " (test.Test.Test2)");
   }
 
   @Test public void failsInvalidType() throws Exception {
