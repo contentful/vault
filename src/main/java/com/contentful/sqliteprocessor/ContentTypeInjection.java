@@ -3,39 +3,16 @@ package com.contentful.sqliteprocessor;
 import java.util.Set;
 import org.apache.commons.codec.binary.Base64;
 
-final class ContentTypeInjection {
-  final String id;
-  final String classPackage;
-  final String className;
-  final String targetClass;
+final class ContentTypeInjection extends Injection {
   final Set<Member> members;
 
   public ContentTypeInjection(String id, String classPackage, String className, String targetClass,
       Set<Member> members) {
-    this.id = id;
-    this.classPackage = classPackage;
-    this.className = className;
-    this.targetClass = targetClass;
+    super(id, classPackage, className, targetClass);
     this.members = members;
   }
 
-  final static class Member {
-    final String remoteId;
-    final String fieldName;
-    final String className;
-
-    public Member(String remoteId, String fieldName, String className) {
-      this.remoteId = remoteId;
-      this.fieldName = fieldName;
-      this.className = className;
-    }
-  }
-
-  String getFqcn() {
-    return classPackage + "." + className;
-  }
-
-  String brewJava() {
+  @Override String brewJava() {
     StringBuilder builder = new StringBuilder();
 
     // Emit: package
@@ -114,5 +91,17 @@ final class ContentTypeInjection {
       builder.append("\"\n");
     }
     builder.append(indent).append("  + \");\";\n\n");
+  }
+
+  final static class Member {
+    final String remoteId;
+    final String fieldName;
+    final String className;
+
+    public Member(String remoteId, String fieldName, String className) {
+      this.remoteId = remoteId;
+      this.fieldName = fieldName;
+      this.className = className;
+    }
   }
 }

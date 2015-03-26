@@ -25,6 +25,7 @@ import static javax.tools.Diagnostic.Kind.ERROR;
 
 public class SqliteProcessor extends AbstractProcessor {
   public static final String SUFFIX_MODEL = "$$Model";
+  public static final String SUFFIX_SPACE = "$$Space";
 
   private Elements elementUtils;
   private Types typeUtils;
@@ -33,6 +34,7 @@ public class SqliteProcessor extends AbstractProcessor {
   @Override public Set<String> getSupportedAnnotationTypes() {
     Set<String> types = new LinkedHashSet<String>();
     types.add(ContentType.class.getCanonicalName());
+    types.add(Space.class.getCanonicalName());
     return types;
   }
 
@@ -49,11 +51,11 @@ public class SqliteProcessor extends AbstractProcessor {
 
   @Override
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-    Map<TypeElement, ContentTypeInjection> targets = findAndParseTargets(roundEnv);
-    for (Map.Entry<TypeElement, ContentTypeInjection> entry : targets.entrySet()) {
+    Map<TypeElement, Injection> targets = findAndParseTargets(roundEnv);
+    for (Map.Entry<TypeElement, Injection> entry : targets.entrySet()) {
       try {
         TypeElement typeElement = entry.getKey();
-        ContentTypeInjection injection = entry.getValue();
+        Injection injection = entry.getValue();
         JavaFileObject jfo = filer.createSourceFile(injection.getFqcn(), typeElement);
         Writer writer = jfo.openWriter();
         writer.write(injection.brewJava());
@@ -66,9 +68,9 @@ public class SqliteProcessor extends AbstractProcessor {
     return true;
   }
 
-  private Map<TypeElement, ContentTypeInjection> findAndParseTargets(RoundEnvironment env) {
-    Map<TypeElement, ContentTypeInjection> targets =
-        new LinkedHashMap<TypeElement, ContentTypeInjection>();
+  private Map<TypeElement, Injection> findAndParseTargets(RoundEnvironment env) {
+    Map<TypeElement, Injection> targets =
+        new LinkedHashMap<TypeElement, Injection>();
 
     for (Element element : env.getElementsAnnotatedWith(ContentType.class)) {
       try {
@@ -80,7 +82,7 @@ public class SqliteProcessor extends AbstractProcessor {
     return targets;
   }
 
-  private void parseContentType(Element element, Map<TypeElement, ContentTypeInjection> targets) {
+  private void parseContentType(Element element, Map<TypeElement, Injection> targets) {
     TypeElement typeElement = (TypeElement) element;
     String id = element.getAnnotation(ContentType.class).value();
     if (id.isEmpty()) {
@@ -147,10 +149,10 @@ public class SqliteProcessor extends AbstractProcessor {
     targets.put(typeElement, injection);
   }
 
-  private boolean hasContentTypeInjectionWithId(Map<TypeElement, ContentTypeInjection> targets,
+  private boolean hasContentTypeInjectionWithId(Map<TypeElement, ? extends Injection> targets,
       String id) {
-    for (ContentTypeInjection target : targets.values()) {
-      if (id.equals(target.id)) {
+    for (Injection target : targets.values()) {
+      if (id.equals(target.id) && target instanceof ContentTypeInjection) {
         return true;
       }
     }
