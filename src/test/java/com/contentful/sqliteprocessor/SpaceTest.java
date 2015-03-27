@@ -116,8 +116,7 @@ public class SpaceTest {
     ASSERT.about(javaSource()).that(source)
         .processedWith(processors())
         .failsToCompile()
-        .withErrorContaining("@Space models must not be empty."
-            + " (test.Test)");
+        .withErrorContaining("@Space models must not be empty. (test.Test)");
   }
 
   @Test public void failsInvalidModels() throws Exception {
