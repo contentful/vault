@@ -13,7 +13,11 @@ public class Test$Db$$Space extends SQLiteOpenHelper {
     db.rawQuery("CREATE TABLE `entry_y2lk` ("
         + "`_ID` INTEGER PRIMARY KEY AUTOINCREMENT,"
         + "`remote_id` STRING NOT NULL,"
-        + "`text` STRING"
+        + "`fText` STRING,"
+        + "`fBoolean` INT,"
+        + "`fInteger` INT,"
+        + "`fDouble` DOUBLE,"
+        + "`map` BLOB"
         + ");", null);
   }
 
