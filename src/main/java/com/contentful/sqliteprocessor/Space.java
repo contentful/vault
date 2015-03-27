@@ -10,4 +10,6 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
 @Retention(CLASS)
 public @interface Space {
   String value();
+
+  Class<?>[] models();
 }

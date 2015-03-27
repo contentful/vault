@@ -1,6 +1,6 @@
 package com.contentful.sqliteprocessor;
 
-import com.contentful.sqliteprocessor.ContentTypeInjection.Member;
+import com.contentful.sqliteprocessor.ModelInjection.Member;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -142,7 +142,7 @@ public class SqliteProcessor extends AbstractProcessor {
       return;
     }
 
-    if (hasInjection(targets, id, ContentTypeInjection.class)) {
+    if (hasInjection(targets, id, ModelInjection.class)) {
       error(element,
           "@%s for \"%s\" cannot be used on multiple classes. (%s)",
           ContentType.class.getSimpleName(),
@@ -194,7 +194,7 @@ public class SqliteProcessor extends AbstractProcessor {
     String classPackage = getPackageName(typeElement);
     String className = getClassName(typeElement, classPackage) + SUFFIX_MODEL;
 
-    ContentTypeInjection injection = new ContentTypeInjection(
+    ModelInjection injection = new ModelInjection(
         id, classPackage, className, targetType, members);
 
     targets.put(typeElement, injection);

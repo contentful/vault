@@ -3,23 +3,4 @@ package test;
 import com.contentful.sqliteprocessor.ModelHelper;
 
 public class Test$$Model implements ModelHelper {
-  static final String NAME = "entry_y2lk";
-
-  static final String CREATE = "CREATE TABLE `" + NAME + "` ("
-      + "`_ID` INTEGER PRIMARY KEY AUTOINCREMENT,"
-      + "`remote_id` STRING NOT NULL,"
-      + "`fBoolean` INT,"
-      + "`fInteger` INT,"
-      + "`fDouble` DOUBLE,"
-      + "`fText` STRING,"
-      + "`fMap` BLOB"
-      + ");";
-
-  @Override public String getTableName() {
-    return NAME;
-  }
-
-  @Override public String getCreateStatement() {
-    return CREATE;
-  }
 }

@@ -27,11 +27,8 @@ public class SpaceTest {
         "    @Field(\"text\") String text;",
         "  }",
         "",
-        "  @Space(\"sid\")",
+        "  @Space(value = \"sid\", models = { Model.class })",
         "  class Db extends DbHelper {",
-        "    @Override public Set<Class<?>> getIncludedModels() {",
-        "      return new HashSet<Class<?>>(Arrays.<Class<?>>asList(Model.class));",
-        "    }",
         "  }",
         "}"));
 
@@ -49,7 +46,7 @@ public class SpaceTest {
     JavaFileObject source = JavaFileObjects.forSourceString("test.Test", Joiner.on('\n')
         .join("package test;",
             "import com.contentful.sqliteprocessor.Space;",
-            "@Space(\"\")",
+            "@Space(value = \"\", models = {})",
             "public class Test {",
             "}"));
 
@@ -63,7 +60,7 @@ public class SpaceTest {
     JavaFileObject source = JavaFileObjects.forSourceString("test.Test", Joiner.on('\n')
         .join("package test;",
             "import com.contentful.sqliteprocessor.Space;",
-            "@Space(\"id\")",
+            "@Space(value = \"id\", models = {})",
             "public class Test {",
             "}"));
 
@@ -81,13 +78,13 @@ public class SpaceTest {
         "import com.contentful.sqliteprocessor.Space;",
         "import com.contentful.sqliteprocessor.DbHelper;",
         "import java.util.Set;",
-        "@Space(\"sid\")",
+        "@Space(value = \"sid\", models = {})",
         "public class Test extends DbHelper {",
         "  @Override public Set<Class<?>> getIncludedModels() { ",
         "    return null;",
         "  }",
         "",
-        "  @Space(\"sid\")",
+        "  @Space(value = \"sid\", models = {})",
         "  public class Test2 extends DbHelper {",
         "    @Override public Set<Class<?>> getIncludedModels() { ",
         "      return null;",
