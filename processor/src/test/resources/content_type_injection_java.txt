@@ -1,0 +1,6 @@
+package test;
+
+import com.contentful.sqlite.ModelHelper;
+
+public class Test$$Model implements ModelHelper {
+}
