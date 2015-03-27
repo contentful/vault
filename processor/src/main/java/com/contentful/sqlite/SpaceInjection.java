@@ -39,20 +39,23 @@ final class SpaceInjection extends Injection {
     builder.append("  @Override public void onCreate(SQLiteDatabase db) {\n");
 
     // Emit: create model tables statements
-    for (ModelInjection model : models) {
-      List<String> createStatements = model.getCreateStatements("    ");
-      for (int i = 0; i < createStatements.size(); i++) {
-        builder.append("    db.execSQL(")
-            .append(createStatements.get(i))
-            .append(");\n");
+    builder.append("    db.beginTransaction();\n")
+        .append("    try {\n");
 
-        if (i < createStatements.size() - 1) {
-          builder.append("\n");
-        }
+    for (ModelInjection model : models) {
+      List<String> createStatements = model.getCreateStatements("      ");
+      for (int i = 0; i < createStatements.size(); i++) {
+        builder.append("      db.execSQL(")
+            .append(createStatements.get(i))
+            .append(");\n\n");
       }
     }
 
-    builder.append("  }\n\n");
+    builder.append("      db.setTransactionSuccessful();\n")
+        .append("    } finally {\n")
+        .append("      db.endTransaction();\n")
+        .append("    }\n")
+        .append("  }\n\n");
 
     // Emit: onUpgrade
     builder.append(

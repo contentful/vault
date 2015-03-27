@@ -10,15 +10,22 @@ public class Test$Db$$Space extends SQLiteOpenHelper {
   }
 
   @Override public void onCreate(SQLiteDatabase db) {
-    db.execSQL("CREATE TABLE `entry_y2lk` ("
-        + "`_ID` INTEGER PRIMARY KEY AUTOINCREMENT,"
-        + "`remote_id` STRING NOT NULL,"
-        + "`fText` STRING,"
-        + "`fBoolean` INT,"
-        + "`fInteger` INT,"
-        + "`fDouble` DOUBLE,"
-        + "`map` BLOB"
-        + ");");
+    db.beginTransaction();
+    try {
+      db.execSQL("CREATE TABLE `entry_y2lk` ("
+          + "`_ID` INTEGER PRIMARY KEY AUTOINCREMENT,"
+          + "`remote_id` STRING NOT NULL,"
+          + "`fText` STRING,"
+          + "`fBoolean` INT,"
+          + "`fInteger` INT,"
+          + "`fDouble` DOUBLE,"
+          + "`map` BLOB"
+          + ");");
+
+      db.setTransactionSuccessful();
+    } finally {
+      db.endTransaction();
+    }
   }
 
   @Override public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
