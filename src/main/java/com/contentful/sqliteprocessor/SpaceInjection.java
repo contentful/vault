@@ -3,10 +3,15 @@ package com.contentful.sqliteprocessor;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import java.util.List;
 
 public class SpaceInjection extends Injection {
-  public SpaceInjection(String id, String classPackage, String className, String targetClass) {
+  private final List<ModelInjection> models;
+
+  public SpaceInjection(String id, String classPackage, String className, String targetClass,
+      List<ModelInjection> models) {
     super(id, classPackage, className, targetClass);
+    this.models = models;
   }
 
   @Override String brewJava() {
@@ -44,8 +49,16 @@ public class SpaceInjection extends Injection {
         .append("  }\n\n");
 
     // Emit: onCreate
-    builder.append("  @Override public void onCreate(SQLiteDatabase db) {\n")
-        .append("  }\n\n");
+    builder.append("  @Override public void onCreate(SQLiteDatabase db) {\n");
+
+    // Emit: create model tables statements
+    for (ModelInjection model : models) {
+      builder.append("    db.rawQuery(");
+      model.emitCreateStatement("    ", builder);
+      builder.append(", null);\n");
+    }
+
+    builder.append("  }\n\n");
 
     // Emit: onUpgrade
     builder.append(

@@ -139,7 +139,7 @@ public class SqliteProcessor extends AbstractProcessor {
     }
 
     TypeMirror spaceMirror = elementUtils.getTypeElement(Space.class.getName()).asType();
-    List includedModels = new ArrayList();
+    List<ModelInjection> includedModels = new ArrayList<ModelInjection>();
     for (AnnotationMirror mirror : typeElement.getAnnotationMirrors()) {
       if (typeUtils.isSameType(mirror.getAnnotationType(), spaceMirror)) {
         Set<? extends Map.Entry<? extends ExecutableElement, ? extends AnnotationValue>> items =
@@ -157,12 +157,16 @@ public class SqliteProcessor extends AbstractProcessor {
             for (Object model : l) {
               Element e = ((Type) ((Attribute) model).getValue()).asElement();
               //noinspection SuspiciousMethodCalls
-              if (!modelTargets.containsKey(e)) {
+              ModelInjection modelInjection = modelTargets.get(e);
+              if (modelInjection == null) {
                 error(element,
                     "Cannot include model (\"%s\"), is not annotated with @%s. (%s)",
                     e.toString(),
                     ContentType.class.getSimpleName(),
                     typeElement.getQualifiedName());
+              } else {
+                // TODO add
+                includedModels.add(modelInjection);
               }
             }
           }
@@ -175,7 +179,7 @@ public class SqliteProcessor extends AbstractProcessor {
     String className = getClassName(typeElement, classPackage) + SUFFIX_SPACE;
 
     SpaceInjection injection = new SpaceInjection(
-        id, classPackage, className, targetType);
+        id, classPackage, className, targetType, includedModels);
 
     spaceTargets.put(typeElement, injection);
   }
