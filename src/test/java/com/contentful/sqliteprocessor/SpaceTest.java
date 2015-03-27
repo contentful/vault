@@ -98,4 +98,20 @@ public class SpaceTest {
         .withErrorContaining("@Space for \"sid\" cannot be used on multiple classes."
             + " (test.Test.Test2)");
   }
+
+  @Test public void failsEmptyModels() throws Exception {
+    JavaFileObject source = JavaFileObjects.forSourceString("test.Test", Joiner.on('\n').join(
+        "package test;",
+        "import com.contentful.sqliteprocessor.Space;",
+        "import com.contentful.sqliteprocessor.DbHelper;",
+        "@Space(value = \"sid\", models = { })",
+        "public class Test extends DbHelper {",
+        "}"));
+
+    ASSERT.about(javaSource()).that(source)
+        .processedWith(processors())
+        .failsToCompile()
+        .withErrorContaining("@Space models must not be empty."
+            + " (test.Test)");
+  }
 }

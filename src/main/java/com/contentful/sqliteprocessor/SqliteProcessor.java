@@ -16,7 +16,10 @@ import javax.annotation.processing.Filer;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
+import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
@@ -129,6 +132,25 @@ public class SqliteProcessor extends AbstractProcessor {
           id,
           typeElement.getQualifiedName());
       return;
+    }
+
+    TypeMirror spaceMirror = elementUtils.getTypeElement(Space.class.getName()).asType();
+    for (AnnotationMirror mirror : typeElement.getAnnotationMirrors()) {
+      if (typeUtils.isSameType(mirror.getAnnotationType(), spaceMirror)) {
+        Set<? extends Map.Entry<? extends ExecutableElement, ? extends AnnotationValue>> items =
+            mirror.getElementValues().entrySet();
+
+        for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : items) {
+          if ("models".equals(entry.getKey().getSimpleName().toString())) {
+            List includedModels = (List) entry.getValue().getValue();
+            if (includedModels.size() == 0) {
+              error(element, "@%s models must not be empty. (%s)",
+                  Space.class.getSimpleName(),
+                  typeElement.getQualifiedName());
+            }
+          }
+        }
+      }
     }
 
     String targetType = typeElement.getQualifiedName().toString();
