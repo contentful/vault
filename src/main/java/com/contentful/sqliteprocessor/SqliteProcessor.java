@@ -1,11 +1,15 @@
 package com.contentful.sqliteprocessor;
 
 import com.contentful.sqliteprocessor.ModelInjection.Member;
+import com.sun.tools.javac.code.Attribute;
+import com.sun.tools.javac.code.Symbol;
+import com.sun.tools.javac.code.Type;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.annotation.Annotation;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -135,6 +139,7 @@ public class SqliteProcessor extends AbstractProcessor {
     }
 
     TypeMirror spaceMirror = elementUtils.getTypeElement(Space.class.getName()).asType();
+    List includedModels = new ArrayList();
     for (AnnotationMirror mirror : typeElement.getAnnotationMirrors()) {
       if (typeUtils.isSameType(mirror.getAnnotationType(), spaceMirror)) {
         Set<? extends Map.Entry<? extends ExecutableElement, ? extends AnnotationValue>> items =
@@ -142,11 +147,23 @@ public class SqliteProcessor extends AbstractProcessor {
 
         for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : items) {
           if ("models".equals(entry.getKey().getSimpleName().toString())) {
-            List includedModels = (List) entry.getValue().getValue();
-            if (includedModels.size() == 0) {
+            List l = (List) entry.getValue().getValue();
+            if (l.size() == 0) {
               error(element, "@%s models must not be empty. (%s)",
                   Space.class.getSimpleName(),
                   typeElement.getQualifiedName());
+            }
+
+            for (Object model : l) {
+              Element e = ((Type) ((Attribute) model).getValue()).asElement();
+              //noinspection SuspiciousMethodCalls
+              if (!modelTargets.containsKey(e)) {
+                error(element,
+                    "Cannot include model (\"%s\"), does not contain @%s annotation. (%s)",
+                    e.toString(),
+                    ContentType.class.getSimpleName(),
+                    typeElement.getQualifiedName());
+              }
             }
           }
         }

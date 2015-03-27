@@ -114,4 +114,20 @@ public class SpaceTest {
         .withErrorContaining("@Space models must not be empty."
             + " (test.Test)");
   }
+
+  @Test public void failsInvalidModels() throws Exception {
+    JavaFileObject source = JavaFileObjects.forSourceString("test.Test", Joiner.on('\n').join(
+        "package test;",
+        "import com.contentful.sqliteprocessor.Space;",
+        "import com.contentful.sqliteprocessor.DbHelper;",
+        "@Space(value = \"sid\", models = { Object.class })",
+        "public class Test extends DbHelper {",
+        "}"));
+
+    ASSERT.about(javaSource()).that(source)
+        .processedWith(processors())
+        .failsToCompile()
+        .withErrorContaining("Cannot include model (\"java.lang.Object\"), "
+            + "does not contain @ContentType annotation. (test.Test)");
+  }
 }
