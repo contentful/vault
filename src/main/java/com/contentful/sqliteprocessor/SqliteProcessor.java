@@ -72,30 +72,39 @@ public class SqliteProcessor extends AbstractProcessor {
   }
 
   private Map<TypeElement, Injection> findAndParseTargets(RoundEnvironment env) {
-    Map<TypeElement, Injection> targets =
-        new LinkedHashMap<TypeElement, Injection>();
+    Map<TypeElement, ModelInjection> modelTargets =
+        new LinkedHashMap<TypeElement, ModelInjection>();
 
-    // Parse ContentType injections
+    Map<TypeElement, SpaceInjection> spaceTargets =
+        new LinkedHashMap<TypeElement, SpaceInjection>();
+
+    // Parse ContentType bindings
     for (Element element : env.getElementsAnnotatedWith(ContentType.class)) {
       try {
-        parseContentType(element, targets);
+        parseContentType(element, modelTargets);
       } catch (Exception e) {
         parsingError(element, ContentType.class, e);
       }
     }
 
-    // Parse Space injections
+    // Parse Space bindings
     for (Element element : env.getElementsAnnotatedWith(Space.class)) {
       try {
-        parseSpace(element, targets);
+        parseSpace(element, spaceTargets, modelTargets);
       } catch (Exception e) {
         parsingError(element, Space.class, e);
       }
     }
-    return targets;
+
+    Map<TypeElement, Injection> result = new LinkedHashMap<TypeElement, Injection>();
+    result.putAll(modelTargets);
+    result.putAll(spaceTargets);
+    return result;
   }
 
-  private void parseSpace(Element element, Map<TypeElement, Injection> targets) {
+  private void parseSpace(Element element, Map<TypeElement, SpaceInjection> spaceTargets,
+      Map<TypeElement, ModelInjection> modelTargets) {
+
     TypeElement typeElement = (TypeElement) element;
     String id = element.getAnnotation(Space.class).value();
     if (id.isEmpty()) {
@@ -113,7 +122,7 @@ public class SqliteProcessor extends AbstractProcessor {
       return;
     }
 
-    if (hasInjection(targets, id, SpaceInjection.class)) {
+    if (hasInjection(spaceTargets, id, SpaceInjection.class)) {
       error(element,
           "@%s for \"%s\" cannot be used on multiple classes. (%s)",
           Space.class.getSimpleName(),
@@ -129,10 +138,10 @@ public class SqliteProcessor extends AbstractProcessor {
     SpaceInjection injection = new SpaceInjection(
         id, classPackage, className, targetType);
 
-    targets.put(typeElement, injection);
+    spaceTargets.put(typeElement, injection);
   }
 
-  private void parseContentType(Element element, Map<TypeElement, Injection> targets) {
+  private void parseContentType(Element element, Map<TypeElement, ModelInjection> targets) {
     TypeElement typeElement = (TypeElement) element;
     String id = element.getAnnotation(ContentType.class).value();
     if (id.isEmpty()) {
