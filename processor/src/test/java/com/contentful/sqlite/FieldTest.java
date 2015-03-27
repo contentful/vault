@@ -6,6 +6,7 @@ import com.google.testing.compile.JavaFileObjects;
 import javax.tools.JavaFileObject;
 import org.junit.Test;
 
+import static com.contentful.sqlite.lib.TestUtils.*;
 import static com.google.common.truth.Truth.ASSERT;
 import static com.google.testing.compile.JavaSourceSubjectFactory.javaSource;
 
@@ -21,7 +22,7 @@ public class FieldTest {
         "}"));
 
     ASSERT.about(javaSource()).that(source)
-        .processedWith(TestUtils.processors())
+        .processedWith(processors())
         .failsToCompile()
         .withErrorContaining("@Field id may not be empty. (test.Test.text)");
   }
@@ -38,7 +39,7 @@ public class FieldTest {
         "}"));
 
     ASSERT.about(javaSource()).that(source)
-        .processedWith(TestUtils.processors())
+        .processedWith(processors())
         .failsToCompile()
         .withErrorContaining(
             "@Field for the same id (\"a\") was used multiple times in the same class."

@@ -6,6 +6,7 @@ import com.google.testing.compile.JavaFileObjects;
 import javax.tools.JavaFileObject;
 import org.junit.Test;
 
+import static com.contentful.sqlite.lib.TestUtils.*;
 import static com.google.common.truth.Truth.ASSERT;
 import static com.google.testing.compile.JavaSourceSubjectFactory.javaSource;
 
@@ -37,10 +38,10 @@ public class SpaceTest {
         "}"));
 
     JavaFileObject expectedSource = JavaFileObjects.forSourceString("test/Test$Db$$Space",
-        TestUtils.readTestResource("space_injection_java.txt"));
+        readTestResource("space_injection_java.txt"));
 
     ASSERT.about(javaSource()).that(source)
-        .processedWith(TestUtils.processors())
+        .processedWith(processors())
         .compilesWithoutError()
         .and()
         .generatesSources(expectedSource);
@@ -55,7 +56,7 @@ public class SpaceTest {
             "}"));
 
     ASSERT.about(javaSource()).that(source)
-        .processedWith(TestUtils.processors())
+        .processedWith(processors())
         .failsToCompile()
         .withErrorContaining("@Space id may not be empty. (test.Test)");
   }
@@ -69,7 +70,7 @@ public class SpaceTest {
             "}"));
 
     ASSERT.about(javaSource()).that(source)
-        .processedWith(TestUtils.processors())
+        .processedWith(processors())
         .failsToCompile()
         .withErrorContaining(
             "@Space annotated targets must extend \"com.contentful.sqlite.DbHelper\". "
@@ -97,7 +98,7 @@ public class SpaceTest {
         "}"));
 
     ASSERT.about(javaSource()).that(source)
-        .processedWith(TestUtils.processors())
+        .processedWith(processors())
         .failsToCompile()
         .withErrorContaining("@Space for \"sid\" cannot be used on multiple classes."
             + " (test.Test.Test2)");
@@ -113,7 +114,7 @@ public class SpaceTest {
         "}"));
 
     ASSERT.about(javaSource()).that(source)
-        .processedWith(TestUtils.processors())
+        .processedWith(processors())
         .failsToCompile()
         .withErrorContaining("@Space models must not be empty. (test.Test)");
   }
@@ -128,7 +129,7 @@ public class SpaceTest {
         "}"));
 
     ASSERT.about(javaSource()).that(source)
-        .processedWith(TestUtils.processors())
+        .processedWith(processors())
         .failsToCompile()
         .withErrorContaining("Cannot include model (\"java.lang.Object\"), "
             + "is not annotated with @ContentType. (test.Test)");
