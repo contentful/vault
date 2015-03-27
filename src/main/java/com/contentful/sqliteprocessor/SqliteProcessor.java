@@ -159,7 +159,7 @@ public class SqliteProcessor extends AbstractProcessor {
               //noinspection SuspiciousMethodCalls
               if (!modelTargets.containsKey(e)) {
                 error(element,
-                    "Cannot include model (\"%s\"), does not contain @%s annotation. (%s)",
+                    "Cannot include model (\"%s\"), is not annotated with @%s. (%s)",
                     e.toString(),
                     ContentType.class.getSimpleName(),
                     typeElement.getQualifiedName());

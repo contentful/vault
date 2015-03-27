@@ -128,6 +128,6 @@ public class SpaceTest {
         .processedWith(processors())
         .failsToCompile()
         .withErrorContaining("Cannot include model (\"java.lang.Object\"), "
-            + "does not contain @ContentType annotation. (test.Test)");
+            + "is not annotated with @ContentType. (test.Test)");
   }
 }
