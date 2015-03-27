@@ -1,6 +1,5 @@
 package com.contentful.sqlite;
 
-import com.contentful.sqlite.lib.TestUtils;
 import com.google.common.base.Joiner;
 import com.google.testing.compile.JavaFileObjects;
 import javax.tools.JavaFileObject;
