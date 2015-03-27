@@ -28,7 +28,7 @@ public class SpaceTest {
         "    @Field(\"fBoolean\") Boolean fBoolean;",
         "    @Field(\"fInteger\") Integer fInteger;",
         "    @Field(\"fDouble\") Double fDouble;",
-        "    @Field(\"fMap\") Map map;",
+        "    @Field(\"fMap\") Map fMap;",
         "  }",
         "",
         "  @Space(value = \"sid\", models = { Model.class })",

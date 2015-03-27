@@ -19,7 +19,7 @@ public class Test$Db$$Space extends SQLiteOpenHelper {
           + "`fBoolean` INT,"
           + "`fInteger` INT,"
           + "`fDouble` DOUBLE,"
-          + "`map` BLOB"
+          + "`fMap` BLOB"
           + ");");
 
       db.setTransactionSuccessful();
