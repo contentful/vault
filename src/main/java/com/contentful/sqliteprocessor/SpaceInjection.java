@@ -1,8 +1,5 @@
 package com.contentful.sqliteprocessor;
 
-import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import java.util.List;
 
 public class SpaceInjection extends Injection {
@@ -22,24 +19,14 @@ public class SpaceInjection extends Injection {
         .append("package ").append(classPackage).append(";\n\n");
 
     // Emit: imports
-    builder.append("import ")
-        .append(SQLiteOpenHelper.class.getName())
-        .append(";\n");
-
-    builder.append("import ")
-        .append(SQLiteDatabase.class.getName())
-        .append(";\n");
-
-    builder.append("import ")
-        .append(Context.class.getName()).append(";\n");
-
-    builder.append("\n");
+    builder.append("import android.database.sqlite.SQLiteOpenHelper;\n")
+        .append("import android.database.sqlite.SQLiteDatabase;\n")
+        .append("import android.content.Context;\n\n");
 
     // Emit: class
     builder.append("public class ")
         .append(className)
-        .append(" extends ")
-        .append(SQLiteOpenHelper.class.getSimpleName()).append(" {\n");
+        .append(" extends SQLiteOpenHelper {\n");
 
     // Emit: constructor
     builder.append("  public ")
