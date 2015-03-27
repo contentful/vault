@@ -10,7 +10,7 @@ public class Test$Db$$Space extends SQLiteOpenHelper {
   }
 
   @Override public void onCreate(SQLiteDatabase db) {
-    db.rawQuery("CREATE TABLE `entry_y2lk` ("
+    db.execSQL("CREATE TABLE `entry_y2lk` ("
         + "`_ID` INTEGER PRIMARY KEY AUTOINCREMENT,"
         + "`remote_id` STRING NOT NULL,"
         + "`fText` STRING,"
@@ -18,7 +18,7 @@ public class Test$Db$$Space extends SQLiteOpenHelper {
         + "`fInteger` INT,"
         + "`fDouble` DOUBLE,"
         + "`map` BLOB"
-        + ");", null);
+        + ");");
   }
 
   @Override public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {

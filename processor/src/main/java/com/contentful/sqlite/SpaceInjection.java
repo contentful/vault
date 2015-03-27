@@ -42,9 +42,9 @@ final class SpaceInjection extends Injection {
     for (ModelInjection model : models) {
       List<String> createStatements = model.getCreateStatements("    ");
       for (int i = 0; i < createStatements.size(); i++) {
-        builder.append("    db.rawQuery(")
+        builder.append("    db.execSQL(")
             .append(createStatements.get(i))
-            .append(", null);\n");
+            .append(");\n");
 
         if (i < createStatements.size() - 1) {
           builder.append("\n");
