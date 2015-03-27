@@ -2,16 +2,24 @@ package test;
 
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteDatabase;
+import com.contentful.sqlite.DbHelper;
 import android.content.Context;
 
 public class Test$Db$$Space extends SQLiteOpenHelper {
-  public Test$Db$$Space(Context context) {
+  final DbHelper dbHelper;
+
+  public Test$Db$$Space(Context context, DbHelper dbHelper) {
     super(context, null, null, 1);
+    this.dbHelper = dbHelper;
   }
 
   @Override public void onCreate(SQLiteDatabase db) {
     db.beginTransaction();
     try {
+      for (String sql : dbHelper.getDefaultCreateStatements()) {
+        db.execSQL(sql);
+      }
+
       db.execSQL("CREATE TABLE `entry_y2lk` ("
           + "`_ID` INTEGER PRIMARY KEY AUTOINCREMENT,"
           + "`remote_id` STRING NOT NULL,"
