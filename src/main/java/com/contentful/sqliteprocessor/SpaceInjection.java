@@ -53,9 +53,12 @@ public class SpaceInjection extends Injection {
 
     // Emit: create model tables statements
     for (ModelInjection model : models) {
-      builder.append("    db.rawQuery(");
-      model.emitCreateStatement("    ", builder);
-      builder.append(", null);\n");
+      List<String> createStatements = model.getCreateStatements("    ");
+      for (String statement : createStatements) {
+        builder.append("    db.rawQuery(")
+            .append(statement)
+            .append(", null);");
+      }
     }
 
     builder.append("  }\n\n");

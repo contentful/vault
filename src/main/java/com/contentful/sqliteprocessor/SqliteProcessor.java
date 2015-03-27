@@ -165,7 +165,6 @@ public class SqliteProcessor extends AbstractProcessor {
                     ContentType.class.getSimpleName(),
                     typeElement.getQualifiedName());
               } else {
-                // TODO add
                 includedModels.add(modelInjection);
               }
             }

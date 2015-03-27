@@ -1,5 +1,7 @@
 package com.contentful.sqliteprocessor;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import org.apache.commons.codec.binary.Base64;
 
@@ -35,9 +37,11 @@ final class ModelInjection extends Injection {
     return builder.toString();
   }
 
-  void emitCreateStatement(String indent, StringBuilder builder) {
+  List<String> getCreateStatements(String indent) {
+    List<String> result = new ArrayList<String>();
     String code = Base64.encodeBase64String(id.getBytes()).replaceAll("=", "").toLowerCase();
     String tableName = String.format("entry_%s", code);
+    StringBuilder builder = new StringBuilder();
 
     // Emit: CREATE
     builder.append("\"CREATE TABLE `")
@@ -63,6 +67,8 @@ final class ModelInjection extends Injection {
       builder.append("\"\n");
     }
     builder.append(indent).append("    + \");\"");
+    result.add(builder.toString());
+    return result;
   }
 
   final static class Member {
