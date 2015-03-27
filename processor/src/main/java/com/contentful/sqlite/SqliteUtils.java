@@ -1,6 +1,7 @@
 package com.contentful.sqlite;
 
 import java.util.Map;
+import org.apache.commons.codec.binary.Base64;
 
 final class SqliteUtils {
   private SqliteUtils() {
@@ -20,5 +21,9 @@ final class SqliteUtils {
       return "BLOB";
     }
     return null;
+  }
+
+  static String hashForId(String id) {
+    return Base64.encodeBase64String(id.getBytes()).replaceAll("=", "").toLowerCase();
   }
 }

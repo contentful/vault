@@ -1,28 +1,71 @@
 package test;
 
-import android.database.sqlite.SQLiteOpenHelper;
-import android.database.sqlite.SQLiteDatabase;
-import com.contentful.sqlite.DbHelper;
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+import com.contentful.sqlite.DbHelper;
+import com.contentful.sqlite.FieldMeta;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-public class Test$Db$$Space extends SQLiteOpenHelper {
-  final DbHelper dbHelper;
+public class Test$Db$$Space extends SQLiteOpenHelper implements DbHelper {
+  static Test$Db$$Space instance;
 
-  public Test$Db$$Space(Context context, DbHelper dbHelper) {
-    super(context, null, null, 1);
-    this.dbHelper = dbHelper;
+  static final Set<Class<?>> models =
+      new LinkedHashSet<Class<?>>(Arrays.asList(
+        test.Test.Model.class
+      ));
+
+  static final Map<Class<?>, String> tables =
+      new LinkedHashMap<Class<?>, String>();
+
+  static final Map<String, Class<?>> types =
+      new LinkedHashMap<String, Class<?>>();
+
+  static final Map<Class<?>, List<FieldMeta>> fields =
+      new LinkedHashMap<Class<?>, List<FieldMeta>>();
+
+  static {
+    Class<?> clazz;
+
+    clazz = test.Test.Model.class;
+    tables.put(clazz, "entry_y2lk");
+    types.put("cid", clazz);
+    fields.put(clazz, Arrays.asList(
+        new FieldMeta("id1", "fText", "STRING", false),
+        new FieldMeta("id2", "fBoolean", "INT", false),
+        new FieldMeta("id3", "fInteger", "INT", false),
+        new FieldMeta("id4", "fDouble", "DOUBLE", false),
+        new FieldMeta("id5", "fMap", "BLOB", false),
+        new FieldMeta("id6", "fLink", null, true)));
+  }
+
+  public static synchronized Test$Db$$Space get(Context context) {
+    if (instance == null) {
+      instance = new Test$Db$$Space(context);
+    }
+    return instance;
+  }
+
+  private Test$Db$$Space(Context context) {
+    super(context, "space_c2lk", null, 1);
   }
 
   @Override public void onCreate(SQLiteDatabase db) {
     db.beginTransaction();
+
     try {
-      for (String sql : dbHelper.getDefaultCreateStatements()) {
+      for (String sql : DEFAULT_CREATE) {
         db.execSQL(sql);
       }
 
       db.execSQL("CREATE TABLE `entry_y2lk` ("
           + "`_ID` INTEGER PRIMARY KEY AUTOINCREMENT,"
-          + "`remote_id` STRING NOT NULL,"
+          + "`remote_id` STRING NOT NULL UNIQUE,"
           + "`fText` STRING,"
           + "`fBoolean` INT,"
           + "`fInteger` INT,"
@@ -37,5 +80,21 @@ public class Test$Db$$Space extends SQLiteOpenHelper {
   }
 
   @Override public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+  }
+
+  @Override public Set<Class<?>> getModels() {
+    return models;
+  }
+
+  @Override public Map<Class<?>, String> getTablesMap() {
+    return tables;
+  }
+
+  @Override public Map<String, Class<?>> getTypesMap() {
+    return types;
+  }
+
+  @Override public Map<Class<?>, List<FieldMeta>> getFieldsMap() {
+    return fields;
   }
 }

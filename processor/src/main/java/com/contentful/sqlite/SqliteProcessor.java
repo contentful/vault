@@ -1,5 +1,6 @@
 package com.contentful.sqlite;
 
+import com.contentful.sqlite.ModelInjector.Member;
 import com.sun.tools.javac.code.Attribute;
 import com.sun.tools.javac.code.Type;
 import java.io.PrintWriter;
@@ -7,6 +8,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -28,7 +30,6 @@ import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.JavaFileObject;
 
-import static com.contentful.sqlite.Constants.SUFFIX_MODEL;
 import static com.contentful.sqlite.Constants.SUFFIX_SPACE;
 import static javax.tools.Diagnostic.Kind.ERROR;
 
@@ -75,8 +76,8 @@ public class SqliteProcessor extends AbstractProcessor {
   }
 
   private Map<TypeElement, Injection> findAndParseTargets(RoundEnvironment env) {
-    Map<TypeElement, ModelInjection> modelTargets =
-        new LinkedHashMap<TypeElement, ModelInjection>();
+    Map<TypeElement, ModelInjector> modelTargets =
+        new LinkedHashMap<TypeElement, ModelInjector>();
 
     Map<TypeElement, SpaceInjection> spaceTargets =
         new LinkedHashMap<TypeElement, SpaceInjection>();
@@ -90,6 +91,9 @@ public class SqliteProcessor extends AbstractProcessor {
       }
     }
 
+    // Parse link references
+    parseLinks(modelTargets);
+
     // Parse Space bindings
     for (Element element : env.getElementsAnnotatedWith(Space.class)) {
       try {
@@ -100,27 +104,39 @@ public class SqliteProcessor extends AbstractProcessor {
     }
 
     Map<TypeElement, Injection> result = new LinkedHashMap<TypeElement, Injection>();
-    result.putAll(modelTargets);
     result.putAll(spaceTargets);
     return result;
   }
 
+  private void parseLinks(Map<TypeElement, ModelInjector> modelTargets) {
+    for (Map.Entry<TypeElement, ModelInjector> entry : modelTargets.entrySet()) {
+      ModelInjector modelInjector = entry.getValue();
+      for (Member member : modelInjector.members) {
+        if (member.link) {
+          TypeElement te = elementUtils.getTypeElement(member.className);
+          ModelInjector referencedInjector = modelTargets.get(te);
+          if (referencedInjector == null) {
+            error(te,
+                "@%s with id \"%s\" links to unsupported type \"%s\". (%s.%s)",
+                Field.class.getSimpleName(),
+                member.id,
+                member.className,
+                modelInjector.className,
+                member.fieldName);
+          }
+        }
+      }
+    }
+  }
+
   private void parseSpace(Element element, Map<TypeElement, SpaceInjection> spaceTargets,
-      Map<TypeElement, ModelInjection> modelTargets) {
+      Map<TypeElement, ModelInjector> modelTargets) {
 
     TypeElement typeElement = (TypeElement) element;
     String id = element.getAnnotation(Space.class).value();
     if (id.isEmpty()) {
       error(element, "@%s id may not be empty. (%s)",
           Space.class.getSimpleName(),
-          typeElement.getQualifiedName());
-      return;
-    }
-
-    if (!isSubtypeOfType(typeElement.asType(), DbHelper.class.getName())) {
-      error(element, "@%s annotated targets must extend \"%s\". (%s)",
-          Space.class.getSimpleName(),
-          DbHelper.class.getName(),
           typeElement.getQualifiedName());
       return;
     }
@@ -135,7 +151,7 @@ public class SqliteProcessor extends AbstractProcessor {
     }
 
     TypeMirror spaceMirror = elementUtils.getTypeElement(Space.class.getName()).asType();
-    List<ModelInjection> includedModels = new ArrayList<ModelInjection>();
+    List<ModelInjector> includedModels = new ArrayList<ModelInjector>();
     for (AnnotationMirror mirror : typeElement.getAnnotationMirrors()) {
       if (typeUtils.isSameType(mirror.getAnnotationType(), spaceMirror)) {
         Set<? extends Map.Entry<? extends ExecutableElement, ? extends AnnotationValue>> items =
@@ -153,7 +169,7 @@ public class SqliteProcessor extends AbstractProcessor {
             for (Object model : l) {
               Element e = ((Type) ((Attribute) model).getValue()).asElement();
               //noinspection SuspiciousMethodCalls
-              ModelInjection modelInjection = modelTargets.get(e);
+              ModelInjector modelInjection = modelTargets.get(e);
               if (modelInjection == null) {
                 error(element,
                     "Cannot include model (\"%s\"), is not annotated with @%s. (%s)",
@@ -172,14 +188,15 @@ public class SqliteProcessor extends AbstractProcessor {
     String targetType = typeElement.getQualifiedName().toString();
     String classPackage = getPackageName(typeElement);
     String className = getClassName(typeElement, classPackage) + SUFFIX_SPACE;
+    String tableName = "space_" + SqliteUtils.hashForId(id);
 
-    SpaceInjection injection = new SpaceInjection(
-        id, classPackage, className, targetType, includedModels);
+    SpaceInjection injection = new SpaceInjection(id, classPackage, className, targetType,
+        includedModels, tableName);
 
     spaceTargets.put(typeElement, injection);
   }
 
-  private void parseContentType(Element element, Map<TypeElement, ModelInjection> targets) {
+  private void parseContentType(Element element, Map<TypeElement, ModelInjector> targets) {
     TypeElement typeElement = (TypeElement) element;
     String id = element.getAnnotation(ContentType.class).value();
     if (id.isEmpty()) {
@@ -189,7 +206,7 @@ public class SqliteProcessor extends AbstractProcessor {
       return;
     }
 
-    if (hasInjection(targets, id, ModelInjection.class)) {
+    if (hasModelInjectorWithId(targets.values(), id)) {
       error(element,
           "@%s for \"%s\" cannot be used on multiple classes. (%s)",
           ContentType.class.getSimpleName(),
@@ -198,7 +215,7 @@ public class SqliteProcessor extends AbstractProcessor {
       return;
     }
 
-    Set<ModelInjection.Member> members = new LinkedHashSet<ModelInjection.Member>();
+    Set<Member> members = new LinkedHashSet<Member>();
     Set<String> memberIds = new LinkedHashSet<String>();
     for (Element enclosedElement : element.getEnclosedElements()) {
       Field field = enclosedElement.getAnnotation(Field.class);
@@ -224,7 +241,9 @@ public class SqliteProcessor extends AbstractProcessor {
       }
 
       String className = enclosedElement.asType().toString();
-      if (SqliteUtils.typeForClass(className) == null) {
+      String sqliteType = SqliteUtils.typeForClass(className);
+      boolean link = field.link();
+      if (!link && sqliteType == null) {
         error(element,
             "@%s specified for unsupported type (\"%s\"). (%s.%s)",
             Field.class.getSimpleName(),
@@ -234,15 +253,13 @@ public class SqliteProcessor extends AbstractProcessor {
       }
 
       String fieldName = enclosedElement.getSimpleName().toString();
-      members.add(new ModelInjection.Member(fieldId, fieldName, className));
+      members.add(new Member(fieldId, fieldName, className, sqliteType, link));
     }
 
-    String targetType = typeElement.getQualifiedName().toString();
-    String classPackage = getPackageName(typeElement);
-    String className = getClassName(typeElement, classPackage) + SUFFIX_MODEL;
+    String tableName = "entry_" + SqliteUtils.hashForId(id);
 
-    ModelInjection injection = new ModelInjection(
-        id, classPackage, className, targetType, members);
+    ModelInjector injection = new ModelInjector(
+        id, typeElement.getQualifiedName().toString(), tableName, members);
 
     targets.put(typeElement, injection);
   }
@@ -251,6 +268,15 @@ public class SqliteProcessor extends AbstractProcessor {
       String id, Class<? extends Injection> injectionClass) {
     for (Injection target : targets.values()) {
       if (id.equals(target.id) && injectionClass.isInstance(target)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private boolean hasModelInjectorWithId(Collection<ModelInjector> targets, String id) {
+    for (ModelInjector target : targets) {
+      if (id.equals(target.id)) {
         return true;
       }
     }

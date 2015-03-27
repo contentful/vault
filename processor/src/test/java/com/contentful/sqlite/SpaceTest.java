@@ -24,15 +24,16 @@ public class SpaceTest {
         "public class Test {",
         "  @ContentType(\"cid\")",
         "  class Model {",
-        "    @Field(\"fText\") String fText;",
-        "    @Field(\"fBoolean\") Boolean fBoolean;",
-        "    @Field(\"fInteger\") Integer fInteger;",
-        "    @Field(\"fDouble\") Double fDouble;",
-        "    @Field(\"fMap\") Map fMap;",
+        "    @Field(\"id1\") String fText;",
+        "    @Field(\"id2\") Boolean fBoolean;",
+        "    @Field(\"id3\") Integer fInteger;",
+        "    @Field(\"id4\") Double fDouble;",
+        "    @Field(\"id5\") Map fMap;",
+        "    @Field(value = \"id6\", link = true) Model fLink;",
         "  }",
         "",
         "  @Space(value = \"sid\", models = { Model.class })",
-        "  class Db extends DbHelper {",
+        "  class Db {",
         "  }",
         "}"));
 
@@ -60,6 +61,8 @@ public class SpaceTest {
         .withErrorContaining("@Space id may not be empty. (test.Test)");
   }
 
+  /*
+  todo ensure is not interface
   @Test public void failsInvalidType() throws Exception {
     JavaFileObject source = JavaFileObjects.forSourceString("test.Test", Joiner.on('\n')
         .join("package test;",
@@ -75,6 +78,7 @@ public class SpaceTest {
             "@Space annotated targets must extend \"com.contentful.sqlite.DbHelper\". "
                 + "(test.Test)");
   }
+  */
 
   @Test public void failsDuplicateId() throws Exception {
     JavaFileObject source = JavaFileObjects.forSourceString("test.Test", Joiner.on('\n').join(
@@ -83,13 +87,13 @@ public class SpaceTest {
         "import com.contentful.sqlite.DbHelper;",
         "import java.util.Set;",
         "@Space(value = \"sid\", models = {})",
-        "public class Test extends DbHelper {",
+        "public class Test {",
         "  @Override public Set<Class<?>> getIncludedModels() { ",
         "    return null;",
         "  }",
         "",
         "  @Space(value = \"sid\", models = {})",
-        "  public class Test2 extends DbHelper {",
+        "  public class Test2 {",
         "    @Override public Set<Class<?>> getIncludedModels() { ",
         "      return null;",
         "    }",
@@ -109,7 +113,7 @@ public class SpaceTest {
         "import com.contentful.sqlite.Space;",
         "import com.contentful.sqlite.DbHelper;",
         "@Space(value = \"sid\", models = { })",
-        "public class Test extends DbHelper {",
+        "public class Test {",
         "}"));
 
     ASSERT.about(javaSource()).that(source)
@@ -124,7 +128,7 @@ public class SpaceTest {
         "import com.contentful.sqlite.Space;",
         "import com.contentful.sqlite.DbHelper;",
         "@Space(value = \"sid\", models = { Object.class })",
-        "public class Test extends DbHelper {",
+        "public class Test {",
         "}"));
 
     ASSERT.about(javaSource()).that(source)

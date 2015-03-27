@@ -10,4 +10,6 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
 @Retention(CLASS)
 public @interface Field {
   String value();
+
+  boolean link() default false;
 }
