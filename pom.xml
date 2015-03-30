@@ -18,16 +18,24 @@
   <modules>
     <module>processor</module>
     <module>sqlite</module>
+    <module>sample</module>
   </modules>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <java.version>1.6</java.version>
+
+    <android.platform>16</android.platform>
     <android.version>4.1.1.4</android.version>
+    <cda.version>2.0.1</cda.version>
     <commons-codec.version>1.10</commons-codec.version>
     <commons-io.version>2.4</commons-io.version>
-    <junit.version>4.10</junit.version>
     <compile-testing.version>0.6</compile-testing.version>
+    <junit.version>4.10</junit.version>
+    <mockwebserver.version>2.3.0</mockwebserver.version>
+    <okhttp.version>2.3.0</okhttp.version>
+    <okhttp-urlconnection.version>2.3.0</okhttp-urlconnection.version>
+    <robolectric.version>2.4</robolectric.version>
     <truth.version>0.25</truth.version>
   </properties>
 
@@ -37,6 +45,11 @@
         <groupId>com.google.android</groupId>
         <artifactId>android</artifactId>
         <version>${android.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.contentful.java</groupId>
+        <artifactId>java-sdk</artifactId>
+        <version>${cda.version}</version>
       </dependency>
       <dependency>
         <groupId>commons-codec</groupId>
@@ -63,6 +76,28 @@
         <artifactId>truth</artifactId>
         <version>${truth.version}</version>
       </dependency>
+      <dependency>
+        <groupId>org.robolectric</groupId>
+        <artifactId>robolectric</artifactId>
+        <version>${robolectric.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.squareup.okhttp</groupId>
+        <artifactId>mockwebserver</artifactId>
+        <version>${mockwebserver.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.squareup.okhttp</groupId>
+        <artifactId>okhttp</artifactId>
+        <version>${okhttp.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.squareup.okhttp</groupId>
+        <artifactId>okhttp-urlconnection</artifactId>
+        <version>${okhttp-urlconnection.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -80,5 +115,20 @@
         </configuration>
       </plugin>
     </plugins>
+
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>com.simpligility.maven.plugins</groupId>
+          <artifactId>android-maven-plugin</artifactId>
+          <version>4.1.0</version>
+          <configuration>
+            <sdk>
+              <platform>${android.platform}</platform>
+            </sdk>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
   </build>
 </project>

@@ -1,6 +1,13 @@
-language: java
+language: android
 install: mvn install -DskipTests=true -Dgpg.skip=true
 sudo: false
+
+android:
+  components:
+    - build-tools-20.0.0
+    - android-16
+  licenses:
+    - android-sdk-license-5be876d5
 
 jdk:
   - oraclejdk7

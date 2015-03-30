@@ -11,4 +11,17 @@
   </parent>
 
   <artifactId>sqlite</artifactId>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.contentful.java</groupId>
+      <artifactId>java-sdk</artifactId>
+      <!-- todo scope provided -->
+    </dependency>
+    <dependency>
+      <groupId>com.google.android</groupId>
+      <artifactId>android</artifactId>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
 </project>
