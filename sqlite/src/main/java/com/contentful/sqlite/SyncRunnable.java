@@ -102,7 +102,7 @@ public final class SyncRunnable implements Runnable {
   }
 
   private static void deleteAsset(CDAAsset asset, DbHelper helper, SQLiteDatabase db) {
-    String whereClause = "REMOTE_ID = ?";
+    String whereClause = "remote_id = ?";
     String whereArgs[] = new String[]{ extractResourceId(asset) };
     db.delete(DbHelper.TABLE_ASSETS, whereClause, whereArgs);
     // TODO invalidate any links pointing to this resource.
