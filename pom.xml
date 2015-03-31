@@ -16,8 +16,8 @@
   <packaging>pom</packaging>
 
   <modules>
-    <module>processor</module>
-    <module>sqlite</module>
+    <module>compiler</module>
+    <module>runtime</module>
     <module>sample</module>
   </modules>
 
