@@ -3,6 +3,7 @@ package test;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.text.TextUtils;
 import com.contentful.sqlite.DbHelper;
 import com.contentful.sqlite.FieldMeta;
 import java.util.Arrays;
@@ -36,12 +37,12 @@ public class Test$Db$$Space extends SQLiteOpenHelper implements DbHelper {
     tables.put(clazz, "entry_y2lk");
     types.put("cid", clazz);
     fields.put(clazz, Arrays.asList(
-        new FieldMeta("id1", "fText", "STRING", false),
-        new FieldMeta("id2", "fBoolean", "INT", false),
-        new FieldMeta("id3", "fInteger", "INT", false),
-        new FieldMeta("id4", "fDouble", "DOUBLE", false),
-        new FieldMeta("id5", "fMap", "BLOB", false),
-        new FieldMeta("id6", "fLink", null, true)));
+        new FieldMeta("id1", "fText", "STRING", false, "java.lang.String"),
+        new FieldMeta("id2", "fBoolean", "INT", false, "java.lang.Boolean"),
+        new FieldMeta("id3", "fInteger", "INT", false, "java.lang.Integer"),
+        new FieldMeta("id4", "fDouble", "DOUBLE", false, "java.lang.Double"),
+        new FieldMeta("id5", "fMap", "BLOB", false, "java.util.Map"),
+        new FieldMeta("id6", "fLink", null, true, "test.Test.Model")));
   }
 
   public static synchronized Test$Db$$Space get(Context context) {
@@ -65,7 +66,7 @@ public class Test$Db$$Space extends SQLiteOpenHelper implements DbHelper {
 
       db.execSQL("CREATE TABLE `entry_y2lk` ("
           + "`_ID` INTEGER PRIMARY KEY AUTOINCREMENT,"
-          + "`remote_id` STRING NOT NULL UNIQUE,"
+          + TextUtils.join(",", RESOURCE_COLUMNS) + ","
           + "`fText` STRING,"
           + "`fBoolean` INT,"
           + "`fInteger` INT,"

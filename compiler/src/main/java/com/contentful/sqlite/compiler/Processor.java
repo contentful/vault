@@ -2,6 +2,7 @@ package com.contentful.sqlite.compiler;
 
 import com.contentful.sqlite.ContentType;
 import com.contentful.sqlite.Field;
+import com.contentful.sqlite.Resource;
 import com.contentful.sqlite.Space;
 import com.sun.tools.javac.code.Attribute;
 import com.sun.tools.javac.code.Type;
@@ -217,6 +218,13 @@ public class Processor extends AbstractProcessor {
       return;
     }
 
+    if (!isSubtypeOfType(element.asType(), Resource.class.getName())) {
+      error(element,
+          "Classes annotated with @%s must extend \"" + Resource.class.getName() + "\". (%s)",
+          ContentType.class.getSimpleName(),
+          typeElement.getQualifiedName());
+    }
+
     Set<ModelInjector.Member> members = new LinkedHashSet<ModelInjector.Member>();
     Set<String> memberIds = new LinkedHashSet<String>();
     for (Element enclosedElement : element.getEnclosedElements()) {
@@ -255,7 +263,13 @@ public class Processor extends AbstractProcessor {
       }
 
       String fieldName = enclosedElement.getSimpleName().toString();
-      members.add(new ModelInjector.Member(fieldId, fieldName, className, sqliteType, link));
+      members.add(new ModelInjector.Member(
+          fieldId,
+          fieldName,
+          className,
+          sqliteType,
+          link,
+          enclosedElement.asType().toString()));
     }
 
     String tableName = "entry_" + SqliteUtils.hashForId(id);

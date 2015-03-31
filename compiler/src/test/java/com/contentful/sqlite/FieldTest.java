@@ -31,8 +31,9 @@ public class FieldTest {
         "package test;",
         "import com.contentful.sqlite.ContentType;",
         "import com.contentful.sqlite.Field;",
+        "import com.contentful.sqlite.Resource;",
         "@ContentType(\"cid\")",
-        "public class Test {",
+        "public class Test extends Resource {",
         "  @Field(\"a\") String thing1;",
         "  @Field(\"a\") String thing2;",
         "}"));
@@ -43,5 +44,24 @@ public class FieldTest {
         .withErrorContaining(
             "@Field for the same id (\"a\") was used multiple times in the same class."
                 + " (test.Test)");
+  }
+
+  @Test public void failsInvalidType() throws Exception {
+    JavaFileObject source = JavaFileObjects.forSourceString("test.Test", Joiner.on('\n').join(
+        "package test;",
+        "import com.contentful.sqlite.ContentType;",
+        "import com.contentful.sqlite.Field;",
+        "import com.contentful.sqlite.Resource;",
+        "import java.util.Date;",
+        "@ContentType(\"cid\")",
+        "public class Test extends Resource {",
+        "  @Field(\"a\") Date thing;",
+        "}"));
+
+    ASSERT.about(javaSource()).that(source)
+        .processedWith(processors())
+        .failsToCompile()
+        .withErrorContaining(
+            "@Field specified for unsupported type (\"java.util.Date\"). (test.Test.thing)");
   }
 }
