@@ -28,6 +28,7 @@ final class SpaceInjection extends Injection {
     builder.append("import android.content.Context;\n")
         .append("import android.database.sqlite.SQLiteDatabase;\n")
         .append("import android.database.sqlite.SQLiteOpenHelper;\n")
+        .append("import android.text.TextUtils;\n")
         .append("import com.contentful.sqlite.DbHelper;\n")
         .append("import com.contentful.sqlite.FieldMeta;\n")
         .append("import java.util.Arrays;\n")
@@ -119,7 +120,11 @@ final class SpaceInjection extends Injection {
         }
 
         builder.append(", ")
-            .append(Boolean.toString(member.link))
+            .append(Boolean.toString(member.link));
+
+        builder.append(", \"")
+            .append(member.enclosedType)
+            .append("\"")
             .append(")");
 
         if (it.hasNext()) {

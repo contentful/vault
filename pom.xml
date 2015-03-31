@@ -86,7 +86,6 @@
         <artifactId>mockwebserver</artifactId>
         <version>${mockwebserver.version}</version>
       </dependency>
-
       <dependency>
         <groupId>com.squareup.okhttp</groupId>
         <artifactId>okhttp</artifactId>

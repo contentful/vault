@@ -26,7 +26,7 @@ final class ModelInjector {
         .append(indent)
         .append("    + \"`_ID` INTEGER PRIMARY KEY AUTOINCREMENT,\"\n")
         .append(indent)
-        .append("    + \"`remote_id` STRING NOT NULL UNIQUE,\"\n");
+        .append("    + TextUtils.join(\",\", RESOURCE_COLUMNS) + \",\"\n");
 
     Set<Member> filtered = getNonLinkMembers();
     Member[] list = filtered.toArray(new Member[filtered.size()]);
@@ -64,14 +64,16 @@ final class ModelInjector {
     final String className;
     final String sqliteType;
     final boolean link;
+    final String enclosedType;
 
-    public Member(String id, String fieldName, String className, String sqliteType,
-        boolean link) {
+    public Member(String id, String fieldName, String className, String sqliteType, boolean link,
+        String enclosedType) {
       this.id = id;
       this.fieldName = fieldName;
       this.className = className;
       this.sqliteType = sqliteType;
       this.link = link;
+      this.enclosedType = enclosedType;
     }
   }
 }
