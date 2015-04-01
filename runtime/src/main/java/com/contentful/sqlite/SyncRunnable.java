@@ -31,24 +31,25 @@ public final class SyncRunnable implements Runnable {
   private final Class<?> space;
   private final CDAClient client;
   private DbHelper helper;
+  private SQLiteDatabase db;
 
   private final ResourceHandler HANDLER_DELETE = new ResourceHandler() {
-    @Override void asset(CDAResource resource, SQLiteDatabase db, Object... objects) {
-      deleteAsset(resource, db);
+    @Override void asset(CDAResource resource, Object... objects) {
+      deleteAsset(resource);
     }
 
-    @Override void entry(CDAResource resource, SQLiteDatabase db, Object... objects) {
-      deleteEntry(resource, db);
+    @Override void entry(CDAResource resource, Object... objects) {
+      deleteEntry(resource);
     }
   };
 
   private final ResourceHandler HANDLER_SAVE = new ResourceHandler() {
-    @Override void asset(CDAResource resource, SQLiteDatabase db, Object... objects) {
-      saveAsset((CDAAsset) resource, db);
+    @Override void asset(CDAResource resource, Object... objects) {
+      saveAsset((CDAAsset) resource);
     }
 
-    @Override void entry(CDAResource resource, SQLiteDatabase db, Object... objects) {
-      saveEntry((CDAEntry) resource, db, objects);
+    @Override void entry(CDAResource resource, Object... objects) {
+      saveEntry((CDAEntry) resource, objects);
     }
   };
 
@@ -60,20 +61,21 @@ public final class SyncRunnable implements Runnable {
 
   @Override public void run() {
     helper = Persistence.getOrCreateDbHelper(context, space);
+    db = ((SQLiteOpenHelper) helper).getWritableDatabase();
+
     try {
       CDASyncedSpace syncedSpace = client.synchronization().performInitial();
-      SQLiteDatabase db = ((SQLiteOpenHelper) helper).getWritableDatabase();
       db.beginTransaction();
       try {
         for (CDAResource resource : syncedSpace.getItems()) {
           if (wasDeleted(resource)) {
-            HANDLER_DELETE.invoke(resource, db);
+            HANDLER_DELETE.invoke(resource);
           } else {
             List<FieldMeta> fields = null;
             String tableName = null;
             if (isOfType(resource, Entry)) {
               Class<?> clazz = helper.getTypesMap().get(
-                  extractContentTypeId((CDAEntry) resource));
+                  extractContentTypeId(resource));
 
               tableName = helper.getTablesMap().get(clazz);
               if (tableName == null) {
@@ -81,7 +83,7 @@ public final class SyncRunnable implements Runnable {
               }
               fields = helper.getFieldsMap().get(clazz);
             }
-            HANDLER_SAVE.invoke(resource, db, tableName, fields);
+            HANDLER_SAVE.invoke(resource, tableName, fields);
           }
         }
         db.setTransactionSuccessful();
@@ -93,22 +95,22 @@ public final class SyncRunnable implements Runnable {
     }
   }
 
-  private void deleteAsset(CDAResource resource, SQLiteDatabase db) {
-    deleteResource(extractResourceId(resource), DbHelper.TABLE_ASSETS, db);
+  private void deleteAsset(CDAResource resource) {
+    deleteResource(extractResourceId(resource), DbHelper.TABLE_ASSETS);
   }
 
-  private void deleteEntry(CDAResource resource, SQLiteDatabase db) {
+  private void deleteEntry(CDAResource resource) {
     String remoteId = extractResourceId(resource);
-    String contentTypeId = fetchContentTypeId(remoteId, db);
+    String contentTypeId = fetchContentTypeId(remoteId);
     if (contentTypeId != null) {
       Class<?> clazz = helper.getTypesMap().get(contentTypeId);
       if (clazz != null) {
-        deleteResource(extractResourceId(resource), helper.getTablesMap().get(clazz), db);
+        deleteResource(extractResourceId(resource), helper.getTablesMap().get(clazz));
       }
     }
   }
 
-  private String fetchContentTypeId(String remoteId, SQLiteDatabase db) {
+  private String fetchContentTypeId(String remoteId) {
     String sql = "SELECT `type_id` FROM " + DbHelper.TABLE_ENTRY_TYPES + " WHERE remote_id = ?";
     String args[] = new String[]{ remoteId };
     String result = null;
@@ -123,7 +125,7 @@ public final class SyncRunnable implements Runnable {
     return result;
   }
 
-  private static void deleteResource(String remoteId, String tableName, SQLiteDatabase db) {
+  private void deleteResource(String remoteId, String tableName) {
     String whereClause = "remote_id = ?";
     String whereArgs[] = new String[]{ remoteId };
     db.delete(tableName, whereClause, whereArgs);
@@ -132,7 +134,7 @@ public final class SyncRunnable implements Runnable {
   }
 
   @TargetApi(Build.VERSION_CODES.FROYO)
-  private static void saveAsset(CDAAsset asset, SQLiteDatabase db) {
+  private void saveAsset(CDAAsset asset) {
     ContentValues values = new ContentValues();
     putResourceFields(asset, values);
     values.put("url", asset.getUrl());
@@ -141,7 +143,7 @@ public final class SyncRunnable implements Runnable {
   }
 
   @SuppressWarnings("unchecked")
-  private void saveEntry(CDAEntry entry, SQLiteDatabase db, Object... objects) {
+  private void saveEntry(CDAEntry entry, Object... objects) {
     String tableName = (String) objects[0];
     List<FieldMeta> fields = (List<FieldMeta>) objects[1];
 
@@ -151,10 +153,10 @@ public final class SyncRunnable implements Runnable {
       Object value = entry.getFields().get(field.id);
       if (field.isLink()) {
         if (value == null) {
-          deleteResourceLinks(db, entry);
+          deleteResourceLinks(entry);
         } else if (value instanceof CDAResource) { // TODO enforcing nullifyUnresolved will make this test redundant
           //noinspection ConstantConditions
-          saveLink(db, entry, field.name, (CDAResource) value);
+          saveLink(entry, field.name, (CDAResource) value);
         }
       } else {
         if (value != null) {
@@ -170,14 +172,14 @@ public final class SyncRunnable implements Runnable {
     db.insertWithOnConflict(DbHelper.TABLE_ENTRY_TYPES, null, values, CONFLICT_REPLACE);
   }
 
-  private void saveLink(SQLiteDatabase db, CDAResource parent, String fieldName,
+  private void saveLink(CDAResource parent, String fieldName,
       CDAResource child) {
     String parentRemoteId = extractResourceId(parent);
     String childRemoteId = extractResourceId(child);
     String childContentType = null;
 
     if (!isOfType(child, CDAResourceType.Asset)) {
-      childContentType = extractContentTypeId((CDAEntry) child);
+      childContentType = extractContentTypeId(child);
     }
 
     ContentValues values = new ContentValues();
@@ -188,7 +190,7 @@ public final class SyncRunnable implements Runnable {
     db.insertWithOnConflict(DbHelper.TABLE_LINKS, null, values, CONFLICT_REPLACE);
   }
 
-  private static void deleteResourceLinks(SQLiteDatabase db, CDAResource resource) {
+  private void deleteResourceLinks(CDAResource resource) {
     String where = "parent = ?";
     String[] args = new String[]{ extractResourceId(resource) };
     db.delete(DbHelper.TABLE_LINKS, where, args);
@@ -201,15 +203,15 @@ public final class SyncRunnable implements Runnable {
   }
 
   static abstract class ResourceHandler {
-    abstract void asset(CDAResource resource, SQLiteDatabase db, Object... objects);
-    abstract void entry(CDAResource resource, SQLiteDatabase db, Object... objects);
+    abstract void asset(CDAResource resource, Object... objects);
+    abstract void entry(CDAResource resource, Object... objects);
 
-    void invoke(CDAResource resource, SQLiteDatabase db, Object... objects) {
+    void invoke(CDAResource resource, Object... objects) {
       CDAResourceType resourceType = CDAResourceType.valueOf(extractResourceType(resource));
       if (Asset.equals(resourceType) || DeletedAsset.equals(resourceType)) {
-        asset(resource, db, objects);
+        asset(resource, objects);
       } else if (Entry.equals(resourceType) || DeletedEntry.equals(resourceType)) {
-        entry(resource, db, objects);
+        entry(resource, objects);
       }
     }
   }
