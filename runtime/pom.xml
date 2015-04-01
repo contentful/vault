@@ -10,7 +10,7 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>sqlite</artifactId>
+  <artifactId>sqlite-runtime</artifactId>
 
   <dependencies>
     <dependency>

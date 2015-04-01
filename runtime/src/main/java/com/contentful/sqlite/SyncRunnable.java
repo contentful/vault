@@ -76,6 +76,9 @@ public final class SyncRunnable implements Runnable {
             if (isOfType(resource, Entry)) {
               Class<?> clazz = helper.getTypesMap().get(
                   extractContentTypeId(resource));
+              if (clazz == null) {
+                continue;
+              }
 
               tableName = helper.getTablesMap().get(clazz);
               if (tableName == null) {

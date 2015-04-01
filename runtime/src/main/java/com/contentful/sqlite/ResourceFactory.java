@@ -1,7 +1,6 @@
 package com.contentful.sqlite;
 
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
@@ -48,7 +47,7 @@ final class ResourceFactory {
         continue;
       }
 
-      int columnIndex = fields.indexOf(field) + DbHelper.RESOURCE_COLUMNS.length + 1;
+      int columnIndex = fields.indexOf(field) + DbHelper.RESOURCE_COLUMNS.length;
       Object value = valueForField(cursor, field, columnIndex);
       if (value != null) {
         f.setAccessible(true);
