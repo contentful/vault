@@ -67,13 +67,13 @@ public class Persistence {
     }
   }
 
-  public static <T extends Resource> Query<T> fetch(Context context, Class<?> space,
+  public static <T extends Resource> FutureQuery<T> fetch(Context context, Class<?> space,
       Class<T> resource) {
     DbHelper helper = getOrCreateDbHelper(context, space);
     return fetch(helper, resource);
   }
 
-  public static <T extends Resource> Query<T> fetch(DbHelper helper, Class<T> resource) {
+  public static <T extends Resource> FutureQuery<T> fetch(DbHelper helper, Class<T> resource) {
     String tableName;
     if (Asset.class.equals(resource)) {
       tableName = DbHelper.TABLE_ASSETS;
@@ -85,7 +85,7 @@ public class Persistence {
       }
     }
     List<FieldMeta> fields = helper.getFieldsMap().get(resource);
-    return new Query<T>(((SQLiteOpenHelper) helper).getReadableDatabase(), resource, tableName,
+    return new FutureQuery<T>(helper, resource, tableName,
         fields);
   }
 }

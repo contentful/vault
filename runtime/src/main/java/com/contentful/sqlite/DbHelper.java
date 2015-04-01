@@ -16,8 +16,14 @@ public interface DbHelper {
   int COLUMN_UPDATED_AT = 3;
 
   // Static asset column indexes
-  int COLUMN_ASSET_URL = 2;
-  int COLUMN_ASSET_MIME_TYPE = 3;
+  int COLUMN_ASSET_URL = 4;
+  int COLUMN_ASSET_MIME_TYPE = 5;
+
+  // Static links column indexes
+  int COLUMN_LINKS_PARENT = 4;
+  int COLUMN_LINKS_CHILD = 5;
+  int COLUMN_LINKS_FIELD = 6;
+  int COLUMN_LINKS_CHILD_NAME = 7;
 
   String[] RESOURCE_COLUMNS = new String[]{
       "`remote_id` STRING NOT NULL UNIQUE",
@@ -40,7 +46,9 @@ public interface DbHelper {
       + "`_ID` INTEGER PRIMARY KEY AUTOINCREMENT,"
       + "`parent` STRING NOT NULL,"
       + "`child` STRING NOT NULL,"
-      + "UNIQUE (`parent`, `child`)"
+      + "`field` STRING NOT NULL,"
+      + "`child_name` STRING NOT NULL,"
+      + "UNIQUE (`parent`, `child`, `field`)"
       + ");";
 
   List<String> DEFAULT_CREATE = Arrays.asList(CREATE_ASSETS, CREATE_LINKS);

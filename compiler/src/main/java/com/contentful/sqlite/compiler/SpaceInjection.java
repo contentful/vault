@@ -111,7 +111,7 @@ final class SpaceInjection extends Injection {
             .append(member.fieldName)
             .append("\", ");
 
-        if (member.link) {
+        if (member.isLink()) {
           builder.append("null");
         } else {
           builder.append("\"")
@@ -119,8 +119,14 @@ final class SpaceInjection extends Injection {
               .append("\"");
         }
 
-        builder.append(", ")
-            .append(Boolean.toString(member.link));
+        builder.append(", ");
+        if (member.isLink()) {
+          builder.append("\"")
+              .append(member.linkType)
+              .append("\"");
+        } else {
+          builder.append("null");
+        }
 
         builder.append(", \"")
             .append(member.enclosedType)

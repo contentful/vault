@@ -62,25 +62,6 @@ public class SpaceTest {
         .withErrorContaining("@Space id may not be empty. (test.Test)");
   }
 
-  /*
-  todo ensure is not interface
-  @Test public void failsInvalidType() throws Exception {
-    JavaFileObject source = JavaFileObjects.forSourceString("test.Test", Joiner.on('\n')
-        .join("package test;",
-            "import com.contentful.sqlite.Space;",
-            "@Space(value = \"id\", models = {})",
-            "public class Test {",
-            "}"));
-
-    ASSERT.about(javaSource()).that(source)
-        .processedWith(processors())
-        .failsToCompile()
-        .withErrorContaining(
-            "@Space annotated targets must extend \"com.contentful.sqlite.DbHelper\". "
-                + "(test.Test)");
-  }
-  */
-
   @Test public void failsDuplicateId() throws Exception {
     JavaFileObject source = JavaFileObjects.forSourceString("test.Test", Joiner.on('\n').join(
         "package test;",

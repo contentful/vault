@@ -20,6 +20,8 @@ import retrofit.RestAdapter.LogLevel;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest = "src/main/AndroidManifest.xml")
@@ -61,20 +63,31 @@ public class SyncTest {
     enqueue("space.json");
     enqueue("initial.json");
     new SyncRunnable(context, Cfexampleapi.class, client).run();
-    DbHelper helper = Persistence.getOrCreateDbHelper(context, Cfexampleapi.class);
-    assertInitialAssets(helper);
-    assertInitialEntries(helper);
+    assertInitialAssets(context);
+    assertInitialEntries(context);
+    assertSingleLink(context);
 
     /*
     // Update
     enqueue("update.json");
     new SyncRunnable(context, Cfexampleapi.class, client).run();
-    assertDeltaAssets(helper);
+    assertUpdateAssets(helper);
     */
   }
 
-  private void assertInitialAssets(DbHelper helper) {
-    List<Asset> assets = Persistence.fetch(helper, Asset.class)
+  private void assertSingleLink(Context context) {
+    Cat nyanCat = Persistence.fetch(context, Cfexampleapi.class, Cat.class)
+        .where("remote_id = ?", "nyancat")
+        .first();
+
+    assertNotNull(nyanCat);
+    Cat happyCat = nyanCat.bestFriend;
+    assertNotNull(happyCat);
+    assertSame(nyanCat, happyCat.bestFriend);
+  }
+
+  private void assertInitialAssets(Context context) {
+    List<Asset> assets = Persistence.fetch(context, Cfexampleapi.class, Asset.class)
         .order("created_at")
         .all();
 
@@ -92,14 +105,25 @@ public class SyncTest {
     }
   }
 
-  private void assertInitialEntries(DbHelper helper) {
-    /*
-    TODO
-    List<Cat> cats = Persistence.fetch(helper, Cat.class)
+  private void assertInitialEntries(Context context) {
+    List<Cat> cats = Persistence.fetch(context, Cfexampleapi.class, Cat.class)
         .order("created_at")
         .all();
 
-    */
+    assertEquals(3, cats.size());
+
+    Cat nyanCat = cats.get(0);
+    assertEquals("nyancat", nyanCat.getRemoteId());
+
+    Cat happyCat = cats.get(1);
+    assertEquals("happycat", happyCat.getRemoteId());
+
+    Cat garfield = cats.get(2);
+    assertEquals("garfield", garfield.getRemoteId());
+
+    assertSame(happyCat, nyanCat.bestFriend);
+    assertSame(nyanCat, happyCat.bestFriend);
+    assertNull(garfield.bestFriend);
   }
 
   private String getServerUrl() {
@@ -108,7 +132,11 @@ public class SyncTest {
   }
 
   private void enqueue(String fileName) throws IOException {
+    URL resource = getClass().getClassLoader().getResource(fileName);
+    if (resource == null) {
+      throw new IllegalArgumentException("File not found");
+    }
     server.enqueue(new MockResponse().setResponseCode(200).setBody(FileUtils.readFileToString(
-            new File(getClass().getClassLoader().getResource(fileName).getFile()))));
+            new File(resource.getFile()))));
   }
 }

@@ -1,5 +1,8 @@
 package com.contentful.sqlite.compiler;
 
+import com.contentful.java.cda.Constants;
+import com.contentful.java.cda.Constants.CDAResourceType;
+import com.contentful.sqlite.Asset;
 import com.contentful.sqlite.ContentType;
 import com.contentful.sqlite.Field;
 import com.contentful.sqlite.Resource;
@@ -115,7 +118,7 @@ public class Processor extends AbstractProcessor {
     for (Map.Entry<TypeElement, ModelInjector> entry : modelTargets.entrySet()) {
       ModelInjector modelInjector = entry.getValue();
       for (ModelInjector.Member member : modelInjector.members) {
-        if (member.link) {
+        if (member.isLink()) {
           TypeElement te = elementUtils.getTypeElement(member.className);
           ModelInjector referencedInjector = modelTargets.get(te);
           if (referencedInjector == null) {
@@ -251,24 +254,26 @@ public class Processor extends AbstractProcessor {
       }
 
       String className = enclosedElement.asType().toString();
-      String sqliteType = SqliteUtils.typeForClass(className);
+      String sqliteType = null;
+      String linkType = null;
       boolean link = field.link();
-      if (!link && sqliteType == null) {
-        error(element,
-            "@%s specified for unsupported type (\"%s\"). (%s.%s)",
-            Field.class.getSimpleName(),
-            className,
-            typeElement.getQualifiedName(),
-            enclosedElement.getSimpleName());
+      if (link) {
+        boolean isAsset = isSubtypeOfType(enclosedElement.asType(), Asset.class.getName());
+        linkType = isAsset ? CDAResourceType.Asset.toString() : CDAResourceType.Entry.toString();
+      } else {
+        sqliteType = SqliteUtils.typeForClass(className);
+        if (sqliteType == null) {
+          error(element,
+              "@%s specified for unsupported type (\"%s\"). (%s.%s)",
+              Field.class.getSimpleName(),
+              className,
+              typeElement.getQualifiedName(),
+              enclosedElement.getSimpleName());
+        }
       }
 
       String fieldName = enclosedElement.getSimpleName().toString();
-      members.add(new ModelInjector.Member(
-          fieldId,
-          fieldName,
-          className,
-          sqliteType,
-          link,
+      members.add(new ModelInjector.Member(fieldId, fieldName, className, sqliteType, linkType,
           enclosedElement.asType().toString()));
     }
 

@@ -37,12 +37,12 @@ public class Test$Db$$Space extends SQLiteOpenHelper implements DbHelper {
     tables.put(clazz, "entry_y2lk");
     types.put("cid", clazz);
     fields.put(clazz, Arrays.asList(
-        new FieldMeta("id1", "fText", "STRING", false, "java.lang.String"),
-        new FieldMeta("id2", "fBoolean", "INT", false, "java.lang.Boolean"),
-        new FieldMeta("id3", "fInteger", "INT", false, "java.lang.Integer"),
-        new FieldMeta("id4", "fDouble", "DOUBLE", false, "java.lang.Double"),
-        new FieldMeta("id5", "fMap", "BLOB", false, "java.util.Map"),
-        new FieldMeta("id6", "fLink", null, true, "test.Test.Model")));
+        new FieldMeta("id1", "fText", "STRING", null, "java.lang.String"),
+        new FieldMeta("id2", "fBoolean", "INT", null, "java.lang.Boolean"),
+        new FieldMeta("id3", "fInteger", "INT", null, "java.lang.Integer"),
+        new FieldMeta("id4", "fDouble", "DOUBLE", null, "java.lang.Double"),
+        new FieldMeta("id5", "fMap", "BLOB", null, "java.util.Map"),
+        new FieldMeta("id6", "fLink", null, "Entry", "test.Test.Model")));
   }
 
   public static synchronized Test$Db$$Space get(Context context) {
