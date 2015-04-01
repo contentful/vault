@@ -329,7 +329,7 @@
               },
               "size": 59939
             },
-            "url": "//images.contentful.com/cfexampleapi/3MZPnjZTIskAIIkuuosCss/382a48dfa2cb16c47aa2c72f7b23bf09/happycatw.jpg"
+            "url": "//happycat.jpg"
           }
         },
         "title": {
@@ -346,7 +346,7 @@
         },
         "type": "Asset",
         "id": "happycat",
-        "revision": 2,
+        "revision": 1,
         "createdAt": "2013-09-02T14:56:34.267Z",
         "updatedAt": "2013-09-02T15:11:24.361Z"
       }
@@ -461,5 +461,5 @@
       }
     }
   ],
-  "nextSyncUrl": "http://cdn.contentful.com/spaces/cfexampleapi/sync?sync_token=w5ZGw6JFwqZmVcKsE8Kow4grw45QdybCnV_Cg8OASMKpwo1UY8K8bsKFwqJrw7DDhcKnM2RDOVbDt1E-wo7CnDjChMKKGsK1wrzCrBzCqMOpZAwOOcOvCcOAwqHDv0XCiMKaOcOxZA8BJUzDr8K-wo1lNx7DnHE"
+  "nextSyncUrl": "http://cdn.contentful.com/spaces/cfexampleapi/sync?sync_token=st1"
 }

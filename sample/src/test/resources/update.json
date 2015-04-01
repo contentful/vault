@@ -1,0 +1,182 @@
+{
+  "sys": {
+    "type": "Array"
+  },
+  "items": [
+    {
+      "fields": {
+        "name": {
+          "en-US": "SuperCat"
+        },
+        "likes": {
+          "en-US": [
+            "dogs"
+          ]
+        },
+        "color": {
+          "en-US": "black"
+        },
+        "lifes": {
+          "en-US": null
+        },
+        "lives": {
+          "en-US": 123
+        },
+        "birthday": {
+          "en-US": "1979-06-18T23:00:00+00:00"
+        }
+      },
+      "sys": {
+        "space": {
+          "sys": {
+            "type": "Link",
+            "linkType": "Space",
+            "id": "cfexampleapi"
+          }
+        },
+        "type": "Entry",
+        "contentType": {
+          "sys": {
+            "type": "Link",
+            "linkType": "ContentType",
+            "id": "cat"
+          }
+        },
+        "id": "supercat",
+        "revision": 1,
+        "createdAt": "2013-06-27T22:46:20.821Z",
+        "updatedAt": "2013-08-27T10:09:07.929Z"
+      }
+    },
+    {
+      "sys": {
+        "type": "DeletedEntry",
+        "id": "nyancat",
+        "space": {
+          "sys": {
+            "type": "Link",
+            "linkType": "Space",
+            "id": "cfexampleapi"
+          }
+        },
+        "revision": 6,
+        "createdAt": "2014-07-31T15:14:59.226Z",
+        "updatedAt": "2014-07-31T15:14:59.226Z",
+        "deletedAt": "2014-07-31T15:14:59.226Z"
+      }
+    },
+    {
+      "sys": {
+        "type": "DeletedAsset",
+        "id": "jake",
+        "space": {
+          "sys": {
+            "type": "Link",
+            "linkType": "Space",
+            "id": "DeletedAsset"
+          }
+        },
+        "revision": 1,
+        "createdAt": "2014-12-03T16:51:23.658Z",
+        "updatedAt": "2014-12-03T16:51:23.658Z",
+        "deletedAt": "2014-12-03T16:51:23.658Z"
+      }
+    },
+    {
+      "fields": {
+        "name": {
+          "en-US": "Happier Cat"
+        },
+        "bestFriend": {
+          "en-US": {
+            "sys": {
+              "type": "Link",
+              "linkType": "Entry",
+              "id": "nyancat"
+            }
+          }
+        },
+        "likes": {
+          "en-US": [
+            "cheezburger"
+          ]
+        },
+        "color": {
+          "en-US": "gray"
+        },
+        "birthday": {
+          "en-US": "2003-10-28T23:00:00+00:00"
+        },
+        "lives": {
+          "en-US": 1
+        },
+        "image": {
+          "en-US": {
+            "sys": {
+              "type": "Link",
+              "linkType": "Asset",
+              "id": "happycat"
+            }
+          }
+        }
+      },
+      "sys": {
+        "space": {
+          "sys": {
+            "type": "Link",
+            "linkType": "Space",
+            "id": "cfexampleapi"
+          }
+        },
+        "type": "Entry",
+        "contentType": {
+          "sys": {
+            "type": "Link",
+            "linkType": "ContentType",
+            "id": "cat"
+          }
+        },
+        "id": "happycat",
+        "revision": 9,
+        "createdAt": "2013-06-27T22:46:20.171Z",
+        "updatedAt": "2013-11-18T15:58:02.018Z"
+      }
+    },
+    {
+      "fields": {
+        "file": {
+          "en-US": {
+            "fileName": "happycatw.jpg",
+            "contentType": "image/jpeg",
+            "details": {
+              "image": {
+                "width": 273,
+                "height": 397
+              },
+              "size": 59939
+            },
+            "url": "//happiercat.jpg"
+          }
+        },
+        "title": {
+          "en-US": "Happy Cat"
+        }
+      },
+      "sys": {
+        "space": {
+          "sys": {
+            "type": "Link",
+            "linkType": "Space",
+            "id": "cfexampleapi"
+          }
+        },
+        "type": "Asset",
+        "id": "happycat",
+        "revision": 2,
+        "createdAt": "2013-09-02T14:56:34.267Z",
+        "updatedAt": "2013-09-02T15:11:24.361Z"
+      }
+    }
+  ],
+  "nextSyncUrl": "http://cdn.contentful.com/spaces/FAKE/sync?sync_token=st2"
+}

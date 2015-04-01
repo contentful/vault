@@ -3,15 +3,13 @@ package com.contentful.sqlite;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import com.contentful.java.cda.Constants;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import static com.contentful.sqlite.CfUtils.extractResourceId;
-import static com.contentful.sqlite.CfUtils.isOfType;
 
 public final class FutureQuery<T extends Resource> {
   private final String tableName;
@@ -127,18 +125,11 @@ public final class FutureQuery<T extends Resource> {
   private void resolveLink(Resource t, FieldMeta field) {
     LinkInfo linkInfo = fetchLinkInfo(t.getRemoteId(), field.name, field.linkType);
     if (linkInfo != null) {
-      boolean isAsset = DbHelper.TABLE_ASSETS.equals(linkInfo.childName);
+      boolean isAsset = DbHelper.TABLE_ASSETS.equals(linkInfo.childContentType);
       Map<String, Resource> map = isAsset ? assets : entries;
       Resource resource = map.get(linkInfo.child);
       if (resource == null) {
-        Class<?> clazz = null;
-        // TODO map via generated code
-        for (Map.Entry<Class<?>, String> entry : helper.getTablesMap().entrySet()) {
-          if (linkInfo.childName.equals(entry.getValue())) {
-            clazz = entry.getKey();
-            break;
-          }
-        }
+        Class<?> clazz = helper.getTypesMap().get(linkInfo.childContentType);
         if (clazz != null) {
           //noinspection unchecked
           resource = Persistence.fetch(helper, (Class<? extends Resource>) clazz)
@@ -147,9 +138,8 @@ public final class FutureQuery<T extends Resource> {
 
           if (resource != null) {
             map.put(resource.getRemoteId(), resource);
+            resolveLinks(Collections.singletonList(resource));
           }
-
-          resolveLinks(Collections.singletonList(resource));
         }
       }
       if (resource != null) {
@@ -171,23 +161,28 @@ public final class FutureQuery<T extends Resource> {
   }
 
   private LinkInfo fetchLinkInfo(String parent, String field, String type) {
-    String sql = "SELECT `child`, `child_name` FROM " + DbHelper.TABLE_LINKS + " WHERE"
-        + " parent = ?"
-        + " AND "
-        + " field = ?"; // TODO add resource type
+    StringBuilder builder = new StringBuilder()
+        .append("SELECT `child`, `child_content_type` FROM ")
+        .append(DbHelper.TABLE_LINKS)
+        .append(" WHERE parent = ? AND field = ? AND `child_content_type` IS ");
+
+    if (!Constants.CDAResourceType.Asset.toString().equals(type)) {
+      builder.append("NOT ");
+    }
+    builder.append("NULL;");
 
     String[] args = new String[]{
         parent,
         field
     };
 
-    Cursor cursor = db.rawQuery(sql, args);
+    Cursor cursor = db.rawQuery(builder.toString(), args);
     LinkInfo result = null;
     try {
       if (cursor.moveToFirst()) {
         String child = cursor.getString(0);
-        String childName = cursor.getString(1);
-        result = new LinkInfo(parent, child, field, childName);
+        String childContentType = cursor.getString(1);
+        result = new LinkInfo(parent, child, field, childContentType);
       }
     } finally {
       cursor.close();

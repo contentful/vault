@@ -1,7 +1,6 @@
 package com.contentful.sqlite;
 
 import com.contentful.java.cda.Constants.CDAResourceType;
-import com.contentful.java.cda.model.CDAEntry;
 import com.contentful.java.cda.model.CDAResource;
 import java.util.Map;
 
@@ -25,14 +24,16 @@ final class CfUtils {
     return (String) resource.getSys().get("id");
   }
 
-  static String extractContentTypeId(CDAEntry entry) {
+  static String extractContentTypeId(CDAResource entry) {
     Map contentType = (Map) entry.getSys().get("contentType");
-    return (String) ((Map) contentType.get("sys")).get("id");
+    if (contentType != null) {
+      return (String) ((Map) contentType.get("sys")).get("id");
+    }
+    return null;
   }
 
   static boolean wasDeleted(CDAResource resource) {
     CDAResourceType resourceType = CDAResourceType.valueOf(extractResourceType(resource));
     return DeletedAsset.equals(resourceType) || DeletedEntry.equals(resourceType);
   }
-
 }

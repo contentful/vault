@@ -35,7 +35,7 @@ public class SyncTest {
 
   @ContentType("cat")
   static class Cat extends Resource {
-    @Field("name") String nameField;
+    @Field("name") String name;
     @Field(value = "bestFriend", link = true) Cat bestFriend;
   }
 
@@ -56,7 +56,7 @@ public class SyncTest {
     server.shutdown();
   }
 
-  @Test public void testInitialSync() throws Exception {
+  @Test public void testSync() throws Exception {
     Context context = Robolectric.application;
 
     // Initial
@@ -67,12 +67,12 @@ public class SyncTest {
     assertInitialEntries(context);
     assertSingleLink(context);
 
-    /*
     // Update
+    enqueue("space.json");
     enqueue("update.json");
     new SyncRunnable(context, Cfexampleapi.class, client).run();
-    assertUpdateAssets(helper);
-    */
+    assertUpdateAssets(context);
+    assertUpdateEntries(context);
   }
 
   private void assertSingleLink(Context context) {
@@ -96,6 +96,27 @@ public class SyncTest {
     assertEquals("jake", assets.get(1).getRemoteId());
     assertEquals("happycat", assets.get(2).getRemoteId());
     assertEquals("1x0xpXu4pSGS4OukSyWGUK", assets.get(3).getRemoteId());
+    assertEquals("http://happycat.jpg", assets.get(2).getUrl());
+
+    for (Asset asset : assets) {
+      assertNotNull(asset.getUrl());
+      assertNotNull(asset.getMimeType());
+      assertNotNull(asset.getCreatedAt());
+      assertNotNull(asset.getUpdatedAt());
+    }
+  }
+
+  private void assertUpdateAssets(Context context) {
+    List<Asset> assets = Persistence.fetch(context, Cfexampleapi.class, Asset.class)
+        .order("created_at")
+        .all();
+
+    assertEquals(3, assets.size());
+    assertEquals("nyancat", assets.get(0).getRemoteId());
+    assertEquals("happycat", assets.get(1).getRemoteId());
+    assertEquals("1x0xpXu4pSGS4OukSyWGUK", assets.get(2).getRemoteId());
+
+    assertEquals("http://happiercat.jpg", assets.get(1).getUrl());
 
     for (Asset asset : assets) {
       assertNotNull(asset.getUrl());
@@ -117,6 +138,7 @@ public class SyncTest {
 
     Cat happyCat = cats.get(1);
     assertEquals("happycat", happyCat.getRemoteId());
+    assertEquals("Happy Cat", happyCat.name);
 
     Cat garfield = cats.get(2);
     assertEquals("garfield", garfield.getRemoteId());
@@ -124,6 +146,19 @@ public class SyncTest {
     assertSame(happyCat, nyanCat.bestFriend);
     assertSame(nyanCat, happyCat.bestFriend);
     assertNull(garfield.bestFriend);
+  }
+
+  private void assertUpdateEntries(Context context) {
+    List<Cat> cats = Persistence.fetch(context, Cfexampleapi.class, Cat.class)
+        .order("created_at")
+        .all();
+
+    Cat happyCat = cats.get(0);
+    assertEquals("happycat", happyCat.getRemoteId());
+    assertEquals("Happier Cat", happyCat.name);
+
+    assertEquals("garfield", cats.get(1).getRemoteId());
+    assertEquals("supercat", cats.get(2).getRemoteId());
   }
 
   private String getServerUrl() {

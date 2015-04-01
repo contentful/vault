@@ -8,27 +8,30 @@ import java.util.Set;
 
 public interface DbHelper {
   String TABLE_ASSETS = "assets";
+  String TABLE_ENTRY_TYPES = "entry_types";
   String TABLE_LINKS = "links";
 
-  // Static resource column indexes
+  // Static resources column indexes
   int COLUMN_REMOTE_ID = 1;
   int COLUMN_CREATED_AT = 2;
   int COLUMN_UPDATED_AT = 3;
 
-  // Static asset column indexes
+  // Static assets column indexes
   int COLUMN_ASSET_URL = 4;
   int COLUMN_ASSET_MIME_TYPE = 5;
+
+  // Static entry types column indexes
+  int COLUMN_ET_REMOTE_ID = 4;
+  int COLUMN_ET_CONTENT_TYPE = 5;
 
   // Static links column indexes
   int COLUMN_LINKS_PARENT = 4;
   int COLUMN_LINKS_CHILD = 5;
   int COLUMN_LINKS_FIELD = 6;
-  int COLUMN_LINKS_CHILD_NAME = 7;
+  int COLUMN_LINKS_CHILD_CT = 7;
 
-  String[] RESOURCE_COLUMNS = new String[]{
-      "`remote_id` STRING NOT NULL UNIQUE",
-      "`created_at` STRING NOT NULL",
-      "`updated_at` STRING"
+  String[] RESOURCE_COLUMNS = new String[] {
+      "`remote_id` STRING NOT NULL UNIQUE", "`created_at` STRING NOT NULL", "`updated_at` STRING"
   };
 
   String CREATE_ASSETS = "CREATE TABLE `"
@@ -40,6 +43,15 @@ public interface DbHelper {
       + "`mime_type` STRING NOT NULL"
       + ");";
 
+  String CREATE_ENTRY_TYPES = "CREATE TABLE `"
+      + TABLE_ENTRY_TYPES
+      + "` ("
+      + "_ID INTEGER PRIMARY KEY AUTOINCREMENT,"
+      + "`remote_id` STRING NOT NULL,"
+      + "`type_id` STRING NOT NULL,"
+      + "UNIQUE(`remote_id`)"
+      + ");";
+
   String CREATE_LINKS = "CREATE TABLE `"
       + TABLE_LINKS
       + "` ("
@@ -47,11 +59,11 @@ public interface DbHelper {
       + "`parent` STRING NOT NULL,"
       + "`child` STRING NOT NULL,"
       + "`field` STRING NOT NULL,"
-      + "`child_name` STRING NOT NULL,"
+      + "`child_content_type` STRING NOT NULL,"
       + "UNIQUE (`parent`, `child`, `field`)"
       + ");";
 
-  List<String> DEFAULT_CREATE = Arrays.asList(CREATE_ASSETS, CREATE_LINKS);
+  List<String> DEFAULT_CREATE = Arrays.asList(CREATE_ASSETS, CREATE_ENTRY_TYPES, CREATE_LINKS);
 
   Set<Class<?>> getModels();
 
