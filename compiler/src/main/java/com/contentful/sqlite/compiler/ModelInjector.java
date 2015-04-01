@@ -51,7 +51,7 @@ final class ModelInjector {
   Set<Member> getNonLinkMembers() {
     Set<Member> result = new LinkedHashSet<Member>();
     for (Member member : members) {
-      if (!member.link) {
+      if (!member.isLink()) {
         result.add(member);
       }
     }
@@ -63,17 +63,21 @@ final class ModelInjector {
     final String fieldName;
     final String className;
     final String sqliteType;
-    final boolean link;
+    final String linkType;
     final String enclosedType;
 
-    public Member(String id, String fieldName, String className, String sqliteType, boolean link,
-        String enclosedType) {
+    public Member(String id, String fieldName, String className, String sqliteType,
+        String linkType, String enclosedType) {
       this.id = id;
       this.fieldName = fieldName;
       this.className = className;
       this.sqliteType = sqliteType;
-      this.link = link;
+      this.linkType = linkType;
       this.enclosedType = enclosedType;
+    }
+
+    public boolean isLink() {
+      return this.linkType != null;
     }
   }
 }

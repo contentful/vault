@@ -1,6 +1,7 @@
 package com.contentful.sqlite;
 
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
@@ -34,22 +35,30 @@ final class ResourceFactory {
     }
   }
 
-  private static <T extends Resource> T entryFromCursor(Cursor cursor, Class<T> clazz,
-      List<FieldMeta> fields)
+  private static <T extends Resource> T entryFromCursor(Cursor cursor,
+      Class<T> clazz, List<FieldMeta> fields)
       throws IllegalAccessException, InstantiationException, NoSuchFieldException,
       NoSuchMethodException, InvocationTargetException {
     T result = clazz.newInstance();
     setResourceFields(result, cursor);
     for (FieldMeta field : fields) {
+      // TODO perform via generated code
       Field f = result.getClass().getDeclaredField(field.name);
-      f.setAccessible(true);
-      f.set(result, valueForField(cursor, field, fields.indexOf(field)));
+      if (field.isLink()) {
+        continue;
+      }
+
+      int columnIndex = fields.indexOf(field) + DbHelper.RESOURCE_COLUMNS.length + 1;
+      Object value = valueForField(cursor, field, columnIndex);
+      if (value != null) {
+        f.setAccessible(true);
+        f.set(result, value);
+      }
     }
     return result;
   }
 
   private static Object valueForField(Cursor cursor, FieldMeta field, int columnIndex) {
-    columnIndex += DbHelper.RESOURCE_COLUMNS.length + 1;
     if (String.class.getName().equals(field.className)) {
       return cursor.getString(columnIndex);
     } else if (Integer.class.getName().equals(field.className) ||
