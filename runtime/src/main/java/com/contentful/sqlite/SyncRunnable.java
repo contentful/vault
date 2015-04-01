@@ -105,9 +105,16 @@ public final class SyncRunnable implements Runnable {
     if (contentTypeId != null) {
       Class<?> clazz = helper.getTypesMap().get(contentTypeId);
       if (clazz != null) {
-        deleteResource(extractResourceId(resource), helper.getTablesMap().get(clazz));
+        deleteResource(remoteId, helper.getTablesMap().get(clazz));
+        deleteEntryType(remoteId);
       }
     }
+  }
+
+  private void deleteEntryType(String remoteId) {
+    String whereClause = "remote_id = ?";
+    String[] whereArgs = new String[]{ remoteId };
+    db.delete(DbHelper.TABLE_ENTRY_TYPES, whereClause, whereArgs);
   }
 
   private String fetchContentTypeId(String remoteId) {
@@ -126,11 +133,18 @@ public final class SyncRunnable implements Runnable {
   }
 
   private void deleteResource(String remoteId, String tableName) {
+    // resource
     String whereClause = "remote_id = ?";
     String whereArgs[] = new String[]{ remoteId };
     db.delete(tableName, whereClause, whereArgs);
-    // TODO invalidate any links pointing to this resource.
-    // TODO delete from entry_types *for entries*
+
+    // links
+    whereClause = "`parent` = ? OR `child` = ?";
+    whereArgs = new String[]{
+        remoteId,
+        remoteId
+    };
+    db.delete(DbHelper.TABLE_LINKS, whereClause, whereArgs);
   }
 
   @TargetApi(Build.VERSION_CODES.FROYO)
