@@ -61,7 +61,7 @@ public interface DbHelper {
       + "`parent` STRING NOT NULL,"
       + "`child` STRING NOT NULL,"
       + "`field` STRING NOT NULL,"
-      + "`child_content_type` STRING NOT NULL,"
+      + "`child_content_type` STRING,"
       + "UNIQUE (`parent`, `child`, `field`)"
       + ");";
 

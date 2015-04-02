@@ -179,8 +179,12 @@ final class SpaceInjection extends Injection {
         .append("      }\n\n");
 
     // Emit: CREATE model tables
-    for (ModelInjector model : models) {
-      model.emitCreateStatements(builder, "      ");
+    for (int i = 0; i < models.size(); i++) {
+      if (i > 0) {
+        builder.append("\n");
+      }
+      ModelInjector modelInjector = models.get(i);
+      modelInjector.emitCreateStatements(builder, "      ");
     }
     builder.append("\n");
 
