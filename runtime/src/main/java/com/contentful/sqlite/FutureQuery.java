@@ -3,10 +3,8 @@ package com.contentful.sqlite;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import com.contentful.java.cda.Constants;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -88,7 +86,7 @@ public final class FutureQuery<T extends Resource> {
     return first(true);
   }
 
-  private T first(boolean resolveLinks) {
+  T first(boolean resolveLinks) {
     limit(1);
     Cursor cursor = db.rawQuery(queryBuilder().toString(), queryArgs);
     T result = null;
@@ -104,90 +102,22 @@ public final class FutureQuery<T extends Resource> {
       Map<String, Resource> map = isAsset ? assets : entries;
       map.put(result.remoteId, result);
       if (resolveLinks) {
-        resolveLinks(Collections.singletonList(result));
+        resolveLinks(result);
       }
     }
     return result;
   }
 
-  private void resolveLinks(List<? extends Resource> list) {
-    if (fields != null) {
-      for (FieldMeta field : fields) {
-        if (field.isLink()) {
-          for (Resource t : list) {
-            resolveLink(t, field);
-          }
-        }
-      }
+  Resource fetchResource(LinkInfo linkInfo) {
+    Resource resource = null;
+    Class<?> clazz = helper.getTypesMap().get(linkInfo.childContentType);
+    if (clazz != null) {
+      //noinspection unchecked
+      resource = Persistence.fetch(helper, (Class<? extends Resource>) clazz)
+          .where("remote_id = ?", linkInfo.child)
+          .first(false);
     }
-  }
-
-  private void resolveLink(Resource t, FieldMeta field) {
-    LinkInfo linkInfo = fetchLinkInfo(t.getRemoteId(), field.name, field.linkType);
-    if (linkInfo != null) {
-      boolean isAsset = DbHelper.TABLE_ASSETS.equals(linkInfo.childContentType);
-      Map<String, Resource> map = isAsset ? assets : entries;
-      Resource resource = map.get(linkInfo.child);
-      if (resource == null) {
-        Class<?> clazz = helper.getTypesMap().get(linkInfo.childContentType);
-        if (clazz != null) {
-          //noinspection unchecked
-          resource = Persistence.fetch(helper, (Class<? extends Resource>) clazz)
-              .where("remote_id = ?", linkInfo.child)
-              .first(false);
-
-          if (resource != null) {
-            map.put(resource.getRemoteId(), resource);
-            resolveLinks(Collections.singletonList(resource));
-          }
-        }
-      }
-      if (resource != null) {
-        setFieldValue(t, field, resource);
-      }
-    }
-  }
-
-  private void setFieldValue(Resource t, FieldMeta field, Object value) {
-    try {
-      java.lang.reflect.Field f = t.getClass().getDeclaredField(field.name);
-      f.setAccessible(true);
-      f.set(t, value);
-    } catch (NoSuchFieldException e) {
-      throw new RuntimeException(e);
-    } catch (IllegalAccessException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  private LinkInfo fetchLinkInfo(String parent, String field, String type) {
-    StringBuilder builder = new StringBuilder()
-        .append("SELECT `child`, `child_content_type` FROM ")
-        .append(DbHelper.TABLE_LINKS)
-        .append(" WHERE parent = ? AND field = ? AND `child_content_type` IS ");
-
-    if (!Constants.CDAResourceType.Asset.toString().equals(type)) {
-      builder.append("NOT ");
-    }
-    builder.append("NULL;");
-
-    String[] args = new String[]{
-        parent,
-        field
-    };
-
-    Cursor cursor = db.rawQuery(builder.toString(), args);
-    LinkInfo result = null;
-    try {
-      if (cursor.moveToFirst()) {
-        String child = cursor.getString(0);
-        String childContentType = cursor.getString(1);
-        result = new LinkInfo(parent, child, field, childContentType);
-      }
-    } finally {
-      cursor.close();
-    }
-    return result;
+    return resource;
   }
 
   private StringBuilder queryBuilder() {
@@ -216,5 +146,34 @@ public final class FutureQuery<T extends Resource> {
     }
     queryArgs = argsList.toArray(new String[argsList.size()]);
     return builder;
+  }
+
+  private void resolveLinks(List<T> resources) {
+    if (fields == null) {
+      // TODO
+      return;
+    }
+
+    List<FieldMeta> links = new ArrayList<FieldMeta>();
+    for (FieldMeta field : links) {
+      if (field.isLink()) {
+        links.add(field);
+      }
+    }
+    if (links.size() > 0) {
+      QueryLinkResolver resolver = new QueryLinkResolver(helper, this);
+      for (T resource : resources) {
+        resolver.resolveLinks(resource, helper.getFieldsMap().get(resolver.getClass()));
+      }
+    }
+  }
+
+  private void resolveLinks(T resource) {
+    if (fields == null) {
+      // TODO
+      return;
+    }
+    List<FieldMeta> fields = helper.getFieldsMap().get(resource.getClass());
+    new QueryLinkResolver(helper, this).resolveLinks(resource, fields);
   }
 }

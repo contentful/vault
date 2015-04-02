@@ -1,6 +1,5 @@
 package com.contentful.sqlite.compiler;
 
-import com.contentful.java.cda.Constants;
 import com.contentful.java.cda.Constants.CDAResourceType;
 import com.contentful.sqlite.Asset;
 import com.contentful.sqlite.ContentType;

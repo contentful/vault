@@ -1,7 +1,6 @@
 package com.contentful.sqlite;
 
 import android.content.Context;
-import android.database.sqlite.SQLiteOpenHelper;
 import com.contentful.java.cda.CDAClient;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
