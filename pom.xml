@@ -35,7 +35,7 @@
     <mockwebserver.version>2.3.0</mockwebserver.version>
     <okhttp.version>2.3.0</okhttp.version>
     <okhttp-urlconnection.version>2.3.0</okhttp-urlconnection.version>
-    <robolectric.version>2.4</robolectric.version>
+    <robolectric.version>3.0-rc2</robolectric.version>
     <truth.version>0.25</truth.version>
   </properties>
 

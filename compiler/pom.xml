@@ -24,8 +24,13 @@
     </dependency>
     <dependency>
       <groupId>com.contentful</groupId>
-      <artifactId>sqlite</artifactId>
+      <artifactId>sqlite-runtime</artifactId>
       <version>${project.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.contentful.java</groupId>
+      <artifactId>java-sdk</artifactId>
       <scope>provided</scope>
     </dependency>
 
