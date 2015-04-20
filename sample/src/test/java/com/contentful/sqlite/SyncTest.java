@@ -13,8 +13,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 import retrofit.RestAdapter.LogLevel;
 
@@ -57,7 +57,7 @@ public class SyncTest {
   }
 
   @Test public void testSync() throws Exception {
-    Context context = Robolectric.application;
+    Context context = RuntimeEnvironment.application;
 
     // Initial
     enqueue("space.json");
