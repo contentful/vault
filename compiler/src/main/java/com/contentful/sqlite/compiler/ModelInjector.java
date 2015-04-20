@@ -24,8 +24,6 @@ final class ModelInjector {
         .append(tableName)
         .append("` (\"\n")
         .append(indent)
-        .append("    + \"`_ID` INTEGER PRIMARY KEY AUTOINCREMENT,\"\n")
-        .append(indent)
         .append("    + TextUtils.join(\",\", RESOURCE_COLUMNS) + \",\"\n");
 
     Set<Member> filtered = getNonLinkMembers();
