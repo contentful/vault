@@ -4,7 +4,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import com.contentful.java.cda.Constants.CDAResourceType;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -12,8 +11,6 @@ final class QueryLinkResolver {
   final DbHelper helper;
   final SQLiteDatabase db;
   final FutureQuery<?> query;
-  final Map<String, Resource> assetsCache = new LinkedHashMap<String, Resource>();
-  final Map<String, Resource> entriesCache = new LinkedHashMap<String, Resource>();
 
   QueryLinkResolver(DbHelper helper, FutureQuery<?> query) {
     this.helper = helper;
@@ -35,18 +32,23 @@ final class QueryLinkResolver {
     if (linkInfo == null) {
       return;
     }
-    boolean isAsset = DbHelper.TABLE_ASSETS.equals(linkInfo.childContentType);
-    Map<String, Resource> map = isAsset ? assetsCache : entriesCache;
+    boolean isAsset = linkInfo.childContentType == null;
+    Map<String, Resource> map = isAsset ? query.getAssetsCache() : query.getEntriesCache();
     Resource target = map.get(linkInfo.child);
+    boolean fromCache = false;
     if (target == null) {
       target = query.fetchResource(linkInfo);
-      if (target != null) {
-        map.put(resource.getRemoteId(), resource);
-        List<FieldMeta> targetFields = helper.getFieldsMap().get(resource.getClass()); // TODO verify
-        resolveLinks(target, targetFields);
-      }
+    } else {
+      fromCache = true;
     }
     if (target != null) {
+      if (!fromCache) {
+        map.put(target.getRemoteId(), target);
+        if (!isAsset) {
+          List<FieldMeta> targetFields = helper.getFieldsMap().get(target.getClass());
+          resolveLinks(target, targetFields);
+        }
+      }
       setFieldValue(resource, field.name, target);
     }
   }

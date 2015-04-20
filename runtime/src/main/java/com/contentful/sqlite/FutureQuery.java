@@ -110,7 +110,12 @@ public final class FutureQuery<T extends Resource> {
 
   Resource fetchResource(LinkInfo linkInfo) {
     Resource resource = null;
-    Class<?> clazz = helper.getTypesMap().get(linkInfo.childContentType);
+    Class<?> clazz;
+    if (linkInfo.childContentType == null) {
+      clazz = Asset.class;
+    } else {
+      clazz = helper.getTypesMap().get(linkInfo.childContentType);
+    }
     if (clazz != null) {
       //noinspection unchecked
       resource = Persistence.fetch(helper, (Class<? extends Resource>) clazz)
@@ -149,31 +154,39 @@ public final class FutureQuery<T extends Resource> {
   }
 
   private void resolveLinks(List<T> resources) {
+    // Skip for assets
     if (fields == null) {
-      // TODO
       return;
     }
 
     List<FieldMeta> links = new ArrayList<FieldMeta>();
-    for (FieldMeta field : links) {
+    for (FieldMeta field : fields) {
       if (field.isLink()) {
         links.add(field);
       }
     }
+
     if (links.size() > 0) {
       QueryLinkResolver resolver = new QueryLinkResolver(helper, this);
       for (T resource : resources) {
-        resolver.resolveLinks(resource, helper.getFieldsMap().get(resolver.getClass()));
+        resolver.resolveLinks(resource, fields);
       }
     }
   }
 
   private void resolveLinks(T resource) {
+    // Skip for assets
     if (fields == null) {
-      // TODO
       return;
     }
-    List<FieldMeta> fields = helper.getFieldsMap().get(resource.getClass());
     new QueryLinkResolver(helper, this).resolveLinks(resource, fields);
+  }
+
+  Map<String, Resource> getAssetsCache() {
+    return assets;
+  }
+
+  Map<String, Resource> getEntriesCache() {
+    return entries;
   }
 }

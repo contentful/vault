@@ -408,6 +408,15 @@
         },
         "birthday": {
           "en-US": "1979-06-18T23:00:00+00:00"
+        },
+        "image": {
+          "en-US": {
+            "sys": {
+              "type": "Link",
+              "linkType": "Asset",
+              "id": "happycat"
+            }
+          }
         }
       },
       "sys": {

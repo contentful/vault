@@ -37,6 +37,7 @@ public class SyncTest {
   static class Cat extends Resource {
     @Field("name") String name;
     @Field(value = "bestFriend", link = true) Cat bestFriend;
+    @Field(value = "image", link = true) Asset image;
   }
 
   @Before public void setUp() throws Exception {
@@ -135,13 +136,17 @@ public class SyncTest {
 
     Cat nyanCat = cats.get(0);
     assertEquals("nyancat", nyanCat.getRemoteId());
+    assertNotNull(nyanCat.image);
 
     Cat happyCat = cats.get(1);
     assertEquals("happycat", happyCat.getRemoteId());
     assertEquals("Happy Cat", happyCat.name);
+    assertNotNull(happyCat.image);
 
     Cat garfield = cats.get(2);
     assertEquals("garfield", garfield.getRemoteId());
+    assertNotNull(garfield.image);
+    assertSame(happyCat.image, garfield.image);
 
     assertSame(happyCat, nyanCat.bestFriend);
     assertSame(nyanCat, happyCat.bestFriend);

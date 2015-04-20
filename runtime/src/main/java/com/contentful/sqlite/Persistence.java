@@ -84,7 +84,6 @@ public class Persistence {
       }
     }
     List<FieldMeta> fields = helper.getFieldsMap().get(resource);
-    return new FutureQuery<T>(helper, resource, tableName,
-        fields);
+    return new FutureQuery<T>(helper, resource, tableName, fields);
   }
 }
