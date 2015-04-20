@@ -42,7 +42,8 @@ public class Test$Db$$Space extends SQLiteOpenHelper implements DbHelper {
         new FieldMeta("id3", "fInteger", "INT", null, "java.lang.Integer"),
         new FieldMeta("id4", "fDouble", "DOUBLE", null, "java.lang.Double"),
         new FieldMeta("id5", "fMap", "BLOB", null, "java.util.Map"),
-        new FieldMeta("id6", "fLink", null, "Entry", "test.Test.Model")));
+        new FieldMeta("id6", "fLinkedModel", null, "Entry", "test.Test.Model"),
+        new FieldMeta("id7", "fLinkedAsset", null, "Asset", "com.contentful.sqlite.Asset")));
   }
 
   public static synchronized Test$Db$$Space get(Context context) {

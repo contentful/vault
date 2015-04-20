@@ -120,7 +120,8 @@ public class Processor extends AbstractProcessor {
         if (member.isLink()) {
           TypeElement te = elementUtils.getTypeElement(member.className);
           ModelInjector referencedInjector = modelTargets.get(te);
-          if (referencedInjector == null) {
+          boolean isAsset = isSubtypeOfType(te.asType(), Asset.class.getName());
+          if (referencedInjector == null && !isAsset) {
             error(te,
                 "@%s with id \"%s\" links to unsupported type \"%s\". (%s.%s)",
                 Field.class.getSimpleName(),

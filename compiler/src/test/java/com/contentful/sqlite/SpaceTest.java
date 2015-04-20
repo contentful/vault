@@ -13,6 +13,7 @@ public class SpaceTest {
   @Test public void testInjection() throws Exception {
     JavaFileObject source = JavaFileObjects.forSourceString("test.Test", Joiner.on('\n').join(
         "package test;",
+        "import com.contentful.sqlite.Asset;",
         "import com.contentful.sqlite.DbHelper;",
         "import com.contentful.sqlite.ContentType;",
         "import com.contentful.sqlite.Field;",
@@ -30,7 +31,8 @@ public class SpaceTest {
         "    @Field(\"id3\") Integer fInteger;",
         "    @Field(\"id4\") Double fDouble;",
         "    @Field(\"id5\") Map fMap;",
-        "    @Field(value = \"id6\", link = true) Model fLink;",
+        "    @Field(value = \"id6\", link = true) Model fLinkedModel;",
+        "    @Field(value = \"id7\", link = true) Asset fLinkedAsset;",
         "  }",
         "",
         "  @Space(value = \"sid\", models = { Model.class })",
