@@ -10,22 +10,6 @@ import static com.google.common.truth.Truth.ASSERT;
 import static com.google.testing.compile.JavaSourceSubjectFactory.javaSource;
 
 public class FieldTest {
-  @Test public void failsEmptyId() throws Exception {
-    JavaFileObject source = JavaFileObjects.forSourceString("test.Test", Joiner.on('\n').join(
-        "package test;",
-        "import com.contentful.sqlite.ContentType;",
-        "import com.contentful.sqlite.Field;",
-        "@ContentType(\"cid\")",
-        "public class Test {",
-        "  @Field(\"\") String text;",
-        "}"));
-
-    ASSERT.about(javaSource()).that(source)
-        .processedWith(processors())
-        .failsToCompile()
-        .withErrorContaining("@Field id may not be empty. (test.Test.text)");
-  }
-
   @Test public void failsDuplicateId() throws Exception {
     JavaFileObject source = JavaFileObjects.forSourceString("test.Test", Joiner.on('\n').join(
         "package test;",

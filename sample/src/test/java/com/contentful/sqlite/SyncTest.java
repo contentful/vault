@@ -35,9 +35,9 @@ public class SyncTest {
 
   @ContentType("cat")
   static class Cat extends Resource {
-    @Field("name") String name;
-    @Field(value = "bestFriend", link = true) Cat bestFriend;
-    @Field(value = "image", link = true) Asset image;
+    @Field String name;
+    @Field Cat bestFriend;
+    @Field Asset image;
   }
 
   @Before public void setUp() throws Exception {
