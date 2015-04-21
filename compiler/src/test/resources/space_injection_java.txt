@@ -37,13 +37,13 @@ public class Test$Db$$Space extends SQLiteOpenHelper implements DbHelper {
     tables.put(clazz, "entry_y2lk");
     types.put("cid", clazz);
     fields.put(clazz, Arrays.asList(
-        new FieldMeta("id1", "fText", "STRING", null, "java.lang.String"),
-        new FieldMeta("id2", "fBoolean", "INT", null, "java.lang.Boolean"),
-        new FieldMeta("id3", "fInteger", "INT", null, "java.lang.Integer"),
-        new FieldMeta("id4", "fDouble", "DOUBLE", null, "java.lang.Double"),
-        new FieldMeta("id5", "fMap", "BLOB", null, "java.util.Map"),
-        new FieldMeta("id6", "fLinkedModel", null, "Entry", "test.Test.Model"),
-        new FieldMeta("id7", "fLinkedAsset", null, "Asset", "com.contentful.sqlite.Asset")));
+        new FieldMeta("fText", "fText", "STRING", null, "java.lang.String"),
+        new FieldMeta("fBoolean", "fBoolean", "INT", null, "java.lang.Boolean"),
+        new FieldMeta("fInteger", "fInteger", "INT", null, "java.lang.Integer"),
+        new FieldMeta("fDouble", "fDouble", "DOUBLE", null, "java.lang.Double"),
+        new FieldMeta("fMap", "fMap", "BLOB", null, "java.util.Map"),
+        new FieldMeta("fLinkedModel", "fLinkedModel", null, "Entry", "test.Test.Model"),
+        new FieldMeta("fLinkedAsset", "fLinkedAsset", null, "Asset", "com.contentful.sqlite.Asset")));
   }
 
   public static synchronized Test$Db$$Space get(Context context) {

@@ -96,9 +96,6 @@ public class Processor extends AbstractProcessor {
       }
     }
 
-    // Parse link references
-    parseLinks(modelTargets);
-
     // Parse Space bindings
     for (Element element : env.getElementsAnnotatedWith(Space.class)) {
       try {
@@ -111,28 +108,6 @@ public class Processor extends AbstractProcessor {
     Map<TypeElement, Injection> result = new LinkedHashMap<TypeElement, Injection>();
     result.putAll(spaceTargets);
     return result;
-  }
-
-  private void parseLinks(Map<TypeElement, ModelInjector> modelTargets) {
-    for (Map.Entry<TypeElement, ModelInjector> entry : modelTargets.entrySet()) {
-      ModelInjector modelInjector = entry.getValue();
-      for (ModelInjector.Member member : modelInjector.members) {
-        if (member.isLink()) {
-          TypeElement te = elementUtils.getTypeElement(member.className);
-          ModelInjector referencedInjector = modelTargets.get(te);
-          boolean isAsset = isSubtypeOfType(te.asType(), Asset.class.getName());
-          if (referencedInjector == null && !isAsset) {
-            error(te,
-                "@%s with id \"%s\" links to unsupported type \"%s\". (%s.%s)",
-                Field.class.getSimpleName(),
-                member.id,
-                member.className,
-                modelInjector.className,
-                member.fieldName);
-          }
-        }
-      }
-    }
   }
 
   private void parseSpace(Element element, Map<TypeElement, SpaceInjection> spaceTargets,
@@ -238,10 +213,7 @@ public class Processor extends AbstractProcessor {
 
       String fieldId = field.value();
       if (fieldId.isEmpty()) {
-        error(enclosedElement, "@%s id may not be empty. (%s.%s)", Field.class.getSimpleName(),
-            typeElement.getQualifiedName(),
-            enclosedElement.getSimpleName());
-        return;
+        fieldId = enclosedElement.getSimpleName().toString();
       }
 
       if (!memberIds.add(fieldId)) {
@@ -256,7 +228,7 @@ public class Processor extends AbstractProcessor {
       String className = enclosedElement.asType().toString();
       String sqliteType = null;
       String linkType = null;
-      boolean link = field.link();
+      boolean link = isSubtypeOfType(enclosedElement.asType(), Resource.class.getName());
       if (link) {
         boolean isAsset = isSubtypeOfType(enclosedElement.asType(), Asset.class.getName());
         linkType = isAsset ? CDAResourceType.Asset.toString() : CDAResourceType.Entry.toString();

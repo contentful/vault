@@ -9,7 +9,5 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
 @Target(FIELD)
 @Retention(CLASS)
 public @interface Field {
-  String value();
-
-  boolean link() default false;
+  String value() default "";
 }

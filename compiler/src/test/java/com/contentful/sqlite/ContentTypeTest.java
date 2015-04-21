@@ -62,23 +62,4 @@ public class ContentTypeTest {
             "Classes annotated with @ContentType must extend \"com.contentful.sqlite.Resource\". "
                 + "(test.Test)");
   }
-
-  @Test public void failsInvalidLink() throws Exception {
-    JavaFileObject source = JavaFileObjects.forSourceString("test.Test", Joiner.on('\n').join(
-        "package test;",
-        "import com.contentful.sqlite.ContentType;",
-        "import com.contentful.sqlite.Field;",
-        "import com.contentful.sqlite.Resource;",
-        "import java.util.Date;",
-        "@ContentType(\"cid\")",
-        "public class Test extends Resource {",
-        "  @Field(value = \"a\", link = true) Date thing;",
-        "}"));
-
-    ASSERT.about(javaSource()).that(source)
-        .processedWith(processors())
-        .failsToCompile()
-        .withErrorContaining(
-            "@Field with id \"a\" links to unsupported type \"java.util.Date\". (test.Test.thing)");
-  }
 }
