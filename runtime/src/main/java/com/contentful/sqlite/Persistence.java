@@ -11,6 +11,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Persistence {
+  public static final String ACTION_SYNC_COMPLETE = "com.contentful.sqlite.ACTION_SYNC_COMPLETE";
+  
   private Persistence() {
     throw new AssertionError();
   }

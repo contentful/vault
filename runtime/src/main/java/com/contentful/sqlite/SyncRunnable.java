@@ -3,6 +3,7 @@ package com.contentful.sqlite;
 import android.annotation.TargetApi;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -95,6 +96,8 @@ public final class SyncRunnable implements Runnable {
       }
     } catch (Exception e) {
       throw new SyncException(e);
+    } finally {
+      context.sendBroadcast(new Intent(Persistence.ACTION_SYNC_COMPLETE));
     }
   }
 
