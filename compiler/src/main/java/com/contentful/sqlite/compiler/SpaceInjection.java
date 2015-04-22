@@ -1,6 +1,5 @@
 package com.contentful.sqlite.compiler;
 
-import com.contentful.sqlite.compiler.ModelInjector.Member;
 import java.util.Iterator;
 import java.util.List;
 
@@ -101,9 +100,9 @@ final class SpaceInjection extends Injection {
 
       // Emit: fields mapping
       builder.append("    fields.put(clazz, Arrays.asList(\n");
-      Iterator<Member> it = model.members.iterator();
+      Iterator<ModelMember> it = model.members.iterator();
       while (it.hasNext()) {
-        Member member = it.next();
+        ModelMember member = it.next();
         builder.append("        ")
             .append("new FieldMeta(\"")
             .append(member.id)
@@ -129,7 +128,7 @@ final class SpaceInjection extends Injection {
         }
 
         builder.append(", \"")
-            .append(member.enclosedType)
+            .append(member.className)
             .append("\"")
             .append(")");
 

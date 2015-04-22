@@ -203,7 +203,7 @@ public class Processor extends AbstractProcessor {
           typeElement.getQualifiedName());
     }
 
-    Set<ModelInjector.Member> members = new LinkedHashSet<ModelInjector.Member>();
+    Set<ModelMember> members = new LinkedHashSet<ModelMember>();
     Set<String> memberIds = new LinkedHashSet<String>();
     for (Element enclosedElement : element.getEnclosedElements()) {
       Field field = enclosedElement.getAnnotation(Field.class);
@@ -225,28 +225,7 @@ public class Processor extends AbstractProcessor {
         return;
       }
 
-      String className = enclosedElement.asType().toString();
-      String sqliteType = null;
-      String linkType = null;
-      boolean link = isSubtypeOfType(enclosedElement.asType(), Resource.class.getName());
-      if (link) {
-        boolean isAsset = isSubtypeOfType(enclosedElement.asType(), Asset.class.getName());
-        linkType = isAsset ? CDAResourceType.Asset.toString() : CDAResourceType.Entry.toString();
-      } else {
-        sqliteType = SqliteUtils.typeForClass(className);
-        if (sqliteType == null) {
-          error(element,
-              "@%s specified for unsupported type (\"%s\"). (%s.%s)",
-              Field.class.getSimpleName(),
-              className,
-              typeElement.getQualifiedName(),
-              enclosedElement.getSimpleName());
-        }
-      }
-
-      String fieldName = enclosedElement.getSimpleName().toString();
-      members.add(new ModelInjector.Member(fieldId, fieldName, className, sqliteType, linkType,
-          enclosedElement.asType().toString()));
+      members.add(createMember(element, typeElement, enclosedElement, fieldId));
     }
 
     String tableName = "entry_" + SqliteUtils.hashForId(id);
@@ -255,6 +234,53 @@ public class Processor extends AbstractProcessor {
         id, typeElement.getQualifiedName().toString(), tableName, members);
 
     targets.put(typeElement, injection);
+  }
+
+  private ModelMember createMember(Element element, TypeElement typeElement,
+      Element enclosedElement, String fieldId) {
+    TypeMirror enclosedType = enclosedElement.asType();
+    String className = enclosedType.toString();
+    String linkType = getLinkType(enclosedType);
+    String fieldName = enclosedElement.getSimpleName().toString();
+    String sqliteType = null;
+
+    if (linkType == null) {
+      sqliteType = SqliteUtils.typeForClass(className);
+      if (sqliteType == null) {
+        error(element,
+            "@%s specified for unsupported type (\"%s\"). (%s.%s)",
+            Field.class.getSimpleName(),
+            className,
+            typeElement.getQualifiedName(),
+            enclosedElement.getSimpleName());
+      }
+    }
+
+    return ModelMember.builder()
+        .setId(fieldId)
+        .setFieldName(fieldName)
+        .setClassName(className)
+        .setSqliteType(sqliteType)
+        .setLinkType(linkType)
+        .build();
+  }
+
+  private String getLinkType(TypeMirror typeMirror) {
+    CDAResourceType resourceType = null;
+
+    if (isSubtypeOfType(typeMirror, Resource.class.getName())) {
+      if (isSubtypeOfType(typeMirror, Asset.class.getName())) {
+        resourceType = CDAResourceType.Asset;
+      } else {
+        resourceType = CDAResourceType.Entry;
+      }
+    }
+
+    if (resourceType == null) {
+      return null;
+    }
+
+    return resourceType.toString();
   }
 
   private boolean hasInjection(Map<TypeElement, ? extends Injection> targets,

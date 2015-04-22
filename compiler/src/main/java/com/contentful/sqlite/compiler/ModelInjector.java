@@ -7,9 +7,9 @@ final class ModelInjector {
   final String id;
   final String className;
   final String tableName;
-  final Set<Member> members;
+  final Set<ModelMember> members;
 
-  public ModelInjector(String id, String className, String tableName, Set<Member> members) {
+  public ModelInjector(String id, String className, String tableName, Set<ModelMember> members) {
     this.id = id;
     this.className = className;
     this.tableName = tableName;
@@ -26,10 +26,10 @@ final class ModelInjector {
         .append(indent)
         .append("    + TextUtils.join(\",\", RESOURCE_COLUMNS) + \",\"\n");
 
-    Set<Member> filtered = getNonLinkMembers();
-    Member[] list = filtered.toArray(new Member[filtered.size()]);
+    Set<ModelMember> filtered = getNonLinkMembers();
+    ModelMember[] list = filtered.toArray(new ModelMember[filtered.size()]);
     for (int i = 0; i < list.length; i++) {
-      Member member = list[i];
+      ModelMember member = list[i];
       builder.append(indent)
           .append("    + \"`")
           .append(member.fieldName)
@@ -46,36 +46,13 @@ final class ModelInjector {
         .append(");\n");
   }
 
-  Set<Member> getNonLinkMembers() {
-    Set<Member> result = new LinkedHashSet<Member>();
-    for (Member member : members) {
+  Set<ModelMember> getNonLinkMembers() {
+    Set<ModelMember> result = new LinkedHashSet<ModelMember>();
+    for (ModelMember member : members) {
       if (!member.isLink()) {
         result.add(member);
       }
     }
     return result;
-  }
-
-  final static class Member {
-    final String id;
-    final String fieldName;
-    final String className;
-    final String sqliteType;
-    final String linkType;
-    final String enclosedType;
-
-    public Member(String id, String fieldName, String className, String sqliteType,
-        String linkType, String enclosedType) {
-      this.id = id;
-      this.fieldName = fieldName;
-      this.className = className;
-      this.sqliteType = sqliteType;
-      this.linkType = linkType;
-      this.enclosedType = enclosedType;
-    }
-
-    public boolean isLink() {
-      return this.linkType != null;
-    }
   }
 }
