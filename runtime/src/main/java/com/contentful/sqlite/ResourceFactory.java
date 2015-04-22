@@ -47,7 +47,7 @@ final class ResourceFactory {
         continue;
       }
 
-      int columnIndex = fields.indexOf(field) + DbHelper.RESOURCE_COLUMNS.length;
+      int columnIndex = fields.indexOf(field) + PersistenceHelper.RESOURCE_COLUMNS.length;
       Object value = valueForField(cursor, field, columnIndex);
       if (value != null) {
         f.setAccessible(true);
@@ -70,8 +70,8 @@ final class ResourceFactory {
   }
 
   private static Asset assetFromCursor(Cursor cursor) {
-    String url = cursor.getString(DbHelper.COLUMN_ASSET_URL);
-    String mimeType = cursor.getString(DbHelper.COLUMN_ASSET_MIME_TYPE);
+    String url = cursor.getString(PersistenceHelper.COLUMN_ASSET_URL);
+    String mimeType = cursor.getString(PersistenceHelper.COLUMN_ASSET_MIME_TYPE);
 
     Asset asset = new Asset();
     setResourceFields(asset, cursor);
@@ -81,8 +81,8 @@ final class ResourceFactory {
   }
 
   private static void setResourceFields(Resource resource, Cursor cursor) {
-    resource.setRemoteId(cursor.getString(DbHelper.COLUMN_REMOTE_ID));
-    resource.setCreatedAt(cursor.getString(DbHelper.COLUMN_CREATED_AT));
-    resource.setUpdatedAt(cursor.getString(DbHelper.COLUMN_UPDATED_AT));
+    resource.setRemoteId(cursor.getString(PersistenceHelper.COLUMN_REMOTE_ID));
+    resource.setCreatedAt(cursor.getString(PersistenceHelper.COLUMN_CREATED_AT));
+    resource.setUpdatedAt(cursor.getString(PersistenceHelper.COLUMN_UPDATED_AT));
   }
 }

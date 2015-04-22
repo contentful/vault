@@ -29,8 +29,8 @@ final class SpaceInjection extends Injection {
         .append("import android.database.sqlite.SQLiteDatabase;\n")
         .append("import android.database.sqlite.SQLiteOpenHelper;\n")
         .append("import android.text.TextUtils;\n")
-        .append("import com.contentful.sqlite.DbHelper;\n")
         .append("import com.contentful.sqlite.FieldMeta;\n")
+        .append("import com.contentful.sqlite.PersistenceHelper;\n")
         .append("import java.util.Arrays;\n")
         .append("import java.util.LinkedHashMap;\n")
         .append("import java.util.LinkedHashSet;\n")
@@ -42,7 +42,7 @@ final class SpaceInjection extends Injection {
     builder.append("public class ")
         .append(className)
         .append(" extends SQLiteOpenHelper")
-        .append(" implements DbHelper {\n");
+        .append(" implements PersistenceHelper {\n");
 
     // Emit: fields
     builder.append("  static ")

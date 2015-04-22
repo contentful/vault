@@ -14,11 +14,11 @@ public class SpaceTest {
     JavaFileObject source = JavaFileObjects.forSourceString("test.Test", Joiner.on('\n').join(
         "package test;",
         "import com.contentful.sqlite.Asset;",
-        "import com.contentful.sqlite.DbHelper;",
         "import com.contentful.sqlite.ContentType;",
         "import com.contentful.sqlite.Field;",
-        "import com.contentful.sqlite.Space;",
+        "import com.contentful.sqlite.PersistenceHelper;",
         "import com.contentful.sqlite.Resource;",
+        "import com.contentful.sqlite.Space;",
         "import java.util.Arrays;",
         "import java.util.HashSet;",
         "import java.util.Set;",
@@ -67,8 +67,8 @@ public class SpaceTest {
   @Test public void failsDuplicateId() throws Exception {
     JavaFileObject source = JavaFileObjects.forSourceString("test.Test", Joiner.on('\n').join(
         "package test;",
+        "import com.contentful.sqlite.PersistenceHelper;",
         "import com.contentful.sqlite.Space;",
-        "import com.contentful.sqlite.DbHelper;",
         "import java.util.Set;",
         "@Space(value = \"sid\", models = {})",
         "public class Test {",
@@ -94,8 +94,8 @@ public class SpaceTest {
   @Test public void failsEmptyModels() throws Exception {
     JavaFileObject source = JavaFileObjects.forSourceString("test.Test", Joiner.on('\n').join(
         "package test;",
+        "import com.contentful.sqlite.PersistenceHelper;",
         "import com.contentful.sqlite.Space;",
-        "import com.contentful.sqlite.DbHelper;",
         "@Space(value = \"sid\", models = { })",
         "public class Test {",
         "}"));
@@ -109,8 +109,8 @@ public class SpaceTest {
   @Test public void failsInvalidModels() throws Exception {
     JavaFileObject source = JavaFileObjects.forSourceString("test.Test", Joiner.on('\n').join(
         "package test;",
+        "import com.contentful.sqlite.PersistenceHelper;",
         "import com.contentful.sqlite.Space;",
-        "import com.contentful.sqlite.DbHelper;",
         "@Space(value = \"sid\", models = { Object.class })",
         "public class Test {",
         "}"));

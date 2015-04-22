@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public interface DbHelper {
+public interface PersistenceHelper {
   String TABLE_ASSETS = "assets";
   String TABLE_ENTRY_TYPES = "entry_types";
   String TABLE_LINKS = "links";
