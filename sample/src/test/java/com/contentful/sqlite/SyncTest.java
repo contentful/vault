@@ -63,7 +63,8 @@ public class SyncTest {
     // Initial
     enqueue("space.json");
     enqueue("initial.json");
-    new SyncRunnable(context, Cfexampleapi.class, client).run();
+    sync(context, Cfexampleapi.class, client);
+
     assertInitialAssets(context);
     assertInitialEntries(context);
     assertSingleLink(context);
@@ -71,13 +72,22 @@ public class SyncTest {
     // Update
     enqueue("space.json");
     enqueue("update.json");
-    new SyncRunnable(context, Cfexampleapi.class, client).run();
+    sync(context, Cfexampleapi.class, client);
     assertUpdateAssets(context);
     assertUpdateEntries(context);
   }
 
+  private void sync(Context context, Class<?> space, CDAClient client) {
+    SyncRunnable.builder()
+        .setContext(context)
+        .setSpace(space)
+        .setClient(client)
+        .build()
+        .run();
+  }
+
   private void assertSingleLink(Context context) {
-    Cat nyanCat = Persistence.fetch(context, Cfexampleapi.class, Cat.class)
+    Cat nyanCat = Persistence.with(context, Cfexampleapi.class).fetch(Cat.class)
         .where("remote_id = ?", "nyancat")
         .first();
 
@@ -88,7 +98,7 @@ public class SyncTest {
   }
 
   private void assertInitialAssets(Context context) {
-    List<Asset> assets = Persistence.fetch(context, Cfexampleapi.class, Asset.class)
+    List<Asset> assets = Persistence.with(context, Cfexampleapi.class).fetch(Asset.class)
         .order("created_at")
         .all();
 
@@ -108,7 +118,7 @@ public class SyncTest {
   }
 
   private void assertUpdateAssets(Context context) {
-    List<Asset> assets = Persistence.fetch(context, Cfexampleapi.class, Asset.class)
+    List<Asset> assets = Persistence.with(context, Cfexampleapi.class).fetch(Asset.class)
         .order("created_at")
         .all();
 
@@ -128,7 +138,7 @@ public class SyncTest {
   }
 
   private void assertInitialEntries(Context context) {
-    List<Cat> cats = Persistence.fetch(context, Cfexampleapi.class, Cat.class)
+    List<Cat> cats = Persistence.with(context, Cfexampleapi.class).fetch(Cat.class)
         .order("created_at")
         .all();
 
@@ -154,7 +164,7 @@ public class SyncTest {
   }
 
   private void assertUpdateEntries(Context context) {
-    List<Cat> cats = Persistence.fetch(context, Cfexampleapi.class, Cat.class)
+    List<Cat> cats = Persistence.with(context, Cfexampleapi.class).fetch(Cat.class)
         .order("created_at")
         .all();
 

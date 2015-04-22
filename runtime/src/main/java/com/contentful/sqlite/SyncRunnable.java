@@ -15,6 +15,7 @@ import com.contentful.java.cda.model.CDAEntry;
 import com.contentful.java.cda.model.CDAResource;
 import com.contentful.java.cda.model.CDASyncedSpace;
 import java.util.List;
+import java.util.concurrent.Executor;
 
 import static android.database.sqlite.SQLiteDatabase.CONFLICT_REPLACE;
 import static com.contentful.java.cda.Constants.CDAResourceType.Asset;
@@ -31,6 +32,8 @@ public final class SyncRunnable implements Runnable {
   private final Context context;
   private final Class<?> space;
   private final CDAClient client;
+  private final SyncCallback callback;
+  private final Executor callbackExecutor;
   private PersistenceHelper helper;
   private SQLiteDatabase db;
 
@@ -54,13 +57,20 @@ public final class SyncRunnable implements Runnable {
     }
   };
 
-  public SyncRunnable(Context context, Class<?> space, CDAClient client) {
-    this.context = context;
-    this.space = space;
-    this.client = client;
+  private SyncRunnable(Builder builder) {
+    this.context = builder.context;
+    this.space = builder.space;
+    this.client = builder.client;
+    this.callback = builder.callback;
+    this.callbackExecutor = builder.callbackExecutor;
+  }
+
+  static Builder builder() {
+    return new Builder();
   }
 
   @Override public void run() {
+    boolean success = false;
     helper = Persistence.getOrCreateHelper(context, space);
     db = ((SQLiteOpenHelper) helper).getWritableDatabase();
 
@@ -75,28 +85,37 @@ public final class SyncRunnable implements Runnable {
             List<FieldMeta> fields = null;
             String tableName = null;
             if (isOfType(resource, Entry)) {
-              Class<?> clazz = helper.getTypesMap().get(
+              Class<?> clazz = helper.getTypes().get(
                   extractContentTypeId(resource));
               if (clazz == null) {
                 continue;
               }
 
-              tableName = helper.getTablesMap().get(clazz);
+              tableName = helper.getTables().get(clazz);
               if (tableName == null) {
                 continue; // TODO show warning - skipping unregistered type
               }
-              fields = helper.getFieldsMap().get(clazz);
+              fields = helper.getFields().get(clazz);
             }
             HANDLER_SAVE.invoke(resource, tableName, fields);
           }
         }
         db.setTransactionSuccessful();
+        success = true;
       } finally {
         db.endTransaction();
       }
     } catch (Exception e) {
       throw new SyncException(e);
     } finally {
+      if (callback != null) {
+        final boolean finalSuccess = success;
+        callbackExecutor.execute(new Runnable() {
+          @Override public void run() {
+            callback.onComplete(finalSuccess);
+          }
+        });
+      }
       context.sendBroadcast(new Intent(Persistence.ACTION_SYNC_COMPLETE));
     }
   }
@@ -109,9 +128,9 @@ public final class SyncRunnable implements Runnable {
     String remoteId = extractResourceId(resource);
     String contentTypeId = fetchContentTypeId(remoteId);
     if (contentTypeId != null) {
-      Class<?> clazz = helper.getTypesMap().get(contentTypeId);
+      Class<?> clazz = helper.getTypes().get(contentTypeId);
       if (clazz != null) {
-        deleteResource(remoteId, helper.getTablesMap().get(clazz));
+        deleteResource(remoteId, helper.getTables().get(clazz));
         deleteEntryType(remoteId);
       }
     }
@@ -233,6 +252,46 @@ public final class SyncRunnable implements Runnable {
       } else if (Entry.equals(resourceType) || DeletedEntry.equals(resourceType)) {
         entry(resource, objects);
       }
+    }
+  }
+
+  static class Builder {
+    private Context context;
+    private Class<?> space;
+    private CDAClient client;
+    private SyncCallback callback;
+    private Executor callbackExecutor;
+
+    private Builder() {
+    }
+
+    public Builder setContext(Context context) {
+      this.context = context;
+      return this;
+    }
+
+    public Builder setSpace(Class<?> space) {
+      this.space = space;
+      return this;
+    }
+
+    public Builder setClient(CDAClient client) {
+      this.client = client;
+      return this;
+    }
+
+    public Builder setCallback(SyncCallback callback) {
+      this.callback = callback;
+      return this;
+    }
+
+    public Builder setCallbackExecutor(Executor callbackExecutor) {
+      this.callbackExecutor = callbackExecutor;
+      return this;
+    }
+
+    public SyncRunnable build() {
+      return new SyncRunnable(this);
     }
   }
 }

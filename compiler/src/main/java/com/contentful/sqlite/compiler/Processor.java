@@ -10,7 +10,6 @@ import com.sun.tools.javac.code.Attribute;
 import com.sun.tools.javac.code.Type;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.io.Writer;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,7 +32,6 @@ import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
-import javax.tools.JavaFileObject;
 
 import static com.contentful.sqlite.Constants.SUFFIX_SPACE;
 import static javax.tools.Diagnostic.Kind.ERROR;
@@ -68,11 +66,7 @@ public class Processor extends AbstractProcessor {
       TypeElement typeElement = entry.getKey();
       try {
         Injection injection = entry.getValue();
-        JavaFileObject jfo = filer.createSourceFile(injection.getFqcn(), typeElement);
-        Writer writer = jfo.openWriter();
-        writer.write(injection.brewJava());
-        writer.flush();
-        writer.close();
+        injection.brewJava().writeTo(filer);
       } catch (Exception e) {
         error(typeElement, "Failed writing injection for \"" + typeElement.getQualifiedName());
       }

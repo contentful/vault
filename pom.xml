@@ -30,7 +30,9 @@
     <cda.version>2.0.1</cda.version>
     <commons-codec.version>1.10</commons-codec.version>
     <commons-io.version>2.4</commons-io.version>
+    <commons-lang3.version>3.4</commons-lang3.version>
     <compile-testing.version>0.6</compile-testing.version>
+    <javapoet.version>1.0.0</javapoet.version>
     <junit.version>4.10</junit.version>
     <mockwebserver.version>2.3.0</mockwebserver.version>
     <okhttp.version>2.3.0</okhttp.version>
@@ -52,6 +54,11 @@
         <version>${cda.version}</version>
       </dependency>
       <dependency>
+        <groupId>com.squareup</groupId>
+        <artifactId>javapoet</artifactId>
+        <version>${javapoet.version}</version>
+      </dependency>
+      <dependency>
         <groupId>commons-codec</groupId>
         <artifactId>commons-codec</artifactId>
         <version>${commons-codec.version}</version>
@@ -60,6 +67,11 @@
         <groupId>commons-io</groupId>
         <artifactId>commons-io</artifactId>
         <version>${commons-io.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
+        <version>${commons-lang3.version}</version>
       </dependency>
       <dependency>
         <groupId>junit</groupId>

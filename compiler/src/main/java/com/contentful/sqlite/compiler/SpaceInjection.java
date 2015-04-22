@@ -1,11 +1,34 @@
 package com.contentful.sqlite.compiler;
 
-import java.util.Iterator;
+import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+import com.contentful.sqlite.FieldMeta;
+import com.contentful.sqlite.PersistenceHelper;
+import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.CodeBlock;
+import com.squareup.javapoet.FieldSpec;
+import com.squareup.javapoet.JavaFile;
+import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterSpec;
+import com.squareup.javapoet.ParameterizedTypeName;
+import com.squareup.javapoet.TypeName;
+import com.squareup.javapoet.TypeSpec;
+import com.squareup.javapoet.WildcardTypeName;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.lang.model.element.Modifier;
 
 final class SpaceInjection extends Injection {
   private final List<ModelInjector> models;
   private final String tableName;
+  private FieldSpec specModels;
+  private FieldSpec specTables;
+  private FieldSpec specTypes;
+  private FieldSpec specFields;
 
   public SpaceInjection(String id, String classPackage, String className, String targetClass,
       List<ModelInjector> models, String tableName) {
@@ -14,40 +37,200 @@ final class SpaceInjection extends Injection {
     this.tableName = tableName;
   }
 
+  @Override JavaFile brewJava() {
+    TypeSpec.Builder builder = TypeSpec.classBuilder(className)
+        .superclass(SQLiteOpenHelper.class)
+        .addSuperinterface(PersistenceHelper.class);
+
+    appendSingleton(builder);
+    appendConstructor(builder);
+    appendOnCreate(builder);
+    appendOnUpgrade(builder);
+    appendModels(builder);
+    appendTables(builder);
+    appendTypes(builder);
+    appendFields(builder);
+    appendStaticInitializer(builder);
+
+    return JavaFile.builder(classPackage, builder.build())
+        .build();
+  }
+
+  private void appendStaticInitializer(TypeSpec.Builder builder) {
+
+  }
+
+  private void appendFields(TypeSpec.Builder builder) {
+    // Field
+    TypeName classTypeName = ParameterizedTypeName.get(
+        ClassName.get(Class.class),
+        WildcardTypeName.subtypeOf(Object.class));
+
+    TypeName listTypeName = ParameterizedTypeName.get(ClassName.get(List.class),
+        ClassName.get(FieldMeta.class));
+
+    specFields = createMapWithInitializer("fields", LinkedHashMap.class, classTypeName,
+        listTypeName).build();
+
+    builder.addField(specFields);
+
+    // Getter
+    builder.addMethod(createGetterImpl(specFields, "getFields").build());
+  }
+
+  private void appendTypes(TypeSpec.Builder builder) {
+    // Field
+    TypeName classTypeName = ParameterizedTypeName.get(ClassName.get(Class.class),
+        WildcardTypeName.subtypeOf(Object.class));
+
+    specTypes =
+        createMapWithInitializer("types", LinkedHashMap.class, ClassName.get(String.class),
+            classTypeName)
+            .addModifiers(Modifier.STATIC, Modifier.FINAL)
+            .build();
+
+    builder.addField(specTypes);
+
+    // Getter
+    builder.addMethod(createGetterImpl(specTypes, "getTypes").build());
+  }
+
+  private void appendTables(TypeSpec.Builder builder) {
+    // Field
+    TypeName classTypeName = ParameterizedTypeName.get(
+        ClassName.get(Class.class),
+        WildcardTypeName.subtypeOf(Object.class));
+
+    FieldSpec field = createMapWithInitializer("tables", LinkedHashMap.class, classTypeName,
+        ClassName.get(String.class))
+        .addModifiers(Modifier.STATIC, Modifier.FINAL)
+        .build();
+
+    builder.addField(field);
+
+    // Getter
+    builder.addMethod(createGetterImpl(field, "getTables").build());
+  }
+
+  private void appendModels(TypeSpec.Builder builder) {
+    // Field
+    TypeName classTypeName = ParameterizedTypeName.get(
+        ClassName.get(Class.class),
+        WildcardTypeName.subtypeOf(Object.class));
+
+    FieldSpec field = createSetWithInitializer("models", LinkedHashSet.class, classTypeName)
+        .addModifiers(Modifier.STATIC, Modifier.FINAL)
+        .build();
+
+    builder.addField(field);
+
+    // Getter
+    builder.addMethod(createGetterImpl(field, "getModels").build());
+  }
+
+  private MethodSpec.Builder createGetterImpl(FieldSpec field, String name) {
+    return MethodSpec.methodBuilder(name)
+        .returns(field.type)
+        .addAnnotation(Override.class)
+        .addModifiers(Modifier.PUBLIC)
+        .addStatement("return $N", field.name);
+  }
+
+  private void appendOnUpgrade(TypeSpec.Builder builder) {
+    builder.addMethod(MethodSpec.methodBuilder("onUpgrade")
+        .addAnnotation(Override.class)
+        .addModifiers(Modifier.PUBLIC)
+        .addParameter(ParameterSpec.builder(SQLiteDatabase.class, "db").build())
+        .addParameter(ParameterSpec.builder(int.class, "oldVersion").build())
+        .addParameter(ParameterSpec.builder(int.class, "newVersion").build())
+        .build());
+  }
+
+  private CodeBlock bodyForOnCreate() {
+    CodeBlock.Builder builder = CodeBlock.builder()
+        .addStatement("db.beginTransaction()")
+        .beginControlFlow("try")
+        .beginControlFlow("for ($T sql : DEFAULT_CREATE)", String.class)
+        .addStatement("db.execSQL(sql)")
+        .endControlFlow();
+
+    for (ModelInjector modelInjector : models) {
+      for (String sql : modelInjector.getCreateStatements()) {
+        builder.addStatement("db.execSQL($S)", sql);
+      }
+    }
+
+    builder.addStatement("db.setTransactionSuccessful()")
+        .nextControlFlow("finally")
+        .addStatement("db.endTransaction()")
+        .endControlFlow();
+
+    return builder.build();
+  }
+
+  private void appendOnCreate(TypeSpec.Builder builder) {
+    builder.addMethod(MethodSpec.methodBuilder("onCreate")
+        .addAnnotation(Override.class)
+        .addModifiers(Modifier.PUBLIC)
+        .addParameter(ParameterSpec.builder(SQLiteDatabase.class, "db").build())
+        .addCode(bodyForOnCreate())
+        .build());
+  }
+
+  private void appendConstructor(TypeSpec.Builder builder) {
+    builder.addMethod(MethodSpec.constructorBuilder()
+        .addModifiers(Modifier.PRIVATE)
+        .addParameter(ParameterSpec.builder(Context.class, "context").build())
+        .addStatement("super(context, $S, null, $L)", tableName, 1)
+        .build());
+  }
+
+  private void appendSingleton(TypeSpec.Builder builder) {
+    TypeName selfType = ClassName.get(classPackage, this.className);
+
+    FieldSpec fieldInstance = FieldSpec.builder(ClassName.get(classPackage, this.className),
+        "instance", Modifier.STATIC)
+        .build();
+
+    builder.addField(fieldInstance);
+
+    builder.addMethod(MethodSpec.methodBuilder("get")
+        .returns(selfType)
+        .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.SYNCHRONIZED)
+        .addParameter(ParameterSpec.builder(Context.class, "context").build())
+        .beginControlFlow("if ($N == null)", fieldInstance)
+        .addStatement("$N = new $T(context)", fieldInstance, selfType)
+        .endControlFlow()
+        .addStatement("return $N", fieldInstance)
+        .build());
+  }
+
+  private FieldSpec.Builder createSetWithInitializer(String name, Class<? extends Set> setClass,
+      TypeName typeName) {
+    TypeName setTypeName = ParameterizedTypeName.get(
+        ClassName.get(Set.class), typeName);
+
+    TypeName linkedSetTypeName = ParameterizedTypeName.get(
+        ClassName.get(setClass), typeName);
+
+    return FieldSpec.builder(setTypeName, name)
+        .initializer("new $T()", linkedSetTypeName);
+  }
+
+  private FieldSpec.Builder createMapWithInitializer(String name, Class<? extends Map> mapClass,
+      TypeName keyTypeName, TypeName valueTypeName) {
+    TypeName mapTypeName = ParameterizedTypeName.get(
+        ClassName.get(Map.class), keyTypeName, valueTypeName);
+
+    TypeName linkedMapTypeName = ParameterizedTypeName.get(
+        ClassName.get(mapClass), keyTypeName, valueTypeName);
+
+    return FieldSpec.builder(mapTypeName, name)
+        .initializer("new $T()", linkedMapTypeName);
+  }
+
+  /*
   @Override String brewJava() {
-    StringBuilder builder = new StringBuilder();
-
-    // Emit: package
-    builder.append("// Generated code from sqlite-processor.\n")
-        .append("package ")
-        .append(classPackage)
-        .append(";\n\n");
-
-    // Emit: imports
-    builder.append("import android.content.Context;\n")
-        .append("import android.database.sqlite.SQLiteDatabase;\n")
-        .append("import android.database.sqlite.SQLiteOpenHelper;\n")
-        .append("import android.text.TextUtils;\n")
-        .append("import com.contentful.sqlite.FieldMeta;\n")
-        .append("import com.contentful.sqlite.PersistenceHelper;\n")
-        .append("import java.util.Arrays;\n")
-        .append("import java.util.LinkedHashMap;\n")
-        .append("import java.util.LinkedHashSet;\n")
-        .append("import java.util.List;\n")
-        .append("import java.util.Map;\n")
-        .append("import java.util.Set;\n\n");
-
-    // Emit: class
-    builder.append("public class ")
-        .append(className)
-        .append(" extends SQLiteOpenHelper")
-        .append(" implements PersistenceHelper {\n");
-
-    // Emit: fields
-    builder.append("  static ")
-        .append(className)
-        .append(" instance;\n\n");
-
     builder.append("  static final Set<Class<?>> models =\n")
         .append("      new LinkedHashSet<Class<?>>(Arrays.asList(\n");
 
@@ -144,28 +327,6 @@ final class SpaceInjection extends Injection {
 
     builder.append("  }\n\n");
 
-    // Emit: singleton
-    builder.append("  public static synchronized ")
-        .append(className)
-        .append(" get(Context context) {\n")
-        .append("    if (instance == null) {\n")
-        .append("      instance = new ")
-        .append(className)
-        .append("(context);\n")
-        .append("    }\n")
-        .append("    return instance;\n")
-        .append("  }\n\n");
-
-
-    // Emit: constructor
-    builder.append("  private ")
-        .append(className)
-        .append("(Context context) {\n")
-        .append("    super(context, \"")
-        .append(tableName)
-        .append("\", null, 1);\n")
-        .append("  }\n\n");
-
     // Emit: onCreate
     builder.append("  @Override public void onCreate(SQLiteDatabase db) {\n");
 
@@ -221,4 +382,5 @@ final class SpaceInjection extends Injection {
 
     return builder.toString();
   }
+  */
 }

@@ -1,6 +1,9 @@
 package com.contentful.sqlite.compiler;
 
+import com.contentful.sqlite.PersistenceHelper;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 final class ModelInjector {
@@ -16,34 +19,34 @@ final class ModelInjector {
     this.members = members;
   }
 
-  void emitCreateStatements(StringBuilder builder, String indent) {
-    builder
-        .append(indent)
-        .append("db.execSQL(")
-        .append("\"CREATE TABLE `")
+  List<String> getCreateStatements() {
+    List<String> statements = new ArrayList<String>();
+    StringBuilder builder = new StringBuilder();
+    builder.append("CREATE TABLE `")
         .append(tableName)
-        .append("` (\"\n")
-        .append(indent)
-        .append("    + TextUtils.join(\",\", RESOURCE_COLUMNS) + \",\"\n");
+        .append("` (");
+
+    for (String column : PersistenceHelper.RESOURCE_COLUMNS) {
+      builder.append(column);
+      builder.append(", ");
+    }
 
     Set<ModelMember> filtered = getNonLinkMembers();
     ModelMember[] list = filtered.toArray(new ModelMember[filtered.size()]);
     for (int i = 0; i < list.length; i++) {
       ModelMember member = list[i];
-      builder.append(indent)
-          .append("    + \"`")
+      builder.append("`")
           .append(member.fieldName)
           .append("` ")
           .append(member.sqliteType);
 
       if (i < list.length - 1) {
-        builder.append(',');
+        builder.append(", ");
       }
-      builder.append("\"\n");
     }
-    builder.append(indent)
-        .append("    + \");\"")
-        .append(");\n");
+    builder.append(");");
+    statements.add(builder.toString());
+    return statements;
   }
 
   Set<ModelMember> getNonLinkMembers() {

@@ -45,7 +45,7 @@ final class QueryLinkResolver {
       if (!fromCache) {
         map.put(target.getRemoteId(), target);
         if (!isAsset) {
-          List<FieldMeta> targetFields = helper.getFieldsMap().get(target.getClass());
+          List<FieldMeta> targetFields = helper.getFields().get(target.getClass());
           resolveLinks(target, targetFields);
         }
       }
