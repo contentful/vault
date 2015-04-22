@@ -41,7 +41,7 @@ public class SpaceTest {
         "}"));
 
     JavaFileObject expectedSource = JavaFileObjects.forSourceString("test/Test$Db$$Space",
-        readTestResource("space_injection_java.txt"));
+        readTestResource("SpaceInjection.java"));
 
     ASSERT.about(javaSource()).that(source)
         .processedWith(processors())
