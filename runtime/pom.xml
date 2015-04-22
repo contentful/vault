@@ -16,7 +16,7 @@
     <dependency>
       <groupId>com.contentful.java</groupId>
       <artifactId>java-sdk</artifactId>
-      <!-- todo scope provided -->
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.google.android</groupId>
