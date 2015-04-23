@@ -15,7 +15,7 @@ import retrofit.android.MainThreadExecutor;
 public class Persistence {
   public static final String ACTION_SYNC_COMPLETE = "com.contentful.sqlite.ACTION_SYNC_COMPLETE";
 
-  static final Map<Class<?>, PersistenceHelper> INJECTORS =
+  static final Map<Class<?>, PersistenceHelper> SPACE_HELPERS =
       new LinkedHashMap<Class<?>, PersistenceHelper>();
 
   static final ExecutorService syncExecutor = Executors.newSingleThreadExecutor(
@@ -59,11 +59,11 @@ public class Persistence {
   }
 
   static PersistenceHelper getOrCreateHelper(Context context, Class<?> space) {
-    synchronized (INJECTORS) {
-      PersistenceHelper helper = INJECTORS.get(space);
+    synchronized (SPACE_HELPERS) {
+      PersistenceHelper helper = SPACE_HELPERS.get(space);
       if (helper == null) {
           helper = Persistence.createHelper(context, space);
-          INJECTORS.put(space, helper);
+          SPACE_HELPERS.put(space, helper);
       }
       return helper;
     }
@@ -76,7 +76,7 @@ public class Persistence {
       PersistenceHelper helper = (PersistenceHelper) get.invoke(null, context);
       if (helper == null) {
         throw new IllegalArgumentException(
-            "Space injector returned empty helper for class \"" + space.getName());
+            "Space injector has no helper for class \"" + space.getName());
       }
       return helper;
     } catch (ClassNotFoundException e) {
@@ -91,23 +91,31 @@ public class Persistence {
   }
 
   public <T extends Resource> FutureQuery<T> fetch(Class<T> resource) {
-    PersistenceHelper helper = getOrCreateHelper(context, space);
-    return fetch(helper, resource);
+    PersistenceHelper spaceHelper = getOrCreateHelper(context, space);
+    return fetch(spaceHelper, resource);
   }
 
-  public <T extends Resource> FutureQuery<T> fetch(PersistenceHelper helper,
+  public <T extends Resource> FutureQuery<T> fetch(PersistenceHelper spaceHelper,
       Class<T> resource) {
     String tableName;
+    List<FieldMeta> fields = null;
     if (Asset.class.equals(resource)) {
       tableName = PersistenceHelper.TABLE_ASSETS;
     } else {
-      tableName = helper.getTables().get(resource);
-      if (tableName == null) {
-        throw new IllegalArgumentException(
-            "Unable to find table mapping for class \"" + resource);
-      }
+      ModelHelper<?> modelHelper = getModelHelperOrThrow(spaceHelper, resource);
+      tableName = modelHelper.getTableName();
+      fields = modelHelper.getFields();
     }
-    List<FieldMeta> fields = helper.getFields().get(resource);
-    return new FutureQuery<T>(this, helper, resource, tableName, fields);
+    return new FutureQuery<T>(this, spaceHelper, resource, tableName, fields);
+  }
+
+  private <T extends Resource> ModelHelper<?> getModelHelperOrThrow(PersistenceHelper spaceHelper,
+      Class<T> clazz) {
+    ModelHelper<?> modelHelper = spaceHelper.getModels().get(clazz);
+    if (modelHelper == null) {
+      throw new IllegalArgumentException(
+          "Unable to find table mapping for class \"" + clazz.getName() + "\".");
+    }
+    return modelHelper;
   }
 }

@@ -3,45 +3,22 @@ package test;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import com.contentful.sqlite.FieldMeta;
+import com.contentful.sqlite.ModelHelper;
 import com.contentful.sqlite.PersistenceHelper;
-import java.lang.Class;
-import java.lang.Override;
-import java.lang.String;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 final class Test$AwesomeSpace$$SpaceHelper extends SQLiteOpenHelper implements PersistenceHelper {
   static Test$AwesomeSpace$$SpaceHelper instance;
 
-  static final Set<Class<?>> models = new LinkedHashSet<Class<?>>();
+  final Map<Class<?>, ModelHelper<?>> models = new LinkedHashMap<Class<?>, ModelHelper<?>>();
 
-  static final Map<Class<?>, String> tables = new LinkedHashMap<Class<?>, String>();
-
-  static final Map<String, Class<?>> types = new LinkedHashMap<String, Class<?>>();
-
-  static final Map<Class<?>, List<FieldMeta>> fields = new LinkedHashMap<Class<?>, List<FieldMeta>>();
+  final Map<String, Class<?>> types = new LinkedHashMap<String, Class<?>>();
 
   private Test$AwesomeSpace$$SpaceHelper(Context context) {
     super(context, "space_c2lk", null, 1);
-    Class<?> clazz;
-    ArrayList<FieldMeta> fieldsHolder = new ArrayList<FieldMeta>();
-    clazz = test.Test.Model.class;
-    types.put("cid", clazz);
-    tables.put(clazz, "entry_y2lk");
-    fieldsHolder.add(new FieldMeta("fText", "fText", "STRING", null, "java.lang.String"));
-    fieldsHolder.add(new FieldMeta("fBoolean", "fBoolean", "INT", null, "java.lang.Boolean"));
-    fieldsHolder.add(new FieldMeta("fInteger", "fInteger", "INT", null, "java.lang.Integer"));
-    fieldsHolder.add(new FieldMeta("fDouble", "fDouble", "DOUBLE", null, "java.lang.Double"));
-    fieldsHolder.add(new FieldMeta("fMap", "fMap", "BLOB", null, "java.util.Map"));
-    fieldsHolder.add(new FieldMeta("fLinkedModel", "fLinkedModel", null, "Entry", "test.Test.Model"));
-    fieldsHolder.add(new FieldMeta("fLinkedAsset", "fLinkedAsset", null, "Asset", "com.contentful.sqlite.Asset"));
-    fields.put(clazz, fieldsHolder);
-    models.addAll(tables.keySet());
+    models.put(test.Test.Model.class, new Test$Model$$ModelHelper());
+    types.put("cid", test.Test.Model.class);
   }
 
   public static synchronized Test$AwesomeSpace$$SpaceHelper get(Context context) {
@@ -70,22 +47,12 @@ final class Test$AwesomeSpace$$SpaceHelper extends SQLiteOpenHelper implements P
   }
 
   @Override
-  public Set<Class<?>> getModels() {
+  public Map<Class<?>, ModelHelper<?>> getModels() {
     return models;
-  }
-
-  @Override
-  public Map<Class<?>, String> getTables() {
-    return tables;
   }
 
   @Override
   public Map<String, Class<?>> getTypes() {
     return types;
-  }
-
-  @Override
-  public Map<Class<?>, List<FieldMeta>> getFields() {
-    return fields;
   }
 }

@@ -34,7 +34,7 @@ public final class SyncRunnable implements Runnable {
   private final CDAClient client;
   private final SyncCallback callback;
   private final Executor callbackExecutor;
-  private PersistenceHelper helper;
+  private PersistenceHelper spaceHelper;
   private SQLiteDatabase db;
 
   private final ResourceHandler HANDLER_DELETE = new ResourceHandler() {
@@ -71,8 +71,8 @@ public final class SyncRunnable implements Runnable {
 
   @Override public void run() {
     boolean success = false;
-    helper = Persistence.getOrCreateHelper(context, space);
-    db = ((SQLiteOpenHelper) helper).getWritableDatabase();
+    spaceHelper = Persistence.getOrCreateHelper(context, space);
+    db = ((SQLiteOpenHelper) spaceHelper).getWritableDatabase();
 
     try {
       CDASyncedSpace syncedSpace = client.synchronization().performInitial();
@@ -85,17 +85,14 @@ public final class SyncRunnable implements Runnable {
             List<FieldMeta> fields = null;
             String tableName = null;
             if (isOfType(resource, Entry)) {
-              Class<?> clazz = helper.getTypes().get(
-                  extractContentTypeId(resource));
-              if (clazz == null) {
+              Class<?> modelClass = spaceHelper.getTypes().get(extractContentTypeId(resource));
+              if (modelClass == null) {
                 continue;
               }
 
-              tableName = helper.getTables().get(clazz);
-              if (tableName == null) {
-                continue; // TODO show warning - skipping unregistered type
-              }
-              fields = helper.getFields().get(clazz);
+              ModelHelper<?> modelHelper = spaceHelper.getModels().get(modelClass);
+              tableName = modelHelper.getTableName();
+              fields = modelHelper.getFields();
             }
             HANDLER_SAVE.invoke(resource, tableName, fields);
           }
@@ -128,9 +125,9 @@ public final class SyncRunnable implements Runnable {
     String remoteId = extractResourceId(resource);
     String contentTypeId = fetchContentTypeId(remoteId);
     if (contentTypeId != null) {
-      Class<?> clazz = helper.getTypes().get(contentTypeId);
+      Class<?> clazz = spaceHelper.getTypes().get(contentTypeId);
       if (clazz != null) {
-        deleteResource(remoteId, helper.getTables().get(clazz));
+        deleteResource(remoteId, spaceHelper.getModels().get(clazz).getTableName());
         deleteEntryType(remoteId);
       }
     }

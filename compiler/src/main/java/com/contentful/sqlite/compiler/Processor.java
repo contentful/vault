@@ -12,7 +12,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -33,6 +32,7 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 
+import static com.contentful.sqlite.Constants.SUFFIX_MODEL;
 import static com.contentful.sqlite.Constants.SUFFIX_SPACE;
 import static javax.tools.Diagnostic.Kind.ERROR;
 
@@ -77,8 +77,8 @@ public class Processor extends AbstractProcessor {
   }
 
   private Map<TypeElement, Injection> findAndParseTargets(RoundEnvironment env) {
-    Map<TypeElement, ModelInjector> modelTargets =
-        new LinkedHashMap<TypeElement, ModelInjector>();
+    Map<TypeElement, ModelInjection> modelTargets =
+        new LinkedHashMap<TypeElement, ModelInjection>();
 
     Map<TypeElement, SpaceInjection> spaceTargets =
         new LinkedHashMap<TypeElement, SpaceInjection>();
@@ -102,12 +102,13 @@ public class Processor extends AbstractProcessor {
     }
 
     Map<TypeElement, Injection> result = new LinkedHashMap<TypeElement, Injection>();
+    result.putAll(modelTargets);
     result.putAll(spaceTargets);
     return result;
   }
 
   private void parseSpace(Element element, Map<TypeElement, SpaceInjection> spaceTargets,
-      Map<TypeElement, ModelInjector> modelTargets) {
+      Map<TypeElement, ModelInjection> modelTargets) {
 
     TypeElement typeElement = (TypeElement) element;
     String id = element.getAnnotation(Space.class).value();
@@ -128,7 +129,7 @@ public class Processor extends AbstractProcessor {
     }
 
     TypeMirror spaceMirror = elementUtils.getTypeElement(Space.class.getName()).asType();
-    List<ModelInjector> includedModels = new ArrayList<ModelInjector>();
+    List<ModelInjection> includedModels = new ArrayList<ModelInjection>();
     for (AnnotationMirror mirror : typeElement.getAnnotationMirrors()) {
       if (typeUtils.isSameType(mirror.getAnnotationType(), spaceMirror)) {
         Set<? extends Map.Entry<? extends ExecutableElement, ? extends AnnotationValue>> items =
@@ -146,7 +147,7 @@ public class Processor extends AbstractProcessor {
             for (Object model : l) {
               Element e = ((Type) ((Attribute) model).getValue()).asElement();
               //noinspection SuspiciousMethodCalls
-              ModelInjector modelInjection = modelTargets.get(e);
+              ModelInjection modelInjection = modelTargets.get(e);
               if (modelInjection == null) {
                 error(element,
                     "Cannot include model (\"%s\"), is not annotated with @%s. (%s)",
@@ -173,7 +174,7 @@ public class Processor extends AbstractProcessor {
     spaceTargets.put(typeElement, injection);
   }
 
-  private void parseContentType(Element element, Map<TypeElement, ModelInjector> targets) {
+  private void parseContentType(Element element, Map<TypeElement, ModelInjection> targets) {
     TypeElement typeElement = (TypeElement) element;
     String id = element.getAnnotation(ContentType.class).value();
     if (id.isEmpty()) {
@@ -183,7 +184,7 @@ public class Processor extends AbstractProcessor {
       return;
     }
 
-    if (hasModelInjectorWithId(targets.values(), id)) {
+    if (hasInjection(targets, id, ModelInjection.class)) {
       error(element,
           "@%s for \"%s\" cannot be used on multiple classes. (%s)",
           ContentType.class.getSimpleName(),
@@ -224,10 +225,13 @@ public class Processor extends AbstractProcessor {
       members.add(createMember(element, typeElement, enclosedElement, fieldId));
     }
 
+    String targetType = typeElement.getQualifiedName().toString();
+    String classPackage = getPackageName(typeElement);
+    String className = getClassName(typeElement, classPackage) + SUFFIX_MODEL;
     String tableName = "entry_" + SqliteUtils.hashForId(id);
 
-    ModelInjector injection = new ModelInjector(
-        id, typeElement.getQualifiedName().toString(), tableName, members);
+    ModelInjection injection =
+        new ModelInjection(id, classPackage, className, targetType, tableName, members);
 
     targets.put(typeElement, injection);
   }
@@ -282,16 +286,7 @@ public class Processor extends AbstractProcessor {
   private boolean hasInjection(Map<TypeElement, ? extends Injection> targets,
       String id, Class<? extends Injection> injectionClass) {
     for (Injection target : targets.values()) {
-      if (id.equals(target.id) && injectionClass.isInstance(target)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  private boolean hasModelInjectorWithId(Collection<ModelInjector> targets, String id) {
-    for (ModelInjector target : targets) {
-      if (id.equals(target.id)) {
+      if (id.equals(target.remoteId) && injectionClass.isInstance(target)) {
         return true;
       }
     }
