@@ -118,7 +118,9 @@ final class SpaceInjection extends Injection {
         ClassName.get(FieldMeta.class));
 
     specFields = createMapWithInitializer("fields", LinkedHashMap.class, classTypeName,
-        listTypeName).build();
+        listTypeName)
+        .addModifiers(Modifier.STATIC, Modifier.FINAL)
+        .build();
 
     builder.addField(specFields);
 

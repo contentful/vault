@@ -24,7 +24,7 @@ class Test$Db$$Space extends SQLiteOpenHelper implements PersistenceHelper {
 
   static final Map<String, Class<?>> types = new LinkedHashMap<String, Class<?>>();
 
-  Map<Class<?>, List<FieldMeta>> fields = new LinkedHashMap<Class<?>, List<FieldMeta>>();
+  static final Map<Class<?>, List<FieldMeta>> fields = new LinkedHashMap<Class<?>, List<FieldMeta>>();
 
   private Test$Db$$Space(Context context) {
     super(context, "space_c2lk", null, 1);
