@@ -15,6 +15,7 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.WildcardTypeName;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -43,21 +44,68 @@ final class SpaceInjection extends Injection {
         .addSuperinterface(PersistenceHelper.class);
 
     appendSingleton(builder);
-    appendConstructor(builder);
     appendOnCreate(builder);
     appendOnUpgrade(builder);
     appendModels(builder);
     appendTables(builder);
     appendTypes(builder);
     appendFields(builder);
-    appendStaticInitializer(builder);
+    appendConstructor(builder);
 
     return JavaFile.builder(classPackage, builder.build())
         .build();
   }
 
-  private void appendStaticInitializer(TypeSpec.Builder builder) {
+  private void appendConstructor(TypeSpec.Builder builder) {
+    MethodSpec.Builder ctor = MethodSpec.constructorBuilder()
+        .addModifiers(Modifier.PRIVATE)
+        .addParameter(ParameterSpec.builder(Context.class, "context").build())
+        .addStatement("super(context, $S, null, $L)", tableName, 1);
 
+    // Temporary variable to hold model class reference
+    String classHolder = "clazz";
+
+    TypeName classHolderType = ParameterizedTypeName.get(
+        ClassName.get(Class.class),
+        WildcardTypeName.subtypeOf(Object.class));
+
+    ctor.addStatement("$T $N", classHolderType, classHolder);
+
+    // Temporary variable to hold model fields
+    String fieldsHolder = "fieldsHolder";
+
+    TypeName fieldsHolderType = ParameterizedTypeName.get(
+        ClassName.get(ArrayList.class),
+        WildcardTypeName.get(FieldMeta.class));
+
+    ctor.addStatement("$T $N = new $T()", fieldsHolderType, fieldsHolder, fieldsHolderType);
+
+    for (int i = 0; i < models.size(); i++) {
+      ModelInjector model = models.get(i);
+      ctor.addStatement("$N = $L.class", classHolder, model.className) // class holder
+          .addStatement("$N.put($S, $N)", specTypes, model.id, classHolder) // types
+          .addStatement("$N.put($N, $S)", specTables, classHolder, model.tableName); // tables
+
+      // fields
+      if (i > 0) {
+        ctor.addStatement("$N.clear()", fieldsHolder);
+      }
+      for (ModelMember member : model.members) {
+        ctor.addStatement("$N.add(new $T($S, $S, $S, $S, $S))",
+            fieldsHolder,
+            ClassName.get(FieldMeta.class),
+            member.id,
+            member.fieldName,
+            member.sqliteType,
+            member.linkType,
+            member.className);
+      }
+      ctor.addStatement("$N.put($N, $N)", specFields, classHolder, fieldsHolder);
+    }
+
+    ctor.addStatement("$N.addAll($N.keySet())", specModels, specTables);
+
+    builder.addMethod(ctor.build());
   }
 
   private void appendFields(TypeSpec.Builder builder) {
@@ -101,31 +149,30 @@ final class SpaceInjection extends Injection {
         ClassName.get(Class.class),
         WildcardTypeName.subtypeOf(Object.class));
 
-    FieldSpec field = createMapWithInitializer("tables", LinkedHashMap.class, classTypeName,
+    specTables = createMapWithInitializer("tables", LinkedHashMap.class, classTypeName,
         ClassName.get(String.class))
         .addModifiers(Modifier.STATIC, Modifier.FINAL)
         .build();
 
-    builder.addField(field);
+    builder.addField(specTables);
 
     // Getter
-    builder.addMethod(createGetterImpl(field, "getTables").build());
+    builder.addMethod(createGetterImpl(specTables, "getTables").build());
   }
 
   private void appendModels(TypeSpec.Builder builder) {
     // Field
-    TypeName classTypeName = ParameterizedTypeName.get(
-        ClassName.get(Class.class),
+    TypeName classTypeName = ParameterizedTypeName.get(ClassName.get(Class.class),
         WildcardTypeName.subtypeOf(Object.class));
 
-    FieldSpec field = createSetWithInitializer("models", LinkedHashSet.class, classTypeName)
+    specModels = createSetWithInitializer("models", LinkedHashSet.class, classTypeName)
         .addModifiers(Modifier.STATIC, Modifier.FINAL)
         .build();
 
-    builder.addField(field);
+    builder.addField(specModels);
 
     // Getter
-    builder.addMethod(createGetterImpl(field, "getModels").build());
+    builder.addMethod(createGetterImpl(specModels, "getModels").build());
   }
 
   private MethodSpec.Builder createGetterImpl(FieldSpec field, String name) {
@@ -177,14 +224,6 @@ final class SpaceInjection extends Injection {
         .build());
   }
 
-  private void appendConstructor(TypeSpec.Builder builder) {
-    builder.addMethod(MethodSpec.constructorBuilder()
-        .addModifiers(Modifier.PRIVATE)
-        .addParameter(ParameterSpec.builder(Context.class, "context").build())
-        .addStatement("super(context, $S, null, $L)", tableName, 1)
-        .build());
-  }
-
   private void appendSingleton(TypeSpec.Builder builder) {
     TypeName selfType = ClassName.get(classPackage, this.className);
 
@@ -228,159 +267,4 @@ final class SpaceInjection extends Injection {
     return FieldSpec.builder(mapTypeName, name)
         .initializer("new $T()", linkedMapTypeName);
   }
-
-  /*
-  @Override String brewJava() {
-    builder.append("  static final Set<Class<?>> models =\n")
-        .append("      new LinkedHashSet<Class<?>>(Arrays.asList(\n");
-
-    for (int i = 0; i < models.size(); i++) {
-      builder.append("          ")
-          .append(models.get(i).className)
-          .append(".class");
-
-      if (i < models.size() - 1) {
-        builder.append(",");
-      }
-      builder.append("\n");
-    }
-    builder.append("      ));\n\n");
-
-    builder.append("  static final Map<Class<?>, String> tables =\n")
-        .append("      new LinkedHashMap<Class<?>, String>();\n\n");
-
-    builder.append("  static final Map<String, Class<?>> types =\n")
-        .append("      new LinkedHashMap<String, Class<?>>();\n\n");
-
-    builder.append("  static final Map<Class<?>, List<FieldMeta>> fields =\n")
-        .append("      new LinkedHashMap<Class<?>, List<FieldMeta>>();\n\n");
-
-    // Emit: static initializer
-    builder.append("  static {\n")
-        .append("    Class<?> clazz;\n\n");
-
-    for (int i = 0; i < models.size(); i++) {
-      ModelInjector model = models.get(i);
-
-      // Emit: class
-      builder.append("    clazz = ")
-          .append(model.className)
-          .append(".class;\n");
-
-      // Emit: tables mapping
-      builder.append("    tables.put(clazz, ")
-          .append("\"")
-          .append(model.tableName)
-          .append("\"")
-          .append(");\n");
-
-      // Emit: types mapping
-      builder.append("    types.put(")
-          .append("\"")
-          .append(model.id)
-          .append("\"")
-          .append(", clazz);\n");
-
-      // Emit: fields mapping
-      builder.append("    fields.put(clazz, Arrays.asList(\n");
-      Iterator<ModelMember> it = model.members.iterator();
-      while (it.hasNext()) {
-        ModelMember member = it.next();
-        builder.append("        ")
-            .append("new FieldMeta(\"")
-            .append(member.id)
-            .append("\", \"")
-            .append(member.fieldName)
-            .append("\", ");
-
-        if (member.isLink()) {
-          builder.append("null");
-        } else {
-          builder.append("\"")
-              .append(member.sqliteType)
-              .append("\"");
-        }
-
-        builder.append(", ");
-        if (member.isLink()) {
-          builder.append("\"")
-              .append(member.linkType)
-              .append("\"");
-        } else {
-          builder.append("null");
-        }
-
-        builder.append(", \"")
-            .append(member.className)
-            .append("\"")
-            .append(")");
-
-        if (it.hasNext()) {
-          builder.append(",\n");
-        }
-      }
-      builder.append("));\n");
-      if (i < models.size() - 1) {
-        builder.append("\n");
-      }
-    }
-
-    builder.append("  }\n\n");
-
-    // Emit: onCreate
-    builder.append("  @Override public void onCreate(SQLiteDatabase db) {\n");
-
-    builder.append("    db.beginTransaction();\n\n")
-        .append("    try {\n");
-
-    // Emit: CREATE default statements
-    builder.append("      for (String sql : DEFAULT_CREATE) {\n")
-        .append("        db.execSQL(sql);\n")
-        .append("      }\n\n");
-
-    // Emit: CREATE model tables
-    for (int i = 0; i < models.size(); i++) {
-      if (i > 0) {
-        builder.append("\n");
-      }
-      ModelInjector modelInjector = models.get(i);
-      modelInjector.emitCreateStatements(builder, "      ");
-    }
-    builder.append("\n");
-
-    builder.append("      db.setTransactionSuccessful();\n")
-        .append("    } finally {\n")
-        .append("      db.endTransaction();\n")
-        .append("    }\n")
-        .append("  }\n\n");
-
-    // Emit: onUpgrade
-    builder.append(
-        "  @Override public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {\n")
-        .append("  }\n\n");
-
-    // Emit: getModels
-    builder.append("  @Override public Set<Class<?>> getModels() {\n")
-        .append("    return models;\n")
-        .append("  }\n\n");
-
-    // Emit: getTablesMap
-    builder.append("  @Override public Map<Class<?>, String> getTablesMap() {\n")
-        .append("    return tables;\n")
-        .append("  }\n\n");
-
-    // Emit: getTypesMap
-    builder.append("  @Override public Map<String, Class<?>> getTypesMap() {\n")
-        .append("    return types;\n")
-        .append("  }\n\n");
-
-    // Emit: getFieldsMap
-    builder.append("  @Override public Map<Class<?>, List<FieldMeta>> getFieldsMap() {\n")
-        .append("    return fields;\n")
-        .append("  }\n")
-        .append("}");
-
-    return builder.toString();
-  }
-  */
 }
