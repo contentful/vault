@@ -34,7 +34,7 @@ public final class SyncRunnable implements Runnable {
   private final CDAClient client;
   private final SyncCallback callback;
   private final Executor callbackExecutor;
-  private PersistenceHelper helper;
+  private SpaceHelper spaceHelper;
   private SQLiteDatabase db;
 
   private final ResourceHandler HANDLER_DELETE = new ResourceHandler() {
@@ -71,8 +71,8 @@ public final class SyncRunnable implements Runnable {
 
   @Override public void run() {
     boolean success = false;
-    helper = Persistence.getOrCreateHelper(context, space);
-    db = ((SQLiteOpenHelper) helper).getWritableDatabase();
+    spaceHelper = Persistence.getOrCreateHelper(context, space);
+    db = ((SQLiteOpenHelper) spaceHelper).getWritableDatabase();
 
     try {
       CDASyncedSpace syncedSpace = client.synchronization().performInitial();
@@ -85,17 +85,14 @@ public final class SyncRunnable implements Runnable {
             List<FieldMeta> fields = null;
             String tableName = null;
             if (isOfType(resource, Entry)) {
-              Class<?> clazz = helper.getTypes().get(
-                  extractContentTypeId(resource));
-              if (clazz == null) {
+              Class<?> modelClass = spaceHelper.getTypes().get(extractContentTypeId(resource));
+              if (modelClass == null) {
                 continue;
               }
 
-              tableName = helper.getTables().get(clazz);
-              if (tableName == null) {
-                continue; // TODO show warning - skipping unregistered type
-              }
-              fields = helper.getFields().get(clazz);
+              ModelHelper<?> modelHelper = spaceHelper.getModels().get(modelClass);
+              tableName = modelHelper.getTableName();
+              fields = modelHelper.getFields();
             }
             HANDLER_SAVE.invoke(resource, tableName, fields);
           }
@@ -121,16 +118,16 @@ public final class SyncRunnable implements Runnable {
   }
 
   private void deleteAsset(CDAResource resource) {
-    deleteResource(extractResourceId(resource), PersistenceHelper.TABLE_ASSETS);
+    deleteResource(extractResourceId(resource), SpaceHelper.TABLE_ASSETS);
   }
 
   private void deleteEntry(CDAResource resource) {
     String remoteId = extractResourceId(resource);
     String contentTypeId = fetchContentTypeId(remoteId);
     if (contentTypeId != null) {
-      Class<?> clazz = helper.getTypes().get(contentTypeId);
+      Class<?> clazz = spaceHelper.getTypes().get(contentTypeId);
       if (clazz != null) {
-        deleteResource(remoteId, helper.getTables().get(clazz));
+        deleteResource(remoteId, spaceHelper.getModels().get(clazz).getTableName());
         deleteEntryType(remoteId);
       }
     }
@@ -139,11 +136,11 @@ public final class SyncRunnable implements Runnable {
   private void deleteEntryType(String remoteId) {
     String whereClause = "remote_id = ?";
     String[] whereArgs = new String[]{ remoteId };
-    db.delete(PersistenceHelper.TABLE_ENTRY_TYPES, whereClause, whereArgs);
+    db.delete(SpaceHelper.TABLE_ENTRY_TYPES, whereClause, whereArgs);
   }
 
   private String fetchContentTypeId(String remoteId) {
-    String sql = "SELECT `type_id` FROM " + PersistenceHelper.TABLE_ENTRY_TYPES + " WHERE remote_id = ?";
+    String sql = "SELECT `type_id` FROM " + SpaceHelper.TABLE_ENTRY_TYPES + " WHERE remote_id = ?";
     String args[] = new String[]{ remoteId };
     String result = null;
     Cursor cursor = db.rawQuery(sql, args);
@@ -169,7 +166,7 @@ public final class SyncRunnable implements Runnable {
         remoteId,
         remoteId
     };
-    db.delete(PersistenceHelper.TABLE_LINKS, whereClause, whereArgs);
+    db.delete(SpaceHelper.TABLE_LINKS, whereClause, whereArgs);
   }
 
   @TargetApi(Build.VERSION_CODES.FROYO)
@@ -178,7 +175,7 @@ public final class SyncRunnable implements Runnable {
     putResourceFields(asset, values);
     values.put("url", asset.getUrl());
     values.put("mime_type", asset.getMimeType());
-    db.insertWithOnConflict(PersistenceHelper.TABLE_ASSETS, null, values, CONFLICT_REPLACE);
+    db.insertWithOnConflict(SpaceHelper.TABLE_ASSETS, null, values, CONFLICT_REPLACE);
   }
 
   @SuppressWarnings("unchecked")
@@ -208,7 +205,7 @@ public final class SyncRunnable implements Runnable {
     values.clear();
     values.put("remote_id", extractResourceId(entry));
     values.put("type_id", extractContentTypeId(entry));
-    db.insertWithOnConflict(PersistenceHelper.TABLE_ENTRY_TYPES, null, values, CONFLICT_REPLACE);
+    db.insertWithOnConflict(SpaceHelper.TABLE_ENTRY_TYPES, null, values, CONFLICT_REPLACE);
   }
 
   private void saveLink(CDAResource parent, String fieldName,
@@ -226,13 +223,13 @@ public final class SyncRunnable implements Runnable {
     values.put("field", fieldName);
     values.put("child", childRemoteId);
     values.put("child_content_type", childContentType);
-    db.insertWithOnConflict(PersistenceHelper.TABLE_LINKS, null, values, CONFLICT_REPLACE);
+    db.insertWithOnConflict(SpaceHelper.TABLE_LINKS, null, values, CONFLICT_REPLACE);
   }
 
   private void deleteResourceLinks(CDAResource resource) {
     String where = "parent = ?";
     String[] args = new String[]{ extractResourceId(resource) };
-    db.delete(PersistenceHelper.TABLE_LINKS, where, args);
+    db.delete(SpaceHelper.TABLE_LINKS, where, args);
   }
 
   private static void putResourceFields(CDAResource resource, ContentValues values) {

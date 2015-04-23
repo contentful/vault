@@ -8,13 +8,13 @@ import java.util.List;
 import java.util.Map;
 
 final class QueryLinkResolver {
-  final PersistenceHelper helper;
+  final SpaceHelper spaceHelper;
   final SQLiteDatabase db;
   final FutureQuery<?> query;
 
-  QueryLinkResolver(PersistenceHelper helper, FutureQuery<?> query) {
-    this.helper = helper;
-    this.db = ((SQLiteOpenHelper) helper).getReadableDatabase();
+  QueryLinkResolver(SpaceHelper spaceHelper, FutureQuery<?> query) {
+    this.spaceHelper = spaceHelper;
+    this.db = ((SQLiteOpenHelper) spaceHelper).getReadableDatabase();
     this.query = query;
   }
 
@@ -45,8 +45,10 @@ final class QueryLinkResolver {
       if (!fromCache) {
         map.put(target.getRemoteId(), target);
         if (!isAsset) {
-          List<FieldMeta> targetFields = helper.getFields().get(target.getClass());
-          resolveLinks(target, targetFields);
+          ModelHelper<?> modelHelper = spaceHelper.getModels().get(target.getClass());
+          if (modelHelper != null) {
+            resolveLinks(target, modelHelper.getFields());
+          }
         }
       }
       setFieldValue(resource, field.name, target);
@@ -69,7 +71,7 @@ final class QueryLinkResolver {
   private LinkInfo fetchLinkInfo(String parent, String field, String type) {
     StringBuilder builder = new StringBuilder()
         .append("SELECT `child`, `child_content_type` FROM ")
-        .append(PersistenceHelper.TABLE_LINKS)
+        .append(SpaceHelper.TABLE_LINKS)
         .append(" WHERE parent = ? AND field = ? AND `child_content_type` IS ");
 
     if (!CDAResourceType.Asset.toString().equals(type)) {
