@@ -3,10 +3,9 @@ package com.contentful.sqlite;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 
-public interface PersistenceHelper {
+public interface SpaceHelper {
   String TABLE_ASSETS = "assets";
   String TABLE_ENTRY_TYPES = "entry_types";
   String TABLE_LINKS = "links";
@@ -54,11 +53,7 @@ public interface PersistenceHelper {
 
   List<String> DEFAULT_CREATE = Arrays.asList(CREATE_ASSETS, CREATE_ENTRY_TYPES, CREATE_LINKS);
 
-  Set<Class<?>> getModels();
-
-  Map<Class<?>, String> getTables();
+  Map<Class<?>, ModelHelper<?>> getModels();
 
   Map<String, Class<?>> getTypes();
-
-  Map<Class<?>, List<FieldMeta>> getFields();
 }

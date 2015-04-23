@@ -11,7 +11,7 @@ import java.util.Map;
 
 public final class FutureQuery<T extends Resource> {
   private final Persistence persistence;
-  private final PersistenceHelper helper;
+  private final SpaceHelper spaceHelper;
   private final String tableName;
   private final Class<T> clazz;
   private final SQLiteDatabase db;
@@ -25,10 +25,10 @@ public final class FutureQuery<T extends Resource> {
   private String[] queryArgs;
 
   public FutureQuery(Persistence persistence,
-      PersistenceHelper helper, Class<T> clazz, String tableName, List<FieldMeta> fields) {
+      SpaceHelper spaceHelper, Class<T> clazz, String tableName, List<FieldMeta> fields) {
     this.persistence = persistence;
-    this.helper = helper;
-    this.db = ((SQLiteOpenHelper) helper).getReadableDatabase();
+    this.spaceHelper = spaceHelper;
+    this.db = ((SQLiteOpenHelper) spaceHelper).getReadableDatabase();
     this.clazz = clazz;
     this.tableName = tableName;
     this.fields = fields;
@@ -59,7 +59,7 @@ public final class FutureQuery<T extends Resource> {
         do {
           T resource = ResourceFactory.fromCursor(cursor, clazz, filteredFields);
           Map<String, Resource> map;
-          if (PersistenceHelper.TABLE_ASSETS.equals(tableName)) {
+          if (SpaceHelper.TABLE_ASSETS.equals(tableName)) {
             map = assets;
           } else {
             map = entries;
@@ -92,7 +92,7 @@ public final class FutureQuery<T extends Resource> {
       cursor.close();
     }
     if (result != null) {
-      boolean isAsset = PersistenceHelper.TABLE_ASSETS.equals(tableName);
+      boolean isAsset = SpaceHelper.TABLE_ASSETS.equals(tableName);
       Map<String, Resource> map = isAsset ? assets : entries;
       map.put(result.remoteId, result);
       if (resolveLinks) {
@@ -108,7 +108,7 @@ public final class FutureQuery<T extends Resource> {
     if (linkInfo.childContentType == null) {
       clazz = Asset.class;
     } else {
-      clazz = helper.getTypes().get(linkInfo.childContentType);
+      clazz = spaceHelper.getTypes().get(linkInfo.childContentType);
     }
     if (clazz != null) {
       //noinspection unchecked
@@ -171,7 +171,7 @@ public final class FutureQuery<T extends Resource> {
     }
 
     if (links.size() > 0) {
-      QueryLinkResolver resolver = new QueryLinkResolver(helper, this);
+      QueryLinkResolver resolver = new QueryLinkResolver(spaceHelper, this);
       for (T resource : resources) {
         resolver.resolveLinks(resource, fields);
       }
@@ -183,7 +183,7 @@ public final class FutureQuery<T extends Resource> {
     if (fields == null) {
       return;
     }
-    new QueryLinkResolver(helper, this).resolveLinks(resource, fields);
+    new QueryLinkResolver(spaceHelper, this).resolveLinks(resource, fields);
   }
 
   Map<String, Resource> getAssetsCache() {

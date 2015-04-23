@@ -5,5 +5,6 @@ public final class Constants {
     throw new AssertionError();
   }
 
-  public static final String SUFFIX_SPACE = "$$Space";
+  public static final String SUFFIX_SPACE = "$$SpaceHelper";
+  public static final String SUFFIX_MODEL = "$$ModelHelper";
 }
