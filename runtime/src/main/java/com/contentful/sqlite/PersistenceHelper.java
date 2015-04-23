@@ -1,12 +1,12 @@
 package com.contentful.sqlite;
 
-import android.text.TextUtils;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.lang3.StringUtils;
 
-public interface DbHelper {
+public interface PersistenceHelper {
   String TABLE_ASSETS = "assets";
   String TABLE_ENTRY_TYPES = "entry_types";
   String TABLE_LINKS = "links";
@@ -29,7 +29,7 @@ public interface DbHelper {
   String CREATE_ASSETS = "CREATE TABLE `"
       + TABLE_ASSETS
       + "` ("
-      + TextUtils.join(",", RESOURCE_COLUMNS) + ","
+      + StringUtils.join(RESOURCE_COLUMNS, ", ") + ","
       + "`url` STRING NOT NULL,"
       + "`mime_type` STRING NOT NULL"
       + ");";
@@ -56,9 +56,9 @@ public interface DbHelper {
 
   Set<Class<?>> getModels();
 
-  Map<Class<?>, String> getTablesMap();
+  Map<Class<?>, String> getTables();
 
-  Map<String, Class<?>> getTypesMap();
+  Map<String, Class<?>> getTypes();
 
-  Map<Class<?>, List<FieldMeta>> getFieldsMap();
+  Map<Class<?>, List<FieldMeta>> getFields();
 }

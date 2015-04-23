@@ -10,31 +10,23 @@ import java.util.List;
 import java.util.Map;
 
 public final class FutureQuery<T extends Resource> {
+  private final Persistence persistence;
+  private final PersistenceHelper helper;
   private final String tableName;
-
   private final Class<T> clazz;
-
-  private final DbHelper helper;
-
   private final SQLiteDatabase db;
-
   private final List<FieldMeta> fields;
-
   private final Map<String, Resource> assets = new LinkedHashMap<String, Resource>();
-
   private final Map<String, Resource> entries = new LinkedHashMap<String, Resource>();
-
   private String whereClause;
-
   private String[] whereArgs;
-
   private Integer limit;
-
   private String[] order;
-
   private String[] queryArgs;
 
-  public FutureQuery(DbHelper helper, Class<T> clazz, String tableName, List<FieldMeta> fields) {
+  public FutureQuery(Persistence persistence,
+      PersistenceHelper helper, Class<T> clazz, String tableName, List<FieldMeta> fields) {
+    this.persistence = persistence;
     this.helper = helper;
     this.db = ((SQLiteOpenHelper) helper).getReadableDatabase();
     this.clazz = clazz;
@@ -67,7 +59,7 @@ public final class FutureQuery<T extends Resource> {
         do {
           T resource = ResourceFactory.fromCursor(cursor, clazz, filteredFields);
           Map<String, Resource> map;
-          if (DbHelper.TABLE_ASSETS.equals(tableName)) {
+          if (PersistenceHelper.TABLE_ASSETS.equals(tableName)) {
             map = assets;
           } else {
             map = entries;
@@ -100,7 +92,7 @@ public final class FutureQuery<T extends Resource> {
       cursor.close();
     }
     if (result != null) {
-      boolean isAsset = DbHelper.TABLE_ASSETS.equals(tableName);
+      boolean isAsset = PersistenceHelper.TABLE_ASSETS.equals(tableName);
       Map<String, Resource> map = isAsset ? assets : entries;
       map.put(result.remoteId, result);
       if (resolveLinks) {
@@ -116,11 +108,11 @@ public final class FutureQuery<T extends Resource> {
     if (linkInfo.childContentType == null) {
       clazz = Asset.class;
     } else {
-      clazz = helper.getTypesMap().get(linkInfo.childContentType);
+      clazz = helper.getTypes().get(linkInfo.childContentType);
     }
     if (clazz != null) {
       //noinspection unchecked
-      resource = Persistence.fetch(helper, (Class<? extends Resource>) clazz)
+      resource = persistence.fetch((Class<? extends Resource>) clazz)
           .where("remote_id = ?", linkInfo.child)
           .first(false);
     }

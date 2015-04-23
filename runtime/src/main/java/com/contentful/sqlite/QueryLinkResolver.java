@@ -8,11 +8,11 @@ import java.util.List;
 import java.util.Map;
 
 final class QueryLinkResolver {
-  final DbHelper helper;
+  final PersistenceHelper helper;
   final SQLiteDatabase db;
   final FutureQuery<?> query;
 
-  QueryLinkResolver(DbHelper helper, FutureQuery<?> query) {
+  QueryLinkResolver(PersistenceHelper helper, FutureQuery<?> query) {
     this.helper = helper;
     this.db = ((SQLiteOpenHelper) helper).getReadableDatabase();
     this.query = query;
@@ -45,7 +45,7 @@ final class QueryLinkResolver {
       if (!fromCache) {
         map.put(target.getRemoteId(), target);
         if (!isAsset) {
-          List<FieldMeta> targetFields = helper.getFieldsMap().get(target.getClass());
+          List<FieldMeta> targetFields = helper.getFields().get(target.getClass());
           resolveLinks(target, targetFields);
         }
       }
@@ -69,7 +69,7 @@ final class QueryLinkResolver {
   private LinkInfo fetchLinkInfo(String parent, String field, String type) {
     StringBuilder builder = new StringBuilder()
         .append("SELECT `child`, `child_content_type` FROM ")
-        .append(DbHelper.TABLE_LINKS)
+        .append(PersistenceHelper.TABLE_LINKS)
         .append(" WHERE parent = ? AND field = ? AND `child_content_type` IS ");
 
     if (!CDAResourceType.Asset.toString().equals(type)) {

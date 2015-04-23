@@ -1,81 +1,61 @@
 package com.contentful.sqlite.compiler;
 
+import com.contentful.sqlite.PersistenceHelper;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 final class ModelInjector {
   final String id;
   final String className;
   final String tableName;
-  final Set<Member> members;
+  final Set<ModelMember> members;
 
-  public ModelInjector(String id, String className, String tableName, Set<Member> members) {
+  public ModelInjector(String id, String className, String tableName, Set<ModelMember> members) {
     this.id = id;
     this.className = className;
     this.tableName = tableName;
     this.members = members;
   }
 
-  void emitCreateStatements(StringBuilder builder, String indent) {
-    builder
-        .append(indent)
-        .append("db.execSQL(")
-        .append("\"CREATE TABLE `")
+  List<String> getCreateStatements() {
+    List<String> statements = new ArrayList<String>();
+    StringBuilder builder = new StringBuilder();
+    builder.append("CREATE TABLE `")
         .append(tableName)
-        .append("` (\"\n")
-        .append(indent)
-        .append("    + TextUtils.join(\",\", RESOURCE_COLUMNS) + \",\"\n");
+        .append("` (");
 
-    Set<Member> filtered = getNonLinkMembers();
-    Member[] list = filtered.toArray(new Member[filtered.size()]);
+    for (String column : PersistenceHelper.RESOURCE_COLUMNS) {
+      builder.append(column);
+      builder.append(", ");
+    }
+
+    Set<ModelMember> filtered = getNonLinkMembers();
+    ModelMember[] list = filtered.toArray(new ModelMember[filtered.size()]);
     for (int i = 0; i < list.length; i++) {
-      Member member = list[i];
-      builder.append(indent)
-          .append("    + \"`")
+      ModelMember member = list[i];
+      builder.append("`")
           .append(member.fieldName)
           .append("` ")
           .append(member.sqliteType);
 
       if (i < list.length - 1) {
-        builder.append(',');
+        builder.append(", ");
       }
-      builder.append("\"\n");
     }
-    builder.append(indent)
-        .append("    + \");\"")
-        .append(");\n");
+    builder.append(");");
+    statements.add(builder.toString());
+    return statements;
   }
 
-  Set<Member> getNonLinkMembers() {
-    Set<Member> result = new LinkedHashSet<Member>();
-    for (Member member : members) {
+  Set<ModelMember> getNonLinkMembers() {
+    Set<ModelMember> result = new LinkedHashSet<ModelMember>();
+    for (ModelMember member : members) {
       if (!member.isLink()) {
         result.add(member);
       }
     }
     return result;
-  }
-
-  final static class Member {
-    final String id;
-    final String fieldName;
-    final String className;
-    final String sqliteType;
-    final String linkType;
-    final String enclosedType;
-
-    public Member(String id, String fieldName, String className, String sqliteType,
-        String linkType, String enclosedType) {
-      this.id = id;
-      this.fieldName = fieldName;
-      this.className = className;
-      this.sqliteType = sqliteType;
-      this.linkType = linkType;
-      this.enclosedType = enclosedType;
-    }
-
-    public boolean isLink() {
-      return this.linkType != null;
-    }
   }
 }

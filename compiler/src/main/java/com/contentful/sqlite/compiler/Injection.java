@@ -1,5 +1,7 @@
 package com.contentful.sqlite.compiler;
 
+import com.squareup.javapoet.JavaFile;
+
 abstract class Injection {
   final String id;
   final String classPackage;
@@ -13,9 +15,5 @@ abstract class Injection {
     this.targetClass = targetClass;
   }
 
-  abstract String brewJava();
-
-  String getFqcn() {
-    return classPackage + "." + className;
-  }
+  abstract JavaFile brewJava();
 }

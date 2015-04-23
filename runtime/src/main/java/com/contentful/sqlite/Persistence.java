@@ -7,51 +7,73 @@ import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import retrofit.android.MainThreadExecutor;
 
 public class Persistence {
   public static final String ACTION_SYNC_COMPLETE = "com.contentful.sqlite.ACTION_SYNC_COMPLETE";
-  
-  private Persistence() {
-    throw new AssertionError();
-  }
 
-  static final Map<Class<?>, DbHelper> INJECTORS = new LinkedHashMap<Class<?>, DbHelper>();
+  static final Map<Class<?>, PersistenceHelper> INJECTORS =
+      new LinkedHashMap<Class<?>, PersistenceHelper>();
 
-  private static final ExecutorService executor = Executors.newSingleThreadExecutor(
+  static final ExecutorService syncExecutor = Executors.newSingleThreadExecutor(
       new CFThreadFactory());
 
-  public static void requestSync(Context context, Class<?> space, CDAClient client) {
+  static final Executor callbackExecutor = new MainThreadExecutor();
+
+  final Context context;
+  final Class<?> space;
+
+  private Persistence(Context context, Class<?> space) {
+    this.context = context.getApplicationContext();
+    this.space = space;
+  }
+
+  public static Persistence with(Context context, Class<?> space) {
     if (context == null) {
       throw new IllegalArgumentException("Cannot be invoked with null context.");
     }
     if (space == null) {
       throw new IllegalArgumentException("Cannot be invoked with null space.");
     }
+    return new Persistence(context, space);
+  }
+
+  public void requestSync(CDAClient client) {
     if (client == null) {
       throw new IllegalArgumentException("Cannot be invoked with null client.");
     }
-
-    executor.submit(new SyncRunnable(context, space, client));
+    requestSync(client, null);
   }
 
-  static DbHelper getOrCreateDbHelper(Context context, Class<?> space) {
-    synchronized (Persistence.INJECTORS) {
-      DbHelper helper = Persistence.INJECTORS.get(space);
+  public void requestSync(CDAClient client, SyncCallback callback) {
+    syncExecutor.submit(SyncRunnable.builder()
+        .setContext(context)
+        .setSpace(space)
+        .setClient(client)
+        .setCallback(callback)
+        .setCallbackExecutor(callbackExecutor)
+        .build());
+  }
+
+  static PersistenceHelper getOrCreateHelper(Context context, Class<?> space) {
+    synchronized (INJECTORS) {
+      PersistenceHelper helper = INJECTORS.get(space);
       if (helper == null) {
-          helper = Persistence.createDbHelper(context, space);
-          Persistence.INJECTORS.put(space, helper);
+          helper = Persistence.createHelper(context, space);
+          INJECTORS.put(space, helper);
       }
       return helper;
     }
   }
 
-  static DbHelper createDbHelper(Context context, Class<?> space) {
+  static PersistenceHelper createHelper(Context context, Class<?> space) {
     try {
       Class<?> clazz = Class.forName(space.getName() + Constants.SUFFIX_SPACE);
       Method get = clazz.getMethod("get", Context.class);
-      DbHelper helper = (DbHelper) get.invoke(null, context);
+      PersistenceHelper helper = (PersistenceHelper) get.invoke(null, context);
       if (helper == null) {
         throw new IllegalArgumentException(
             "Space injector returned empty helper for class \"" + space.getName());
@@ -68,24 +90,24 @@ public class Persistence {
     }
   }
 
-  public static <T extends Resource> FutureQuery<T> fetch(Context context, Class<?> space,
-      Class<T> resource) {
-    DbHelper helper = getOrCreateDbHelper(context, space);
+  public <T extends Resource> FutureQuery<T> fetch(Class<T> resource) {
+    PersistenceHelper helper = getOrCreateHelper(context, space);
     return fetch(helper, resource);
   }
 
-  public static <T extends Resource> FutureQuery<T> fetch(DbHelper helper, Class<T> resource) {
+  public <T extends Resource> FutureQuery<T> fetch(PersistenceHelper helper,
+      Class<T> resource) {
     String tableName;
     if (Asset.class.equals(resource)) {
-      tableName = DbHelper.TABLE_ASSETS;
+      tableName = PersistenceHelper.TABLE_ASSETS;
     } else {
-      tableName = helper.getTablesMap().get(resource);
+      tableName = helper.getTables().get(resource);
       if (tableName == null) {
         throw new IllegalArgumentException(
             "Unable to find table mapping for class \"" + resource);
       }
     }
-    List<FieldMeta> fields = helper.getFieldsMap().get(resource);
-    return new FutureQuery<T>(helper, resource, tableName, fields);
+    List<FieldMeta> fields = helper.getFields().get(resource);
+    return new FutureQuery<T>(this, helper, resource, tableName, fields);
   }
 }
