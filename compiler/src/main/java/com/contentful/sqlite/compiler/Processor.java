@@ -68,7 +68,9 @@ public class Processor extends AbstractProcessor {
         Injection injection = entry.getValue();
         injection.brewJava().writeTo(filer);
       } catch (Exception e) {
-        error(typeElement, "Failed writing injection for \"" + typeElement.getQualifiedName());
+        error(typeElement,
+            "Failed writing injection for \"" + typeElement.getQualifiedName() + "\", message: ",
+            e.getMessage());
       }
     }
     return true;
