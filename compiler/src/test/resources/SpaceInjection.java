@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-class Test$Db$$Space extends SQLiteOpenHelper implements PersistenceHelper {
+final class Test$Db$$Space extends SQLiteOpenHelper implements PersistenceHelper {
   static Test$Db$$Space instance;
 
   static final Set<Class<?>> models = new LinkedHashSet<Class<?>>();

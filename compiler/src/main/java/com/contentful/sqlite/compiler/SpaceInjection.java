@@ -38,7 +38,8 @@ final class SpaceInjection extends Injection {
   @Override JavaFile brewJava() {
     TypeSpec.Builder builder = TypeSpec.classBuilder(className)
         .superclass(ClassName.get("android.database.sqlite", "SQLiteOpenHelper"))
-        .addSuperinterface(PersistenceHelper.class);
+        .addSuperinterface(PersistenceHelper.class)
+        .addModifiers(Modifier.FINAL);
 
     appendSingleton(builder);
     appendOnCreate(builder);
