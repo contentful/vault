@@ -21,6 +21,16 @@ final class Test$AwesomeSpace$$SpaceHelper extends SQLiteOpenHelper implements S
     types.put("cid", test.Test.Model.class);
   }
 
+  @Override
+  public Map<Class<?>, ModelHelper<?>> getModels() {
+    return models;
+  }
+
+  @Override
+  public Map<String, Class<?>> getTypes() {
+    return types;
+  }
+
   public static synchronized Test$AwesomeSpace$$SpaceHelper get(Context context) {
     if (instance == null) {
       instance = new Test$AwesomeSpace$$SpaceHelper(context);
@@ -35,7 +45,11 @@ final class Test$AwesomeSpace$$SpaceHelper extends SQLiteOpenHelper implements S
       for (String sql : DEFAULT_CREATE) {
         db.execSQL(sql);
       }
-      db.execSQL("CREATE TABLE `entry_y2lk` (`remote_id` STRING NOT NULL UNIQUE, `created_at` STRING NOT NULL, `updated_at` STRING, `fText` STRING, `fBoolean` INT, `fInteger` INT, `fDouble` DOUBLE, `fMap` BLOB);");
+      for (ModelHelper<?> modelHelper : models.values()) {
+        for (String sql : modelHelper.getCreateStatements()) {
+          db.execSQL(sql);
+        }
+      }
       db.setTransactionSuccessful();
     } finally{
       db.endTransaction();
@@ -44,15 +58,5 @@ final class Test$AwesomeSpace$$SpaceHelper extends SQLiteOpenHelper implements S
 
   @Override
   public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-  }
-
-  @Override
-  public Map<Class<?>, ModelHelper<?>> getModels() {
-    return models;
-  }
-
-  @Override
-  public Map<String, Class<?>> getTypes() {
-    return types;
   }
 }

@@ -39,6 +39,7 @@ final class ModelInjection extends Injection {
 
     appendFields(builder);
     appendTableName(builder);
+    appendCreateStatements(builder);
     appendConstructor(builder);
 
     return builder.build();
@@ -61,6 +62,24 @@ final class ModelInjection extends Injection {
     builder.addMethod(ctor.build());
   }
 
+  private void appendCreateStatements(TypeSpec.Builder builder) {
+    MethodSpec.Builder method = MethodSpec.methodBuilder("getCreateStatements")
+        .returns(ParameterizedTypeName.get(List.class, String.class))
+        .addAnnotation(Override.class)
+        .addModifiers(Modifier.PUBLIC);
+
+    method.addStatement("$T list = new $T()",
+        ParameterizedTypeName.get(List.class, String.class),
+        ParameterizedTypeName.get(ArrayList.class, String.class));
+
+    for (String sql : getSqlCreateStatements()) {
+      method.addStatement("list.add($S)", sql);
+    }
+
+    method.addStatement("return list");
+    builder.addMethod(method.build());
+  }
+
   private void appendTableName(TypeSpec.Builder builder) {
     builder.addMethod(MethodSpec.methodBuilder("getTableName")
         .returns(ClassName.get(String.class))
@@ -81,7 +100,7 @@ final class ModelInjection extends Injection {
     builder.addMethod(createGetterImpl(specFields, "getFields").build());
   }
 
-  List<String> getCreateStatements() {
+  List<String> getSqlCreateStatements() {
     List<String> statements = new ArrayList<String>();
     StringBuilder builder = new StringBuilder();
     builder.append("CREATE TABLE `")

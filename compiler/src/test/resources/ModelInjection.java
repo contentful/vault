@@ -27,4 +27,11 @@ final class Test$AwesomeModel$$ModelHelper implements ModelHelper<test.Test.Awes
   public String getTableName() {
     return "entry_y2lk";
   }
+
+  @Override
+  public List<String> getCreateStatements() {
+    List<String> list = new ArrayList<String>();
+    list.add("CREATE TABLE `entry_y2lk` (`remote_id` STRING NOT NULL UNIQUE, `created_at` STRING NOT NULL, `updated_at` STRING, `fText` STRING, `fBoolean` INT, `fInteger` INT, `fDouble` DOUBLE, `fMap` BLOB);");
+    return list;
+  }
 }

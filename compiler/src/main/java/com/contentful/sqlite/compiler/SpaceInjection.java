@@ -34,11 +34,11 @@ final class SpaceInjection extends Injection {
         .addSuperinterface(SpaceHelper.class)
         .addModifiers(Modifier.FINAL);
 
+    appendModels(builder);
+    appendTypes(builder);
     appendSingleton(builder);
     appendOnCreate(builder);
     appendOnUpgrade(builder);
-    appendModels(builder);
-    appendTypes(builder);
     appendConstructor(builder);
 
     return builder.build();
@@ -110,16 +110,22 @@ final class SpaceInjection extends Injection {
   private CodeBlock bodyForOnCreate() {
     CodeBlock.Builder builder = CodeBlock.builder()
         .addStatement("db.beginTransaction()")
-        .beginControlFlow("try")
-        .beginControlFlow("for ($T sql : DEFAULT_CREATE)", String.class)
+        .beginControlFlow("try");
+
+    // default create statements
+    builder.beginControlFlow("for ($T sql : DEFAULT_CREATE)", String.class)
         .addStatement("db.execSQL(sql)")
         .endControlFlow();
 
-    for (ModelInjection modelInjection : models) {
-      for (String sql : modelInjection.getCreateStatements()) {
-        builder.addStatement("db.execSQL($S)", sql);
-      }
-    }
+    // models create statements
+    TypeName helperType = ParameterizedTypeName.get(ClassName.get(ModelHelper.class),
+        WildcardTypeName.subtypeOf(Object.class));
+
+    builder.beginControlFlow("for ($T modelHelper : $N.values())", helperType, specModels)
+        .beginControlFlow("for ($T sql : modelHelper.getCreateStatements())", String.class)
+        .addStatement("db.execSQL(sql)")
+        .endControlFlow()
+        .endControlFlow();
 
     builder.addStatement("db.setTransactionSuccessful()")
         .nextControlFlow("finally")

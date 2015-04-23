@@ -14,4 +14,6 @@ public interface ModelHelper<T extends Resource> {
   String getTableName();
 
   List<FieldMeta> getFields();
+
+  List<String> getCreateStatements();
 }
