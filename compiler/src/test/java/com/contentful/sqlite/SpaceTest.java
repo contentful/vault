@@ -36,11 +36,12 @@ public class SpaceTest {
         "  }",
         "",
         "  @Space(value = \"sid\", models = { Model.class })",
-        "  class Db {",
+        "  class AwesomeSpace {",
         "  }",
         "}"));
 
-    JavaFileObject expectedSource = JavaFileObjects.forSourceString("test/Test$Db$$Space",
+    JavaFileObject expectedSource = JavaFileObjects.forSourceString(
+        "test/Test$AwesomeSpace$$SpaceHelper",
         readTestResource("SpaceInjection.java"));
 
     ASSERT.about(javaSource()).that(source)

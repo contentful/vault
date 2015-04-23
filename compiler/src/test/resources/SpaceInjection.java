@@ -15,8 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-final class Test$Db$$Space extends SQLiteOpenHelper implements PersistenceHelper {
-  static Test$Db$$Space instance;
+final class Test$AwesomeSpace$$SpaceHelper extends SQLiteOpenHelper implements PersistenceHelper {
+  static Test$AwesomeSpace$$SpaceHelper instance;
 
   static final Set<Class<?>> models = new LinkedHashSet<Class<?>>();
 
@@ -26,7 +26,7 @@ final class Test$Db$$Space extends SQLiteOpenHelper implements PersistenceHelper
 
   static final Map<Class<?>, List<FieldMeta>> fields = new LinkedHashMap<Class<?>, List<FieldMeta>>();
 
-  private Test$Db$$Space(Context context) {
+  private Test$AwesomeSpace$$SpaceHelper(Context context) {
     super(context, "space_c2lk", null, 1);
     Class<?> clazz;
     ArrayList<FieldMeta> fieldsHolder = new ArrayList<FieldMeta>();
@@ -44,9 +44,9 @@ final class Test$Db$$Space extends SQLiteOpenHelper implements PersistenceHelper
     models.addAll(tables.keySet());
   }
 
-  public static synchronized Test$Db$$Space get(Context context) {
+  public static synchronized Test$AwesomeSpace$$SpaceHelper get(Context context) {
     if (instance == null) {
-      instance = new Test$Db$$Space(context);
+      instance = new Test$AwesomeSpace$$SpaceHelper(context);
     }
     return instance;
   }
