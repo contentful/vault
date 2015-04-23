@@ -4,11 +4,11 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import com.contentful.sqlite.ModelHelper;
-import com.contentful.sqlite.PersistenceHelper;
+import com.contentful.sqlite.SpaceHelper;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-final class Test$AwesomeSpace$$SpaceHelper extends SQLiteOpenHelper implements PersistenceHelper {
+final class Test$AwesomeSpace$$SpaceHelper extends SQLiteOpenHelper implements SpaceHelper {
   static Test$AwesomeSpace$$SpaceHelper instance;
 
   final Map<Class<?>, ModelHelper<?>> models = new LinkedHashMap<Class<?>, ModelHelper<?>>();

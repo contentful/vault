@@ -11,7 +11,7 @@ import java.util.Map;
 
 public final class FutureQuery<T extends Resource> {
   private final Persistence persistence;
-  private final PersistenceHelper spaceHelper;
+  private final SpaceHelper spaceHelper;
   private final String tableName;
   private final Class<T> clazz;
   private final SQLiteDatabase db;
@@ -25,7 +25,7 @@ public final class FutureQuery<T extends Resource> {
   private String[] queryArgs;
 
   public FutureQuery(Persistence persistence,
-      PersistenceHelper spaceHelper, Class<T> clazz, String tableName, List<FieldMeta> fields) {
+      SpaceHelper spaceHelper, Class<T> clazz, String tableName, List<FieldMeta> fields) {
     this.persistence = persistence;
     this.spaceHelper = spaceHelper;
     this.db = ((SQLiteOpenHelper) spaceHelper).getReadableDatabase();
@@ -59,7 +59,7 @@ public final class FutureQuery<T extends Resource> {
         do {
           T resource = ResourceFactory.fromCursor(cursor, clazz, filteredFields);
           Map<String, Resource> map;
-          if (PersistenceHelper.TABLE_ASSETS.equals(tableName)) {
+          if (SpaceHelper.TABLE_ASSETS.equals(tableName)) {
             map = assets;
           } else {
             map = entries;
@@ -92,7 +92,7 @@ public final class FutureQuery<T extends Resource> {
       cursor.close();
     }
     if (result != null) {
-      boolean isAsset = PersistenceHelper.TABLE_ASSETS.equals(tableName);
+      boolean isAsset = SpaceHelper.TABLE_ASSETS.equals(tableName);
       Map<String, Resource> map = isAsset ? assets : entries;
       map.put(result.remoteId, result);
       if (resolveLinks) {

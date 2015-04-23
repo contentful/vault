@@ -8,11 +8,11 @@ import java.util.List;
 import java.util.Map;
 
 final class QueryLinkResolver {
-  final PersistenceHelper spaceHelper;
+  final SpaceHelper spaceHelper;
   final SQLiteDatabase db;
   final FutureQuery<?> query;
 
-  QueryLinkResolver(PersistenceHelper spaceHelper, FutureQuery<?> query) {
+  QueryLinkResolver(SpaceHelper spaceHelper, FutureQuery<?> query) {
     this.spaceHelper = spaceHelper;
     this.db = ((SQLiteOpenHelper) spaceHelper).getReadableDatabase();
     this.query = query;
@@ -71,7 +71,7 @@ final class QueryLinkResolver {
   private LinkInfo fetchLinkInfo(String parent, String field, String type) {
     StringBuilder builder = new StringBuilder()
         .append("SELECT `child`, `child_content_type` FROM ")
-        .append(PersistenceHelper.TABLE_LINKS)
+        .append(SpaceHelper.TABLE_LINKS)
         .append(" WHERE parent = ? AND field = ? AND `child_content_type` IS ");
 
     if (!CDAResourceType.Asset.toString().equals(type)) {

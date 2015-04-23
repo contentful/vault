@@ -1,7 +1,7 @@
 package com.contentful.sqlite.compiler;
 
 import com.contentful.sqlite.ModelHelper;
-import com.contentful.sqlite.PersistenceHelper;
+import com.contentful.sqlite.SpaceHelper;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
@@ -31,7 +31,7 @@ final class SpaceInjection extends Injection {
   @Override TypeSpec buildTypeSpec() {
     TypeSpec.Builder builder = TypeSpec.classBuilder(className)
         .superclass(ClassName.get("android.database.sqlite", "SQLiteOpenHelper"))
-        .addSuperinterface(PersistenceHelper.class)
+        .addSuperinterface(SpaceHelper.class)
         .addModifiers(Modifier.FINAL);
 
     appendSingleton(builder);

@@ -2,7 +2,7 @@ package com.contentful.sqlite.compiler;
 
 import com.contentful.sqlite.FieldMeta;
 import com.contentful.sqlite.ModelHelper;
-import com.contentful.sqlite.PersistenceHelper;
+import com.contentful.sqlite.SpaceHelper;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
@@ -88,7 +88,7 @@ final class ModelInjection extends Injection {
         .append(sqlTableName)
         .append("` (");
 
-    for (String column : PersistenceHelper.RESOURCE_COLUMNS) {
+    for (String column : SpaceHelper.RESOURCE_COLUMNS) {
       builder.append(column);
       builder.append(", ");
     }
