@@ -1,8 +1,5 @@
 package com.contentful.sqlite.compiler;
 
-import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import com.contentful.sqlite.FieldMeta;
 import com.contentful.sqlite.PersistenceHelper;
 import com.squareup.javapoet.ClassName;
@@ -40,7 +37,7 @@ final class SpaceInjection extends Injection {
 
   @Override JavaFile brewJava() {
     TypeSpec.Builder builder = TypeSpec.classBuilder(className)
-        .superclass(SQLiteOpenHelper.class)
+        .superclass(ClassName.get("android.database.sqlite", "SQLiteOpenHelper"))
         .addSuperinterface(PersistenceHelper.class);
 
     appendSingleton(builder);
@@ -59,7 +56,8 @@ final class SpaceInjection extends Injection {
   private void appendConstructor(TypeSpec.Builder builder) {
     MethodSpec.Builder ctor = MethodSpec.constructorBuilder()
         .addModifiers(Modifier.PRIVATE)
-        .addParameter(ParameterSpec.builder(Context.class, "context").build())
+        .addParameter(
+            ParameterSpec.builder(ClassName.get("android.content", "Context"), "context").build())
         .addStatement("super(context, $S, null, $L)", tableName, 1);
 
     // Temporary variable to hold model class reference
@@ -189,7 +187,9 @@ final class SpaceInjection extends Injection {
     builder.addMethod(MethodSpec.methodBuilder("onUpgrade")
         .addAnnotation(Override.class)
         .addModifiers(Modifier.PUBLIC)
-        .addParameter(ParameterSpec.builder(SQLiteDatabase.class, "db").build())
+        .addParameter(
+            ParameterSpec.builder(ClassName.get("android.database.sqlite", "SQLiteDatabase"), "db")
+                .build())
         .addParameter(ParameterSpec.builder(int.class, "oldVersion").build())
         .addParameter(ParameterSpec.builder(int.class, "newVersion").build())
         .build());
@@ -221,7 +221,9 @@ final class SpaceInjection extends Injection {
     builder.addMethod(MethodSpec.methodBuilder("onCreate")
         .addAnnotation(Override.class)
         .addModifiers(Modifier.PUBLIC)
-        .addParameter(ParameterSpec.builder(SQLiteDatabase.class, "db").build())
+        .addParameter(
+            ParameterSpec.builder(ClassName.get("android.database.sqlite", "SQLiteDatabase"), "db")
+                .build())
         .addCode(bodyForOnCreate())
         .build());
   }
@@ -238,7 +240,8 @@ final class SpaceInjection extends Injection {
     builder.addMethod(MethodSpec.methodBuilder("get")
         .returns(selfType)
         .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.SYNCHRONIZED)
-        .addParameter(ParameterSpec.builder(Context.class, "context").build())
+        .addParameter(
+            ParameterSpec.builder(ClassName.get("android.content", "Context"), "context").build())
         .beginControlFlow("if ($N == null)", fieldInstance)
         .addStatement("$N = new $T(context)", fieldInstance, selfType)
         .endControlFlow()
