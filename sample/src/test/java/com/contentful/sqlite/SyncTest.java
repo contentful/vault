@@ -2,33 +2,16 @@ package com.contentful.sqlite;
 
 import android.content.Context;
 import com.contentful.java.cda.CDAClient;
-import com.squareup.okhttp.mockwebserver.MockResponse;
-import com.squareup.okhttp.mockwebserver.MockWebServer;
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
 import java.util.List;
-import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
-import org.robolectric.annotation.Config;
-import retrofit.RestAdapter.LogLevel;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 
-@RunWith(RobolectricTestRunner.class)
-@Config(manifest = "src/main/AndroidManifest.xml")
-public class SyncTest {
-  MockWebServer server;
-  CDAClient client;
-
+public class SyncTest extends BaseTest {
   @Space(value = "cfexampleapi", models = Cat.class)
   static class Cfexampleapi {
   }
@@ -38,23 +21,6 @@ public class SyncTest {
     @Field String name;
     @Field Cat bestFriend;
     @Field Asset image;
-  }
-
-  @Before public void setUp() throws Exception {
-    server = new MockWebServer();
-    server.start();
-
-    client = new CDAClient.Builder()
-        .setSpaceKey("space")
-        .setAccessToken("token")
-        .setEndpoint(getServerUrl())
-        .setLogLevel(LogLevel.FULL)
-        .noSSL()
-        .build();
-  }
-
-  @After public void tearDown() throws Exception {
-    server.shutdown();
   }
 
   @Test public void testSync() throws Exception {
@@ -174,19 +140,5 @@ public class SyncTest {
 
     assertEquals("garfield", cats.get(1).getRemoteId());
     assertEquals("supercat", cats.get(2).getRemoteId());
-  }
-
-  private String getServerUrl() {
-    URL url = server.getUrl("/");
-    return url.getHost() + ":" + url.getPort();
-  }
-
-  private void enqueue(String fileName) throws IOException {
-    URL resource = getClass().getClassLoader().getResource(fileName);
-    if (resource == null) {
-      throw new IllegalArgumentException("File not found");
-    }
-    server.enqueue(new MockResponse().setResponseCode(200).setBody(FileUtils.readFileToString(
-            new File(resource.getFile()))));
   }
 }

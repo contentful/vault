@@ -1,32 +1,40 @@
 package com.contentful.sqlite;
 
+import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 
-public interface SpaceHelper {
-  String TABLE_ASSETS = "assets";
-  String TABLE_ENTRY_TYPES = "entry_types";
-  String TABLE_LINKS = "links";
+public abstract class SpaceHelper extends SQLiteOpenHelper {
+  public SpaceHelper(Context context, String name, SQLiteDatabase.CursorFactory factory,
+      int version) {
+    super(context, name, factory, version);
+  }
 
-  String[] RESOURCE_COLUMNS = new String[] {
+  public static final String[] RESOURCE_COLUMNS = new String[] {
       "`remote_id` STRING NOT NULL UNIQUE",
       "`created_at` STRING NOT NULL",
       "`updated_at` STRING"
   };
 
+  static final String TABLE_ASSETS = "assets";
+  static final String TABLE_ENTRY_TYPES = "entry_types";
+  static final String TABLE_LINKS = "links";
+
   // Static resources column indexes
-  int COLUMN_REMOTE_ID = 0;
-  int COLUMN_CREATED_AT = 1;
-  int COLUMN_UPDATED_AT = 2;
+  static final int COLUMN_REMOTE_ID = 0;
+  static final int COLUMN_CREATED_AT = 1;
+  static final int COLUMN_UPDATED_AT = 2;
 
   // Static assets column indexes
-  int COLUMN_ASSET_URL = RESOURCE_COLUMNS.length;
-  int COLUMN_ASSET_MIME_TYPE = RESOURCE_COLUMNS.length + 1;
+  static final int COLUMN_ASSET_URL = RESOURCE_COLUMNS.length;
+  static final int COLUMN_ASSET_MIME_TYPE = RESOURCE_COLUMNS.length + 1;
 
-  String CREATE_ASSETS = "CREATE TABLE `"
+  static final String CREATE_ASSETS = "CREATE TABLE `"
       + TABLE_ASSETS
       + "` ("
       + StringUtils.join(RESOURCE_COLUMNS, ", ") + ","
@@ -34,7 +42,7 @@ public interface SpaceHelper {
       + "`mime_type` STRING NOT NULL"
       + ");";
 
-  String CREATE_ENTRY_TYPES = "CREATE TABLE `"
+  static final String CREATE_ENTRY_TYPES = "CREATE TABLE `"
       + TABLE_ENTRY_TYPES
       + "` ("
       + "`remote_id` STRING NOT NULL,"
@@ -42,7 +50,7 @@ public interface SpaceHelper {
       + "UNIQUE(`remote_id`)"
       + ");";
 
-  String CREATE_LINKS = "CREATE TABLE `"
+  static final String CREATE_LINKS = "CREATE TABLE `"
       + TABLE_LINKS
       + "` ("
       + "`parent` STRING NOT NULL,"
@@ -52,11 +60,37 @@ public interface SpaceHelper {
       + "UNIQUE (`parent`, `child`, `field`)"
       + ");";
 
-  List<String> DEFAULT_CREATE = Arrays.asList(CREATE_ASSETS, CREATE_ENTRY_TYPES, CREATE_LINKS);
+  public static final List<String> DEFAULT_CREATE =
+      Arrays.asList(CREATE_ASSETS, CREATE_ENTRY_TYPES, CREATE_LINKS);
 
-  Map<Class<?>, ModelHelper<?>> getModels();
+  public abstract Map<Class<?>, ModelHelper<?>> getModels();
 
-  Map<String, Class<?>> getTypes();
+  public abstract Map<String, Class<?>> getTypes();
 
-  <T> T fromCursor(Class<T> clazz, Cursor cursor);
+  @SuppressWarnings("unchecked")
+  public final <T extends Resource> T fromCursor(Class<T> clazz, Cursor cursor) {
+    T resource = null;
+    if (Asset.class.equals(clazz)) {
+      resource = (T) assetFromCursor(cursor);
+    } else {
+      ModelHelper<?> modelHelper = getModels().get(clazz);
+      if (modelHelper != null) {
+        resource = (T) modelHelper.fromCursor(cursor);
+      }
+    }
+    if (resource != null) {
+      resource.setRemoteId(cursor.getString(SpaceHelper.COLUMN_REMOTE_ID));
+      resource.setCreatedAt(cursor.getString(SpaceHelper.COLUMN_CREATED_AT));
+      resource.setUpdatedAt(cursor.getString(SpaceHelper.COLUMN_UPDATED_AT));
+    }
+
+    return resource;
+  }
+
+  private static Asset assetFromCursor(Cursor cursor) {
+    Asset asset = new Asset();
+    asset.setUrl(cursor.getString(SpaceHelper.COLUMN_ASSET_URL));
+    asset.setMimeType(cursor.getString(SpaceHelper.COLUMN_ASSET_MIME_TYPE));
+    return asset;
+  }
 }
