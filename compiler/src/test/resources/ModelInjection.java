@@ -2,9 +2,10 @@ import android.database.Cursor;
 import com.contentful.sqlite.FieldMeta;
 import com.contentful.sqlite.ModelHelper;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
-final class Test$AwesomeModel$$ModelHelper implements ModelHelper<Test.AwesomeModel> {
+final class Test$AwesomeModel$$ModelHelper extends ModelHelper<Test.AwesomeModel> {
   final List<FieldMeta> fields = new ArrayList<FieldMeta>();
 
   public Test$AwesomeModel$$ModelHelper() {
@@ -41,6 +42,7 @@ final class Test$AwesomeModel$$ModelHelper implements ModelHelper<Test.AwesomeMo
     result.fBoolean = Integer.valueOf(1).equals(cursor.getInt(4));
     result.fInteger = cursor.getInt(5);
     result.fDouble = cursor.getDouble(6);
+    result.fMap = fieldFromBlob(HashMap.class, cursor, 7);
     return result;
   }
 }

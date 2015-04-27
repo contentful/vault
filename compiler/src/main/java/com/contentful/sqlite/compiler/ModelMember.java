@@ -1,5 +1,7 @@
 package com.contentful.sqlite.compiler;
 
+import com.squareup.javapoet.TypeName;
+
 final class ModelMember {
   /** Remote field ID */
   final String id;
@@ -8,7 +10,7 @@ final class ModelMember {
   final String fieldName;
 
   /** Type of field in model class */
-  final String className;
+  final TypeName typeName;
 
   /** SQLite column type */
   final String sqliteType;
@@ -19,7 +21,7 @@ final class ModelMember {
   private ModelMember(Builder builder) {
     this.id = builder.id;
     this.fieldName = builder.fieldName;
-    this.className = builder.className;
+    this.typeName = builder.typeName;
     this.sqliteType = builder.sqliteType;
     this.linkType = builder.linkType;
   }
@@ -35,7 +37,7 @@ final class ModelMember {
   final static class Builder {
     String id;
     String fieldName;
-    String className;
+    TypeName typeName;
     String sqliteType;
     String linkType;
 
@@ -52,8 +54,8 @@ final class ModelMember {
       return this;
     }
 
-    public Builder setClassName(String className) {
-      this.className = className;
+    public Builder setTypeName(TypeName typeName) {
+      this.typeName = typeName;
       return this;
     }
 

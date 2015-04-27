@@ -8,6 +8,7 @@ import com.contentful.sqlite.Resource;
 import com.contentful.sqlite.Space;
 import com.google.common.base.Joiner;
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.TypeName;
 import com.sun.tools.javac.code.Attribute;
 import com.sun.tools.javac.code.Type;
 import java.io.PrintWriter;
@@ -242,18 +243,18 @@ public class Processor extends AbstractProcessor {
   private ModelMember createMember(Element element, TypeElement typeElement,
       Element enclosedElement, String fieldId) {
     TypeMirror enclosedType = enclosedElement.asType();
-    String className = enclosedType.toString();
+    TypeName typeName = ClassName.get(enclosedType);
     String linkType = getLinkType(enclosedType);
     String fieldName = enclosedElement.getSimpleName().toString();
     String sqliteType = null;
 
     if (linkType == null) {
-      sqliteType = SqliteUtils.typeForClass(className);
+      sqliteType = SqliteUtils.typeForClass(typeName.toString());
       if (sqliteType == null) {
         error(element,
             "@%s specified for unsupported type (\"%s\"). (%s.%s)",
             Field.class.getSimpleName(),
-            className,
+            typeName.toString(),
             typeElement.getQualifiedName(),
             enclosedElement.getSimpleName());
       }
@@ -262,7 +263,7 @@ public class Processor extends AbstractProcessor {
     return ModelMember.builder()
         .setId(fieldId)
         .setFieldName(fieldName)
-        .setClassName(className)
+        .setTypeName(typeName)
         .setSqliteType(sqliteType)
         .setLinkType(linkType)
         .build();
