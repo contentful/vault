@@ -4,7 +4,7 @@ import com.contentful.sqlite.ModelHelper;
 import java.util.ArrayList;
 import java.util.List;
 
-final class Test$AwesomeModel$$ModelHelper implements ModelHelper<Test.AwesomeModel> {
+final class Test$AwesomeModel$$ModelHelper extends ModelHelper<Test.AwesomeModel> {
   final List<FieldMeta> fields = new ArrayList<FieldMeta>();
 
   public Test$AwesomeModel$$ModelHelper() {

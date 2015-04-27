@@ -2,7 +2,6 @@ package com.contentful.sqlite;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -28,7 +27,7 @@ public final class FutureQuery<T extends Resource> {
       SpaceHelper spaceHelper, Class<T> clazz, String tableName, List<FieldMeta> fields) {
     this.persistence = persistence;
     this.spaceHelper = spaceHelper;
-    this.db = ((SQLiteOpenHelper) spaceHelper).getReadableDatabase();
+    this.db = spaceHelper.getReadableDatabase();
     this.clazz = clazz;
     this.tableName = tableName;
     this.fields = fields;
@@ -56,15 +55,17 @@ public final class FutureQuery<T extends Resource> {
     try {
       if (cursor.moveToFirst()) {
         do {
-          T resource = ResourceFactory.fromCursor(spaceHelper, clazz, cursor);
-          Map<String, Resource> map;
-          if (SpaceHelper.TABLE_ASSETS.equals(tableName)) {
-            map = assets;
-          } else {
-            map = entries;
+          T resource = spaceHelper.fromCursor(clazz, cursor);
+          if (resource != null) {
+            Map<String, Resource> map;
+            if (SpaceHelper.TABLE_ASSETS.equals(tableName)) {
+              map = assets;
+            } else {
+              map = entries;
+            }
+            map.put(resource.getRemoteId(), resource);
+            result.add(resource);
           }
-          map.put(resource.getRemoteId(), resource);
-          result.add(resource);
         } while (cursor.moveToNext());
       }
     } finally {
@@ -84,7 +85,7 @@ public final class FutureQuery<T extends Resource> {
     T result = null;
     try {
       if (cursor.moveToFirst()) {
-        result = ResourceFactory.fromCursor(spaceHelper, clazz, cursor);
+        result = spaceHelper.fromCursor(clazz, cursor);
       }
     } finally {
       cursor.close();

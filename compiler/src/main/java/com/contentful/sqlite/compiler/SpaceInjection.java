@@ -2,7 +2,6 @@ package com.contentful.sqlite.compiler;
 
 import com.contentful.sqlite.ModelHelper;
 import com.contentful.sqlite.SpaceHelper;
-import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
@@ -11,7 +10,6 @@ import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
-import com.squareup.javapoet.TypeVariableName;
 import com.squareup.javapoet.WildcardTypeName;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -33,8 +31,7 @@ final class SpaceInjection extends Injection {
 
   @Override TypeSpec.Builder getTypeSpecBuilder() {
     TypeSpec.Builder builder = TypeSpec.classBuilder(className.simpleName())
-        .superclass(ClassName.get("android.database.sqlite", "SQLiteOpenHelper"))
-        .addSuperinterface(SpaceHelper.class)
+        .superclass(ClassName.get(SpaceHelper.class))
         .addModifiers(Modifier.FINAL);
 
     appendModels(builder);
@@ -42,7 +39,6 @@ final class SpaceInjection extends Injection {
     appendSingleton(builder);
     appendOnCreate(builder);
     appendOnUpgrade(builder);
-    appendFromCursor(builder);
     appendConstructor(builder);
 
     return builder;
@@ -64,30 +60,6 @@ final class SpaceInjection extends Injection {
     }
 
     builder.addMethod(ctor.build());
-  }
-
-  private void appendFromCursor(TypeSpec.Builder builder) {
-    TypeVariableName typeVariableName = TypeVariableName.get("T");
-
-    TypeName classTypeName =
-        ParameterizedTypeName.get(ClassName.get(Class.class), typeVariableName);
-
-    ClassName cursorType = ClassName.get("android.database", "Cursor");
-
-    MethodSpec.Builder method = MethodSpec.methodBuilder("fromCursor")
-        .returns(typeVariableName)
-        .addTypeVariable(typeVariableName)
-        .addAnnotation(Override.class)
-        .addAnnotation(AnnotationSpec.builder(SuppressWarnings.class)
-            .addMember("value", "$S", "unchecked")
-            .build())
-        .addModifiers(Modifier.PUBLIC)
-        .addParameter(ParameterSpec.builder(classTypeName, "clazz").build())
-        .addParameter(ParameterSpec.builder(cursorType, "cursor").build())
-        .addStatement("return ($T) $N.get($N).fromCursor($N)", typeVariableName, specModels,
-            "clazz", "cursor");
-
-    builder.addMethod(method.build());
   }
 
   private void appendTypes(TypeSpec.Builder builder) {

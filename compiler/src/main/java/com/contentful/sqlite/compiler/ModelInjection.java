@@ -33,7 +33,7 @@ final class ModelInjection extends Injection {
             ClassName.get(originatingElement));
 
     TypeSpec.Builder builder = TypeSpec.classBuilder(className.simpleName())
-        .addSuperinterface(modelHelperType)
+        .superclass(modelHelperType)
         .addModifiers(Modifier.FINAL);
 
     appendFields(builder);

@@ -3,12 +3,12 @@ package com.contentful.sqlite;
 import android.database.Cursor;
 import java.util.List;
 
-public interface ModelHelper<T extends Resource> {
-  String getTableName();
+public abstract class ModelHelper<T extends Resource> {
+  public abstract String getTableName();
 
-  List<FieldMeta> getFields();
+  public abstract List<FieldMeta> getFields();
 
-  List<String> getCreateStatements();
+  public abstract List<String> getCreateStatements();
 
-  T fromCursor(Cursor cursor);
+  public abstract T fromCursor(Cursor cursor);
 }
