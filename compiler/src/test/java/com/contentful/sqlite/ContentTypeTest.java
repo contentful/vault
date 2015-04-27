@@ -11,30 +11,28 @@ import static com.google.testing.compile.JavaSourceSubjectFactory.javaSource;
 
 public class ContentTypeTest {
   @Test public void failsEmptyId() throws Exception {
-    JavaFileObject source = JavaFileObjects.forSourceString("test.Test",
+    JavaFileObject source = JavaFileObjects.forSourceString("Test",
         Joiner.on('\n').join(
-            "package test;",
             "import com.contentful.sqlite.ContentType;",
             "import com.contentful.sqlite.Resource;",
             "@ContentType(\"\")",
-            "public class Test extends Resource {",
+            "class Test extends Resource {",
             "}"
         ));
 
     ASSERT.about(javaSource()).that(source)
         .processedWith(processors())
         .failsToCompile()
-        .withErrorContaining("@ContentType id may not be empty. (test.Test)");
+        .withErrorContaining("@ContentType id may not be empty. (Test)");
   }
 
   @Test public void failsDuplicateId() throws Exception {
     JavaFileObject source = JavaFileObjects.forSourceString("test.Test", Joiner.on('\n').join(
-        "package test;",
         "import com.contentful.sqlite.ContentType;",
         "@ContentType(\"cid\")",
-        "public class Test {",
+        "class Test {",
         "  @ContentType(\"cid\")",
-        "  public class Test2 {",
+        "  static class Test2 {",
         "  }",
         "}"));
 
@@ -43,16 +41,15 @@ public class ContentTypeTest {
         .failsToCompile()
         .withErrorContaining(
             "@ContentType for \"cid\" cannot be used on multiple classes."
-                + " (test.Test.Test2)");
+                + " (Test.Test2)");
   }
 
   @Test public void failsInvalidType() throws Exception {
-    JavaFileObject source = JavaFileObjects.forSourceString("test.Test", Joiner.on('\n').join(
-        "package test;",
+    JavaFileObject source = JavaFileObjects.forSourceString("Test", Joiner.on('\n').join(
         "import com.contentful.sqlite.ContentType;",
         "import java.util.Date;",
         "@ContentType(\"cid\")",
-        "public class Test {",
+        "class Test {",
         "}"));
 
     ASSERT.about(javaSource()).that(source)
@@ -60,6 +57,6 @@ public class ContentTypeTest {
         .failsToCompile()
         .withErrorContaining(
             "Classes annotated with @ContentType must extend \"com.contentful.sqlite.Resource\". "
-                + "(test.Test)");
+                + "(Test)");
   }
 }

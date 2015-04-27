@@ -11,7 +11,7 @@ import static com.google.testing.compile.JavaSourceSubjectFactory.javaSource;
 
 public class SpaceTest {
   @Test public void testInjection() throws Exception {
-    JavaFileObject source = JavaFileObjects.forSourceString("test.Test", Joiner.on('\n').join(
+    JavaFileObject source = JavaFileObjects.forSourceString("Test", Joiner.on('\n').join(
         "import com.contentful.sqlite.Asset;",
         "import com.contentful.sqlite.ContentType;",
         "import com.contentful.sqlite.Field;",
@@ -36,7 +36,7 @@ public class SpaceTest {
         "}"));
 
     JavaFileObject expectedSource = JavaFileObjects.forSourceString(
-        "test/Test$AwesomeSpace$$SpaceHelper",
+        "Test$AwesomeSpace$$SpaceHelper",
         readTestResource("SpaceInjection.java"));
 
     ASSERT.about(javaSource()).that(source)
@@ -47,67 +47,62 @@ public class SpaceTest {
   }
 
   @Test public void failsEmptyId() throws Exception {
-    JavaFileObject source = JavaFileObjects.forSourceString("test.Test", Joiner.on('\n')
-        .join("package test;",
-            "import com.contentful.sqlite.Space;",
-            "@Space(value = \"\", models = {})",
-            "public class Test {",
-            "}"));
+    JavaFileObject source = JavaFileObjects.forSourceString("Test", Joiner.on('\n').join(
+        "import com.contentful.sqlite.Space;",
+        "@Space(value = \"\", models = {})",
+        "class Test {",
+        "}"));
 
     ASSERT.about(javaSource()).that(source)
         .processedWith(processors())
         .failsToCompile()
-        .withErrorContaining("@Space id may not be empty. (test.Test)");
+        .withErrorContaining("@Space id may not be empty. (Test)");
   }
 
   @Test public void failsDuplicateId() throws Exception {
-    JavaFileObject source = JavaFileObjects.forSourceString("test.Test", Joiner.on('\n').join(
-        "package test;",
+    JavaFileObject source = JavaFileObjects.forSourceString("Test", Joiner.on('\n').join(
         "import com.contentful.sqlite.Space;",
         "import com.contentful.sqlite.SpaceHelper;",
         "import java.util.Set;",
-        "public class Test {",
+        "class Test {",
         "  @Space(value = \"sid\", models = { })",
-        "  public class Test1 {",
+        "  static class Test1 {",
         "  }",
         "  @Space(value = \"sid\", models = { })",
-        "  public class Test2 {",
+        "  static class Test2 {",
         "  }",
         "}"));
 
     ASSERT.about(javaSource()).that(source)
         .processedWith(processors())
         .failsToCompile()
-        .withErrorContaining("@Space for \"sid\" cannot be used on multiple classes."
-            + " (test.Test.Test2)");
+        .withErrorContaining("@Space for \"sid\" cannot be used on multiple classes. (Test.Test2)");
   }
 
   @Test public void failsEmptyModels() throws Exception {
-    JavaFileObject source = JavaFileObjects.forSourceString("test.Test", Joiner.on('\n').join(
-        "package test;",
+    JavaFileObject source = JavaFileObjects.forSourceString("Test", Joiner.on('\n').join(
         "import com.contentful.sqlite.Space;",
         "@Space(value = \"sid\", models = { })",
-        "public class Test {",
+        "class Test {",
         "}"));
 
     ASSERT.about(javaSource()).that(source)
         .processedWith(processors())
         .failsToCompile()
-        .withErrorContaining("@Space models must not be empty. (test.Test)");
+        .withErrorContaining("@Space models must not be empty. (Test)");
   }
 
   @Test public void failsInvalidModels() throws Exception {
-    JavaFileObject source = JavaFileObjects.forSourceString("test.Test", Joiner.on('\n').join(
-        "package test;",
+    JavaFileObject source = JavaFileObjects.forSourceString("Test", Joiner.on('\n').join(
         "import com.contentful.sqlite.Space;",
         "@Space(value = \"sid\", models = { Object.class })",
-        "public class Test {",
+        "class Test {",
         "}"));
 
     ASSERT.about(javaSource()).that(source)
         .processedWith(processors())
         .failsToCompile()
         .withErrorContaining("Cannot include model (\"java.lang.Object\"), "
-            + "is not annotated with @ContentType. (test.Test)");
+            + "is not annotated with @ContentType. (Test)");
   }
 }
