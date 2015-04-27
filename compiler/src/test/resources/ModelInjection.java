@@ -1,3 +1,4 @@
+import android.database.Cursor;
 import com.contentful.sqlite.FieldMeta;
 import com.contentful.sqlite.ModelHelper;
 import java.util.ArrayList;
@@ -31,5 +32,15 @@ final class Test$AwesomeModel$$ModelHelper implements ModelHelper<Test.AwesomeMo
     List<String> list = new ArrayList<String>();
     list.add("CREATE TABLE `entry_y2lk` (`remote_id` STRING NOT NULL UNIQUE, `created_at` STRING NOT NULL, `updated_at` STRING, `fText` STRING, `fBoolean` INT, `fInteger` INT, `fDouble` DOUBLE, `fMap` BLOB);");
     return list;
+  }
+
+  @Override
+  public Test.AwesomeModel fromCursor(Cursor cursor) {
+    Test.AwesomeModel result = new Test.AwesomeModel();
+    result.fText = cursor.getString(3);
+    result.fBoolean = Integer.valueOf(1).equals(cursor.getInt(4));
+    result.fInteger = cursor.getInt(5);
+    result.fDouble = cursor.getDouble(6);
+    return result;
   }
 }

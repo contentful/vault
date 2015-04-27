@@ -1,4 +1,5 @@
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import com.contentful.sqlite.ModelHelper;
@@ -56,5 +57,11 @@ final class Test$AwesomeSpace$$SpaceHelper extends SQLiteOpenHelper implements S
 
   @Override
   public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public <T> T fromCursor(Class<T> clazz, Cursor cursor) {
+    return (T) models.get(clazz).fromCursor(cursor);
   }
 }
