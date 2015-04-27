@@ -10,7 +10,9 @@ import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeSpec;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
@@ -56,7 +58,7 @@ final class ModelInjection extends Injection {
           m.fieldName,
           m.sqliteType,
           m.linkType,
-          m.className);
+          m.typeName);
     }
 
     builder.addMethod(ctor.build());
@@ -79,15 +81,20 @@ final class ModelInjection extends Injection {
     for (int i = 0; i < nonLinkMembers.size(); i++) {
       ModelMember member = nonLinkMembers.get(i);
       int columnIndex = SpaceHelper.RESOURCE_COLUMNS.length + i;
-      if (String.class.getName().equals(member.className)) {
+      String typeNameString = member.typeName.toString();
+      if (String.class.getName().equals(typeNameString)) {
         method.addStatement("$N.$L = cursor.getString($L)", result, member.fieldName, columnIndex);
-      } else if (Boolean.class.getName().equals(member.className)) {
-        method.addStatement("$N.$L = Integer.valueOf(1).equals(cursor.getInt($L))", result, member.fieldName, columnIndex);
-      } else if (Integer.class.getName().equals(member.className)) {
+      } else if (Boolean.class.getName().equals(typeNameString)) {
+        method.addStatement("$N.$L = Integer.valueOf(1).equals(cursor.getInt($L))", result,
+            member.fieldName, columnIndex);
+      } else if (Integer.class.getName().equals(typeNameString)) {
         method.addStatement("$N.$L = cursor.getInt($L)", result, member.fieldName, columnIndex);
-      } else if (Double.class.getName().equals(member.className)) {
+      } else if (Double.class.getName().equals(typeNameString)) {
         method.addStatement("$N.$L = cursor.getDouble($L)", result, member.fieldName, columnIndex);
-      } // TODO Map
+      } else if (Map.class.getName().equals(typeNameString)) {
+        method.addStatement("$N.$L = fieldFromBlob($T.class, cursor, $L)", result, member.fieldName,
+            ClassName.get(HashMap.class), columnIndex);
+      }
     }
 
     method.addStatement("return $N", result);

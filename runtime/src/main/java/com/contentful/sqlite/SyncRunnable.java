@@ -6,14 +6,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Build;
-import com.contentful.java.cda.*;
+import com.contentful.java.cda.CDAClient;
 import com.contentful.java.cda.Constants.CDAResourceType;
 import com.contentful.java.cda.model.CDAAsset;
 import com.contentful.java.cda.model.CDAEntry;
 import com.contentful.java.cda.model.CDAResource;
 import com.contentful.java.cda.model.CDASyncedSpace;
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -72,7 +73,7 @@ public final class SyncRunnable implements Runnable {
   @Override public void run() {
     boolean success = false;
     spaceHelper = Persistence.getOrCreateHelper(context, space);
-    db = ((SQLiteOpenHelper) spaceHelper).getWritableDatabase();
+    db = spaceHelper.getWritableDatabase();
 
     try {
       CDASyncedSpace syncedSpace = client.synchronization().performInitial();
@@ -196,7 +197,17 @@ public final class SyncRunnable implements Runnable {
         }
       } else {
         if (value != null) {
-          values.put(field.name, value.toString());
+          if ("BLOB".equals(field.sqliteType)) {
+            try {
+              values.put(field.name, BlobUtils.toBlob((Serializable) value));
+            } catch (IOException e) {
+              throw new RuntimeException(
+                  String.format("Failed converting value to BLOB for entry id %s field %s.",
+                      entry.getSys().get("remoteId"), field.name));
+            }
+          } else {
+            values.put(field.name, value.toString());
+          }
         }
       }
     }
