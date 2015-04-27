@@ -12,31 +12,29 @@ import static com.google.testing.compile.JavaSourceSubjectFactory.javaSource;
 
 public class ModelTest {
   @Test public void testInjection() throws Exception {
-    JavaFileObject source = JavaFileObjects.forSourceString("test.Test", Joiner.on('\n')
-        .join(
-            "package test;",
-            "import com.contentful.sqlite.Asset;",
-            "import com.contentful.sqlite.ContentType;",
-            "import com.contentful.sqlite.Field;",
-            "import com.contentful.sqlite.Resource;",
-            "import com.contentful.sqlite.SpaceHelper;",
-            "import java.util.Map;",
-            "public class Test {",
-            "  @ContentType(\"cid\")",
-            "  class AwesomeModel extends Resource {",
-            "    @Field String fText;",
-            "    @Field Boolean fBoolean;",
-            "    @Field Integer fInteger;",
-            "    @Field Double fDouble;",
-            "    @Field Map fMap;",
-            "    @Field AwesomeModel fLinkedModel;",
-            "    @Field Asset fLinkedAsset;",
-            "  }",
-            "}"
-        ));
+    JavaFileObject source = JavaFileObjects.forSourceString("Test", Joiner.on('\n').join(
+        "import com.contentful.sqlite.Asset;",
+        "import com.contentful.sqlite.ContentType;",
+        "import com.contentful.sqlite.Field;",
+        "import com.contentful.sqlite.Resource;",
+        "import com.contentful.sqlite.SpaceHelper;",
+        "import java.util.Map;",
+        "class Test {",
+        "  @ContentType(\"cid\")",
+        "  static class AwesomeModel extends Resource {",
+        "    @Field String fText;",
+        "    @Field Boolean fBoolean;",
+        "    @Field Integer fInteger;",
+        "    @Field Double fDouble;",
+        "    @Field Map fMap;",
+        "    @Field AwesomeModel fLinkedModel;",
+        "    @Field Asset fLinkedAsset;",
+        "  }",
+        "}"
+    ));
 
     JavaFileObject expectedSource = JavaFileObjects.forSourceString(
-        "test/Test$AwesomeModel$$ModelHelper",
+        "Test$AwesomeModel$$ModelHelper",
         readTestResource("ModelInjection.java"));
 
     ASSERT.about(javaSource()).that(source)

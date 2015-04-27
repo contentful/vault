@@ -7,33 +7,32 @@ import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
-import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.element.TypeElement;
 
 final class ModelInjection extends Injection {
   final String sqlTableName;
   final Set<ModelMember> members;
   private FieldSpec specFields;
 
-  public ModelInjection(String remoteId, String classPackage, String className,
-      String enclosingClass, String sqlTableName, Set<ModelMember> members) {
-    super(remoteId, classPackage, className, enclosingClass);
+  public ModelInjection(String remoteId, ClassName className, TypeElement originatingElement,
+      String sqlTableName, Set<ModelMember> members) {
+    super(remoteId, className, originatingElement);
     this.sqlTableName = sqlTableName;
     this.members = members;
   }
 
-  @Override TypeSpec buildTypeSpec() {
-    TypeName enclosingTypeName = ClassName.get(classPackage, enclosingClass);
-
+  @Override TypeSpec.Builder getTypeSpecBuilder() {
     ParameterizedTypeName modelHelperType =
-        ParameterizedTypeName.get(ClassName.get(ModelHelper.class), enclosingTypeName);
+        ParameterizedTypeName.get(ClassName.get(ModelHelper.class),
+            ClassName.get(originatingElement));
 
-    TypeSpec.Builder builder = TypeSpec.classBuilder(this.className)
+    TypeSpec.Builder builder = TypeSpec.classBuilder(className.simpleName())
         .addSuperinterface(modelHelperType)
         .addModifiers(Modifier.FINAL);
 
@@ -42,7 +41,7 @@ final class ModelInjection extends Injection {
     appendCreateStatements(builder);
     appendConstructor(builder);
 
-    return builder.build();
+    return builder;
   }
 
   private void appendConstructor(TypeSpec.Builder builder) {

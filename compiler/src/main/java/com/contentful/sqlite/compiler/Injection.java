@@ -10,25 +10,29 @@ import com.squareup.javapoet.TypeSpec;
 import java.util.List;
 import java.util.Map;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.element.TypeElement;
 
 abstract class Injection {
   final String remoteId;
-  final String classPackage;
-  final String className;
-  final String enclosingClass;
+  final ClassName className;
+  final TypeElement originatingElement;
 
-  public Injection(String remoteId, String classPackage, String className, String enclosingClass) {
+  public Injection(String remoteId, ClassName className, TypeElement originatingElement) {
     this.remoteId = remoteId;
-    this.classPackage = classPackage;
     this.className = className;
-    this.enclosingClass = enclosingClass;
+    this.originatingElement = originatingElement;
   }
 
   JavaFile brewJava() {
-    return JavaFile.builder(classPackage, buildTypeSpec()).skipJavaLangImports(true).build();
+    TypeSpec.Builder typeSpecBuilder = getTypeSpecBuilder()
+        .addOriginatingElement(originatingElement);
+
+    return JavaFile.builder(className.packageName(), typeSpecBuilder.build())
+        .skipJavaLangImports(true)
+        .build();
   }
 
-  abstract TypeSpec buildTypeSpec();
+  abstract TypeSpec.Builder getTypeSpecBuilder();
 
   protected MethodSpec.Builder createGetterImpl(FieldSpec field, String name) {
     return MethodSpec.methodBuilder(name)

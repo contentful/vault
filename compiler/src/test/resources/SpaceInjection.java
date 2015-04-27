@@ -1,5 +1,3 @@
-package test;
-
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -17,8 +15,8 @@ final class Test$AwesomeSpace$$SpaceHelper extends SQLiteOpenHelper implements S
 
   private Test$AwesomeSpace$$SpaceHelper(Context context) {
     super(context, "space_c2lk", null, 1);
-    models.put(test.Test.Model.class, new Test$Model$$ModelHelper());
-    types.put("cid", test.Test.Model.class);
+    models.put(Test.Model.class, new Test$Model$$ModelHelper());
+    types.put("cid", Test.Model.class);
   }
 
   @Override

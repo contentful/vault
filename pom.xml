@@ -32,6 +32,7 @@
     <commons-io.version>2.4</commons-io.version>
     <commons-lang3.version>3.4</commons-lang3.version>
     <compile-testing.version>0.6</compile-testing.version>
+    <guava.version>18.0</guava.version>
     <javapoet.version>1.0.0</javapoet.version>
     <junit.version>4.10</junit.version>
     <mockwebserver.version>2.3.0</mockwebserver.version>
@@ -67,6 +68,11 @@
         <groupId>commons-io</groupId>
         <artifactId>commons-io</artifactId>
         <version>${commons-io.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>${guava.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.commons</groupId>

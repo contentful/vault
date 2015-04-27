@@ -1,11 +1,9 @@
-package test;
-
 import com.contentful.sqlite.FieldMeta;
 import com.contentful.sqlite.ModelHelper;
 import java.util.ArrayList;
 import java.util.List;
 
-final class Test$AwesomeModel$$ModelHelper implements ModelHelper<test.Test.AwesomeModel> {
+final class Test$AwesomeModel$$ModelHelper implements ModelHelper<Test.AwesomeModel> {
   final List<FieldMeta> fields = new ArrayList<FieldMeta>();
 
   public Test$AwesomeModel$$ModelHelper() {
@@ -14,7 +12,7 @@ final class Test$AwesomeModel$$ModelHelper implements ModelHelper<test.Test.Awes
     fields.add(new FieldMeta("fInteger", "fInteger", "INT", null, "java.lang.Integer"));
     fields.add(new FieldMeta("fDouble", "fDouble", "DOUBLE", null, "java.lang.Double"));
     fields.add(new FieldMeta("fMap", "fMap", "BLOB", null, "java.util.Map"));
-    fields.add(new FieldMeta("fLinkedModel", "fLinkedModel", null, "Entry", "test.Test.AwesomeModel"));
+    fields.add(new FieldMeta("fLinkedModel", "fLinkedModel", null, "Entry", "Test.AwesomeModel"));
     fields.add(new FieldMeta("fLinkedAsset", "fLinkedAsset", null, "Asset", "com.contentful.sqlite.Asset"));
   }
 
