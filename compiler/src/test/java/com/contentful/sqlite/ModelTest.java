@@ -14,7 +14,6 @@ public class ModelTest {
   @Test public void testInjection() throws Exception {
     JavaFileObject source = JavaFileObjects.forSourceString("test.Test", Joiner.on('\n')
         .join(
-            "package test;",
             "import com.contentful.sqlite.Asset;",
             "import com.contentful.sqlite.ContentType;",
             "import com.contentful.sqlite.Field;",
@@ -36,7 +35,7 @@ public class ModelTest {
         ));
 
     JavaFileObject expectedSource = JavaFileObjects.forSourceString(
-        "test/Test$AwesomeModel$$ModelHelper",
+        "Test$AwesomeModel$$ModelHelper",
         readTestResource("ModelInjection.java"));
 
     ASSERT.about(javaSource()).that(source)

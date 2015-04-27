@@ -6,6 +6,8 @@ import com.contentful.sqlite.ContentType;
 import com.contentful.sqlite.Field;
 import com.contentful.sqlite.Resource;
 import com.contentful.sqlite.Space;
+import com.google.common.base.Joiner;
+import com.squareup.javapoet.ClassName;
 import com.sun.tools.javac.code.Attribute;
 import com.sun.tools.javac.code.Type;
 import java.io.PrintWriter;
@@ -163,13 +165,10 @@ public class Processor extends AbstractProcessor {
       }
     }
 
-    String targetType = typeElement.getQualifiedName().toString();
-    String classPackage = getPackageName(typeElement);
-    String className = getClassName(typeElement, classPackage) + SUFFIX_SPACE;
+    ClassName injectionClassName = getInjectionClassName(typeElement, SUFFIX_SPACE);
     String tableName = "space_" + SqliteUtils.hashForId(id);
-
-    SpaceInjection injection = new SpaceInjection(id, classPackage, className, targetType,
-        includedModels, tableName);
+    SpaceInjection injection =
+        new SpaceInjection(id, injectionClassName, typeElement, includedModels, tableName);
 
     spaceTargets.put(typeElement, injection);
   }
@@ -225,15 +224,19 @@ public class Processor extends AbstractProcessor {
       members.add(createMember(element, typeElement, enclosedElement, fieldId));
     }
 
-    String targetType = typeElement.getQualifiedName().toString();
-    String classPackage = getPackageName(typeElement);
-    String className = getClassName(typeElement, classPackage) + SUFFIX_MODEL;
+    ClassName injectionClassName = getInjectionClassName(typeElement, SUFFIX_MODEL);
     String tableName = "entry_" + SqliteUtils.hashForId(id);
 
     ModelInjection injection =
-        new ModelInjection(id, classPackage, className, targetType, tableName, members);
+        new ModelInjection(id, injectionClassName, typeElement, tableName, members);
 
     targets.put(typeElement, injection);
+  }
+
+  private ClassName getInjectionClassName(TypeElement typeElement, String suffix) {
+    ClassName specClassName = ClassName.get(typeElement);
+    return ClassName.get(specClassName.packageName(),
+        Joiner.on('$').join(specClassName.simpleNames()) + suffix);
   }
 
   private ModelMember createMember(Element element, TypeElement typeElement,
@@ -291,15 +294,6 @@ public class Processor extends AbstractProcessor {
       }
     }
     return false;
-  }
-
-  private String getPackageName(TypeElement type) {
-    return elementUtils.getPackageOf(type).getQualifiedName().toString();
-  }
-
-  private static String getClassName(TypeElement type, String packageName) {
-    int packageLen = packageName.length() + 1;
-    return type.getQualifiedName().toString().substring(packageLen).replace('.', '$');
   }
 
   private void parsingError(Element element, Class<? extends Annotation> annotation, Exception e) {

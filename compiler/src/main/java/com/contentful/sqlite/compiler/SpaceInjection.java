@@ -14,6 +14,7 @@ import com.squareup.javapoet.WildcardTypeName;
 import java.util.LinkedHashMap;
 import java.util.List;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.element.TypeElement;
 
 final class SpaceInjection extends Injection {
   private final List<ModelInjection> models;
@@ -21,15 +22,15 @@ final class SpaceInjection extends Injection {
   private FieldSpec specModels;
   private FieldSpec specTypes;
 
-  public SpaceInjection(String remoteId, String classPackage, String className,
-      String enclosingClass, List<ModelInjection> models, String tableName) {
-    super(remoteId, classPackage, className, enclosingClass);
+  public SpaceInjection(String remoteId, ClassName className, TypeElement originatingElement,
+      List<ModelInjection> models, String tableName) {
+    super(remoteId, className, originatingElement);
     this.models = models;
     this.tableName = tableName;
   }
 
-  @Override TypeSpec buildTypeSpec() {
-    TypeSpec.Builder builder = TypeSpec.classBuilder(className)
+  @Override TypeSpec.Builder getTypeSpecBuilder() {
+    TypeSpec.Builder builder = TypeSpec.classBuilder(className.simpleName())
         .superclass(ClassName.get("android.database.sqlite", "SQLiteOpenHelper"))
         .addSuperinterface(SpaceHelper.class)
         .addModifiers(Modifier.FINAL);
@@ -41,7 +42,7 @@ final class SpaceInjection extends Injection {
     appendOnUpgrade(builder);
     appendConstructor(builder);
 
-    return builder.build();
+    return builder;
   }
 
   private void appendConstructor(TypeSpec.Builder builder) {
@@ -52,10 +53,11 @@ final class SpaceInjection extends Injection {
         .addStatement("super(context, $S, null, $L)", tableName, 1);
 
     for (ModelInjection model : models) {
-      ctor.addStatement("$N.put($L.class, new $L())", specModels, model.enclosingClass,
+      ClassName enclosingClassName = ClassName.get(model.originatingElement);
+      ctor.addStatement("$N.put($L.class, new $L())", specModels, enclosingClassName,
           model.className);
 
-      ctor.addStatement("$N.put($S, $L.class)", specTypes, model.remoteId, model.enclosingClass);
+      ctor.addStatement("$N.put($S, $L.class)", specTypes, model.remoteId, enclosingClassName);
     }
 
     builder.addMethod(ctor.build());
@@ -147,21 +149,17 @@ final class SpaceInjection extends Injection {
   }
 
   private void appendSingleton(TypeSpec.Builder builder) {
-    TypeName selfType = ClassName.get(classPackage, this.className);
-
-    FieldSpec fieldInstance = FieldSpec.builder(ClassName.get(classPackage, this.className),
-        "instance", Modifier.STATIC)
-        .build();
+    FieldSpec fieldInstance = FieldSpec.builder(className, "instance", Modifier.STATIC).build();
 
     builder.addField(fieldInstance);
 
     builder.addMethod(MethodSpec.methodBuilder("get")
-        .returns(selfType)
+        .returns(className)
         .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.SYNCHRONIZED)
         .addParameter(
             ParameterSpec.builder(ClassName.get("android.content", "Context"), "context").build())
         .beginControlFlow("if ($N == null)", fieldInstance)
-        .addStatement("$N = new $T(context)", fieldInstance, selfType)
+        .addStatement("$N = new $T(context)", fieldInstance, className)
         .endControlFlow()
         .addStatement("return $N", fieldInstance)
         .build());

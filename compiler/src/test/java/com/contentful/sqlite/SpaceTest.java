@@ -12,16 +12,15 @@ import static com.google.testing.compile.JavaSourceSubjectFactory.javaSource;
 public class SpaceTest {
   @Test public void testInjection() throws Exception {
     JavaFileObject source = JavaFileObjects.forSourceString("test.Test", Joiner.on('\n').join(
-        "package test;",
         "import com.contentful.sqlite.Asset;",
         "import com.contentful.sqlite.ContentType;",
         "import com.contentful.sqlite.Field;",
         "import com.contentful.sqlite.Resource;",
         "import com.contentful.sqlite.Space;",
         "import java.util.Map;",
-        "public class Test {",
+        "class Test {",
         "  @ContentType(\"cid\")",
-        "  class Model extends Resource {",
+        "  static class Model extends Resource {",
         "    @Field String fText;",
         "    @Field Boolean fBoolean;",
         "    @Field Integer fInteger;",
@@ -32,7 +31,7 @@ public class SpaceTest {
         "  }",
         "",
         "  @Space(value = \"sid\", models = { Model.class })",
-        "  class AwesomeSpace {",
+        "  static class AwesomeSpace {",
         "  }",
         "}"));
 
