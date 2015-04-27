@@ -6,10 +6,10 @@ import com.contentful.sqlite.SpaceHelper;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeSpec;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import javax.lang.model.element.Modifier;
@@ -39,6 +39,7 @@ final class ModelInjection extends Injection {
     appendFields(builder);
     appendTableName(builder);
     appendCreateStatements(builder);
+    appendFromCursor(builder);
     appendConstructor(builder);
 
     return builder;
@@ -59,6 +60,38 @@ final class ModelInjection extends Injection {
     }
 
     builder.addMethod(ctor.build());
+  }
+
+  private void appendFromCursor(TypeSpec.Builder builder) {
+    ClassName modelClassName = ClassName.get(originatingElement);
+
+    MethodSpec.Builder method = MethodSpec.methodBuilder("fromCursor")
+        .returns(modelClassName)
+        .addAnnotation(Override.class)
+        .addModifiers(Modifier.PUBLIC)
+        .addParameter(
+            ParameterSpec.builder(ClassName.get("android.database", "Cursor"), "cursor").build());
+
+    String result = "result";
+    method.addStatement("$T $N = new $T()", modelClassName, result, modelClassName);
+
+    List<ModelMember> nonLinkMembers = getNonLinkMembers();
+    for (int i = 0; i < nonLinkMembers.size(); i++) {
+      ModelMember member = nonLinkMembers.get(i);
+      int columnIndex = SpaceHelper.RESOURCE_COLUMNS.length + i;
+      if (String.class.getName().equals(member.className)) {
+        method.addStatement("$N.$L = cursor.getString($L)", result, member.fieldName, columnIndex);
+      } else if (Boolean.class.getName().equals(member.className)) {
+        method.addStatement("$N.$L = Integer.valueOf(1).equals(cursor.getInt($L))", result, member.fieldName, columnIndex);
+      } else if (Integer.class.getName().equals(member.className)) {
+        method.addStatement("$N.$L = cursor.getInt($L)", result, member.fieldName, columnIndex);
+      } else if (Double.class.getName().equals(member.className)) {
+        method.addStatement("$N.$L = cursor.getDouble($L)", result, member.fieldName, columnIndex);
+      } // TODO Map
+    }
+
+    method.addStatement("return $N", result);
+    builder.addMethod(method.build());
   }
 
   private void appendCreateStatements(TypeSpec.Builder builder) {
@@ -111,16 +144,15 @@ final class ModelInjection extends Injection {
       builder.append(", ");
     }
 
-    Set<ModelMember> filtered = getNonLinkMembers();
-    ModelMember[] list = filtered.toArray(new ModelMember[filtered.size()]);
-    for (int i = 0; i < list.length; i++) {
-      ModelMember member = list[i];
+    List<ModelMember> list = getNonLinkMembers();
+    for (int i = 0; i < list.size(); i++) {
+      ModelMember member = list.get(i);
       builder.append("`")
           .append(member.fieldName)
           .append("` ")
           .append(member.sqliteType);
 
-      if (i < list.length - 1) {
+      if (i < list.size() - 1) {
         builder.append(", ");
       }
     }
@@ -129,8 +161,8 @@ final class ModelInjection extends Injection {
     return statements;
   }
 
-  Set<ModelMember> getNonLinkMembers() {
-    Set<ModelMember> result = new LinkedHashSet<ModelMember>();
+  List<ModelMember> getNonLinkMembers() {
+    List<ModelMember> result = new ArrayList<ModelMember>();
     for (ModelMember member : members) {
       if (!member.isLink()) {
         result.add(member);

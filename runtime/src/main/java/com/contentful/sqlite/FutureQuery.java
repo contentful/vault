@@ -55,9 +55,8 @@ public final class FutureQuery<T extends Resource> {
     ArrayList<T> result = new ArrayList<T>();
     try {
       if (cursor.moveToFirst()) {
-        List<FieldMeta> filteredFields = fields == null ? null : getNonLinkFields();
         do {
-          T resource = ResourceFactory.fromCursor(cursor, clazz, filteredFields);
+          T resource = ResourceFactory.fromCursor(spaceHelper, clazz, cursor);
           Map<String, Resource> map;
           if (SpaceHelper.TABLE_ASSETS.equals(tableName)) {
             map = assets;
@@ -85,8 +84,7 @@ public final class FutureQuery<T extends Resource> {
     T result = null;
     try {
       if (cursor.moveToFirst()) {
-        result = ResourceFactory.fromCursor(cursor, clazz,
-            fields == null ? null : getNonLinkFields());
+        result = ResourceFactory.fromCursor(spaceHelper, clazz, cursor);
       }
     } finally {
       cursor.close();
@@ -117,16 +115,6 @@ public final class FutureQuery<T extends Resource> {
           .first(false);
     }
     return resource;
-  }
-
-  private List<FieldMeta> getNonLinkFields() {
-    ArrayList<FieldMeta> result = new ArrayList<FieldMeta>();
-    for (FieldMeta field : fields) {
-      if (!field.isLink()) {
-        result.add(field);
-      }
-    }
-    return result;
   }
 
   private StringBuilder queryBuilder() {

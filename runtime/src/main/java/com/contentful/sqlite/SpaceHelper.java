@@ -1,5 +1,6 @@
 package com.contentful.sqlite;
 
+import android.database.Cursor;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -56,4 +57,6 @@ public interface SpaceHelper {
   Map<Class<?>, ModelHelper<?>> getModels();
 
   Map<String, Class<?>> getTypes();
+
+  <T> T fromCursor(Class<T> clazz, Cursor cursor);
 }

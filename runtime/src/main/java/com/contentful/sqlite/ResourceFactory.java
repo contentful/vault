@@ -1,10 +1,6 @@
 package com.contentful.sqlite;
 
 import android.database.Cursor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.util.List;
-import java.util.Map;
 
 final class ResourceFactory {
   private ResourceFactory() {
@@ -12,61 +8,17 @@ final class ResourceFactory {
   }
 
   @SuppressWarnings("unchecked")
-  static <T extends Resource> T fromCursor(Cursor cursor, Class<T> clazz, List<FieldMeta> fields) {
+  static <T extends Resource> T fromCursor(SpaceHelper spaceHelper, Class<T> clazz, Cursor cursor) {
+    T result;
     if (clazz == Asset.class) {
-      return (T) assetFromCursor(cursor);
-    } else if (fields == null) {
-      throw new IllegalArgumentException("Cannot create resource \"" + clazz.getName() +
-          "\" with empty fields list");
+      result = (T) assetFromCursor(cursor);
+    } else {
+      result = spaceHelper.fromCursor(clazz, cursor);
     }
-    try {
-      return entryFromCursor(cursor, clazz, fields);
-    } catch (InstantiationException e) {
-      throw new RuntimeException(e);
-    } catch (IllegalAccessException e) {
-      throw new RuntimeException(e);
-    } catch (NoSuchFieldException e) {
-      throw new RuntimeException(e);
-    } catch (NoSuchMethodException e) {
-      throw new RuntimeException(e);
-    } catch (InvocationTargetException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  private static <T extends Resource> T entryFromCursor(Cursor cursor,
-      Class<T> clazz, List<FieldMeta> fields)
-      throws IllegalAccessException, InstantiationException, NoSuchFieldException,
-      NoSuchMethodException, InvocationTargetException {
-    T result = clazz.newInstance();
-    setResourceFields(result, cursor);
-    for (FieldMeta field : fields) {
-      // TODO perform via generated code
-      Field f = result.getClass().getDeclaredField(field.name);
-      if (field.isLink()) {
-        continue;
-      }
-
-      int columnIndex = fields.indexOf(field) + SpaceHelper.RESOURCE_COLUMNS.length;
-      Object value = valueForField(cursor, field, columnIndex);
-      if (value != null) {
-        f.setAccessible(true);
-        f.set(result, value);
-      }
+    if (result != null) {
+      setResourceFields(result, cursor);
     }
     return result;
-  }
-
-  private static Object valueForField(Cursor cursor, FieldMeta field, int columnIndex) {
-    if (String.class.getName().equals(field.className)) {
-      return cursor.getString(columnIndex);
-    } else if (Integer.class.getName().equals(field.className) ||
-        Double.class.getName().equals(field.className)) {
-      return cursor.getInt(columnIndex);
-    } else if (Map.class.getName().equals(field.className)) {
-      return null; // TODO read blob
-    }
-    return null;
   }
 
   private static Asset assetFromCursor(Cursor cursor) {
@@ -74,7 +26,6 @@ final class ResourceFactory {
     String mimeType = cursor.getString(SpaceHelper.COLUMN_ASSET_MIME_TYPE);
 
     Asset asset = new Asset();
-    setResourceFields(asset, cursor);
     asset.setUrl(url);
     asset.setMimeType(mimeType);
     return asset;
