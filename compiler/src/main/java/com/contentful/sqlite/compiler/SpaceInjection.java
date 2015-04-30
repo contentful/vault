@@ -32,7 +32,7 @@ final class SpaceInjection extends Injection {
   @Override TypeSpec.Builder getTypeSpecBuilder() {
     TypeSpec.Builder builder = TypeSpec.classBuilder(className.simpleName())
         .superclass(ClassName.get(SpaceHelper.class))
-        .addModifiers(Modifier.FINAL);
+        .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
 
     appendModels(builder);
     appendTypes(builder);

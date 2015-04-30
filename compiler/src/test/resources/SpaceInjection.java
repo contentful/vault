@@ -5,7 +5,7 @@ import com.contentful.sqlite.SpaceHelper;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-final class Test$AwesomeSpace$$SpaceHelper extends SpaceHelper {
+public final class Test$AwesomeSpace$$SpaceHelper extends SpaceHelper {
   static Test$AwesomeSpace$$SpaceHelper instance;
 
   final Map<Class<?>, ModelHelper<?>> models = new LinkedHashMap<Class<?>, ModelHelper<?>>();

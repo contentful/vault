@@ -90,12 +90,12 @@ public class Persistence {
     }
   }
 
-  public <T extends Resource> FutureQuery<T> fetch(Class<T> resource) {
+  public <T extends Resource> Query<T> fetch(Class<T> resource) {
     SpaceHelper spaceHelper = getOrCreateHelper(context, space);
     return fetch(spaceHelper, resource);
   }
 
-  public <T extends Resource> FutureQuery<T> fetch(SpaceHelper spaceHelper,
+  public <T extends Resource> Query<T> fetch(SpaceHelper spaceHelper,
       Class<T> resource) {
     String tableName;
     List<FieldMeta> fields = null;
@@ -106,7 +106,7 @@ public class Persistence {
       tableName = modelHelper.getTableName();
       fields = modelHelper.getFields();
     }
-    return new FutureQuery<T>(this, spaceHelper, resource, tableName, fields);
+    return new Query<T>(this, spaceHelper, resource, tableName, fields);
   }
 
   private <T extends Resource> ModelHelper<?> getModelHelperOrThrow(SpaceHelper spaceHelper,

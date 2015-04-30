@@ -1,5 +1,6 @@
 package com.contentful.sqlite.compiler;
 
+import java.util.List;
 import java.util.Map;
 import org.apache.commons.codec.binary.Base64;
 
@@ -18,6 +19,8 @@ final class SqliteUtils {
     } else if (Double.class.getName().equals(className)) {
       return "DOUBLE";
     } else if (Map.class.getName().equals(className)) {
+      return "BLOB";
+    } else if (List.class.getName().equals(className)) {
       return "BLOB";
     }
     return null;

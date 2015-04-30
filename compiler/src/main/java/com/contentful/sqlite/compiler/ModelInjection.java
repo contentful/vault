@@ -3,6 +3,7 @@ package com.contentful.sqlite.compiler;
 import com.contentful.sqlite.FieldMeta;
 import com.contentful.sqlite.ModelHelper;
 import com.contentful.sqlite.SpaceHelper;
+import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
@@ -36,32 +37,89 @@ final class ModelInjection extends Injection {
 
     TypeSpec.Builder builder = TypeSpec.classBuilder(className.simpleName())
         .superclass(modelHelperType)
-        .addModifiers(Modifier.FINAL);
+        .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
 
     appendFields(builder);
     appendTableName(builder);
     appendCreateStatements(builder);
     appendFromCursor(builder);
+    appendSetField(builder);
     appendConstructor(builder);
 
     return builder;
   }
 
+  @SuppressWarnings("unchecked")
   private void appendConstructor(TypeSpec.Builder builder) {
     MethodSpec.Builder ctor = MethodSpec.constructorBuilder().addModifiers(Modifier.PUBLIC);
 
     for (ModelMember m : members) {
-      ctor.addStatement("$N.add(new $T($S, $S, $S, $S, $S))",
-          specFields,
-          ClassName.get(FieldMeta.class),
-          m.id,
-          m.fieldName,
-          m.sqliteType,
-          m.linkType,
-          m.typeName);
+      StringBuilder statement = new StringBuilder();
+      List args = new ArrayList();
+
+      statement.append("$N.add($T.builder()");
+      args.add(specFields);
+      args.add(ClassName.get(FieldMeta.class));
+
+      statement.append(".setId($S)");
+      args.add(m.id);
+
+      statement.append(".setName($S)");
+      args.add(m.fieldName);
+
+      if (m.sqliteType != null) {
+        statement.append(".setSqliteType($S)");
+        args.add(m.sqliteType);
+      }
+
+      if (m.isLink()) {
+        statement.append(".setLinkType($S)");
+        args.add(m.linkType);
+      }
+
+      if (m.isArray()) {
+        statement.append(".setArrayType($S)");
+        args.add(m.arrayType);
+      }
+
+      statement.append(".build())");
+
+      ctor.addStatement(statement.toString(), args.toArray());
     }
 
     builder.addMethod(ctor.build());
+  }
+
+  private void appendSetField(TypeSpec.Builder builder) {
+    MethodSpec.Builder method = MethodSpec.methodBuilder("setField")
+        .addAnnotation(Override.class)
+        .addAnnotation(
+            AnnotationSpec.builder(SuppressWarnings.class)
+                .addMember("value", "$S", "unchecked")
+                .build())
+        .addModifiers(Modifier.PUBLIC)
+        .returns(boolean.class)
+        .addParameter(ParameterSpec.builder(ClassName.get(originatingElement), "resource").build())
+        .addParameter(ParameterSpec.builder(ClassName.get(String.class), "name").build())
+        .addParameter(ParameterSpec.builder(ClassName.get(Object.class), "value").build());
+
+    ModelMember[] array = members.toArray(new ModelMember[members.size()]);
+    for (int i = 0; i < array.length; i++) {
+      ModelMember member = array[i];
+      if (i == 0) {
+        method.beginControlFlow("if ($S.equals(name))", member.fieldName);
+      } else {
+        method.endControlFlow().beginControlFlow("else if ($S.equals(name))", member.fieldName);
+      }
+      method.addStatement("resource.$L = ($T) value", member.fieldName, member.element.asType());
+    }
+    method.endControlFlow()
+        .beginControlFlow("else")
+          .addStatement("return false")
+        .endControlFlow()
+        .addStatement("return true");
+
+    builder.addMethod(method.build());
   }
 
   private void appendFromCursor(TypeSpec.Builder builder) {
@@ -77,11 +135,11 @@ final class ModelInjection extends Injection {
     String result = "result";
     method.addStatement("$T $N = new $T()", modelClassName, result, modelClassName);
 
-    List<ModelMember> nonLinkMembers = getNonLinkMembers();
+    List<ModelMember> nonLinkMembers = extractFieldMembers();
     for (int i = 0; i < nonLinkMembers.size(); i++) {
       ModelMember member = nonLinkMembers.get(i);
       int columnIndex = SpaceHelper.RESOURCE_COLUMNS.length + i;
-      String typeNameString = member.typeName.toString();
+      String typeNameString = member.element.asType().toString();
       if (String.class.getName().equals(typeNameString)) {
         method.addStatement("$N.$L = cursor.getString($L)", result, member.fieldName, columnIndex);
       } else if (Boolean.class.getName().equals(typeNameString)) {
@@ -94,6 +152,9 @@ final class ModelInjection extends Injection {
       } else if (Map.class.getName().equals(typeNameString)) {
         method.addStatement("$N.$L = fieldFromBlob($T.class, cursor, $L)", result, member.fieldName,
             ClassName.get(HashMap.class), columnIndex);
+      } else if (member.isArrayOfSymbols()) {
+        method.addStatement("$N.$L = fieldFromBlob($T.class, cursor, $L)", result, member.fieldName,
+            ClassName.get(ArrayList.class), columnIndex);
       }
     }
 
@@ -146,34 +207,38 @@ final class ModelInjection extends Injection {
         .append(sqlTableName)
         .append("` (");
 
-    for (String column : SpaceHelper.RESOURCE_COLUMNS) {
-      builder.append(column);
-      builder.append(", ");
+    for (int i = 0; i < SpaceHelper.RESOURCE_COLUMNS.length; i++) {
+      builder.append(SpaceHelper.RESOURCE_COLUMNS[i]);
+      if (i < SpaceHelper.RESOURCE_COLUMNS.length - 1) {
+        builder.append(", ");
+      }
     }
 
-    List<ModelMember> list = getNonLinkMembers();
+    List<ModelMember> list = extractFieldMembers();
     for (int i = 0; i < list.size(); i++) {
       ModelMember member = list.get(i);
-      builder.append("`")
+      builder.append(", `")
           .append(member.fieldName)
           .append("` ")
           .append(member.sqliteType);
-
-      if (i < list.size() - 1) {
-        builder.append(", ");
-      }
     }
     builder.append(");");
     statements.add(builder.toString());
     return statements;
   }
 
-  List<ModelMember> getNonLinkMembers() {
+  List<ModelMember> extractFieldMembers() {
     List<ModelMember> result = new ArrayList<ModelMember>();
     for (ModelMember member : members) {
-      if (!member.isLink()) {
-        result.add(member);
+      // Skip links
+      if (member.isLink()) {
+        continue;
       }
+      // Skip arrays of links
+      if (member.arrayType != null && !String.class.getName().equals(member.arrayType.toString())) {
+        continue;
+      }
+      result.add(member);
     }
     return result;
   }

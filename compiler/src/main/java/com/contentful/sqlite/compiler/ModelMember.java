@@ -1,7 +1,9 @@
 package com.contentful.sqlite.compiler;
 
-import com.squareup.javapoet.TypeName;
+import javax.lang.model.element.Element;
+import javax.lang.model.type.TypeMirror;
 
+// TODO this should be removed and replaced with FieldMeta
 final class ModelMember {
   /** Remote field ID */
   final String id;
@@ -9,8 +11,8 @@ final class ModelMember {
   /** Field name in model class */
   final String fieldName;
 
-  /** Type of field in model class */
-  final TypeName typeName;
+  /** TypeElement of enclosing field in model class */
+  final Element element;
 
   /** SQLite column type */
   final String sqliteType;
@@ -18,16 +20,26 @@ final class ModelMember {
   /** Link type - {@code Asset}, {@code Entry} or {@code null} */
   final String linkType;
 
+  /** Array TypeMirror */
+  final TypeMirror arrayType;
+
   private ModelMember(Builder builder) {
     this.id = builder.id;
     this.fieldName = builder.fieldName;
-    this.typeName = builder.typeName;
+    this.element = builder.element;
     this.sqliteType = builder.sqliteType;
     this.linkType = builder.linkType;
+    this.arrayType = builder.arrayType;
   }
 
   boolean isLink() {
     return this.linkType != null;
+  }
+
+  boolean isArray() { return this.arrayType != null; }
+
+  boolean isArrayOfSymbols() {
+    return isArray() && String.class.getName().equals(arrayType.toString());
   }
 
   static Builder builder() {
@@ -37,9 +49,10 @@ final class ModelMember {
   final static class Builder {
     String id;
     String fieldName;
-    TypeName typeName;
+    Element element;
     String sqliteType;
     String linkType;
+    TypeMirror arrayType;
 
     private Builder() {
     }
@@ -54,8 +67,8 @@ final class ModelMember {
       return this;
     }
 
-    public Builder setTypeName(TypeName typeName) {
-      this.typeName = typeName;
+    public Builder setFieldElement(Element element) {
+      this.element = element;
       return this;
     }
 
@@ -66,6 +79,11 @@ final class ModelMember {
 
     public Builder setLinkType(String linkType) {
       this.linkType = linkType;
+      return this;
+    }
+
+    public Builder setArrayType(TypeMirror type) {
+      this.arrayType = type;
       return this;
     }
 

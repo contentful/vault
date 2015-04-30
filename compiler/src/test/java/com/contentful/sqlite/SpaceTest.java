@@ -59,26 +59,6 @@ public class SpaceTest {
         .withErrorContaining("@Space id may not be empty. (Test)");
   }
 
-  @Test public void failsDuplicateId() throws Exception {
-    JavaFileObject source = JavaFileObjects.forSourceString("Test", Joiner.on('\n').join(
-        "import com.contentful.sqlite.Space;",
-        "import com.contentful.sqlite.SpaceHelper;",
-        "import java.util.Set;",
-        "class Test {",
-        "  @Space(value = \"sid\", models = { })",
-        "  static class Test1 {",
-        "  }",
-        "  @Space(value = \"sid\", models = { })",
-        "  static class Test2 {",
-        "  }",
-        "}"));
-
-    ASSERT.about(javaSource()).that(source)
-        .processedWith(processors())
-        .failsToCompile()
-        .withErrorContaining("@Space for \"sid\" cannot be used on multiple classes. (Test.Test2)");
-  }
-
   @Test public void failsEmptyModels() throws Exception {
     JavaFileObject source = JavaFileObjects.forSourceString("Test", Joiner.on('\n').join(
         "import com.contentful.sqlite.Space;",

@@ -8,7 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public final class FutureQuery<T extends Resource> {
+public final class Query<T extends Resource> {
   private final Persistence persistence;
   private final SpaceHelper spaceHelper;
   private final String tableName;
@@ -23,8 +23,8 @@ public final class FutureQuery<T extends Resource> {
   private String[] order;
   private String[] queryArgs;
 
-  public FutureQuery(Persistence persistence,
-      SpaceHelper spaceHelper, Class<T> clazz, String tableName, List<FieldMeta> fields) {
+  public Query(Persistence persistence, SpaceHelper spaceHelper, Class<T> clazz, String tableName,
+      List<FieldMeta> fields) {
     this.persistence = persistence;
     this.spaceHelper = spaceHelper;
     this.db = spaceHelper.getReadableDatabase();
@@ -33,18 +33,18 @@ public final class FutureQuery<T extends Resource> {
     this.fields = fields;
   }
 
-  public FutureQuery<T> where(String expression, String... args) {
+  public Query<T> where(String expression, String... args) {
     this.whereClause = expression; // TODO replace field names
     this.whereArgs = args;
     return this;
   }
 
-  public FutureQuery<T> limit(Integer limit) {
+  public Query<T> limit(Integer limit) {
     this.limit = limit;
     return this;
   }
 
-  public FutureQuery<T> order(String... order) {
+  public Query<T> order(String... order) {
     this.order = order;
     return this;
   }
@@ -71,12 +71,14 @@ public final class FutureQuery<T extends Resource> {
     } finally {
       cursor.close();
     }
-    resolveLinks(result);
+    if (fields != null) {
+      resolveLinks(result);
+    }
     return result;
   }
 
   public T first() {
-    return first(true);
+    return first(fields != null);
   }
 
   T first(boolean resolveLinks) {
@@ -95,24 +97,24 @@ public final class FutureQuery<T extends Resource> {
       Map<String, Resource> map = isAsset ? assets : entries;
       map.put(result.remoteId, result);
       if (resolveLinks) {
-        resolveLinks(result);
+        resolveLinks(result, createLinkResolver());
       }
     }
     return result;
   }
 
-  Resource fetchResource(LinkInfo linkInfo) {
+  Resource fetchResource(Link link) {
     Resource resource = null;
     Class<?> clazz;
-    if (linkInfo.childContentType == null) {
+    if (link.childContentType == null) {
       clazz = Asset.class;
     } else {
-      clazz = spaceHelper.getTypes().get(linkInfo.childContentType);
+      clazz = spaceHelper.getTypes().get(link.childContentType);
     }
     if (clazz != null) {
       //noinspection unchecked
       resource = persistence.fetch((Class<? extends Resource>) clazz)
-          .where("remote_id = ?", linkInfo.child)
+          .where("remote_id = ?", link.child)
           .first(false);
     }
     return resource;
@@ -147,32 +149,28 @@ public final class FutureQuery<T extends Resource> {
   }
 
   private void resolveLinks(List<T> resources) {
-    // Skip for assets
-    if (fields == null) {
-      return;
-    }
-
-    List<FieldMeta> links = new ArrayList<FieldMeta>();
+    boolean hasLinks = false;
     for (FieldMeta field : fields) {
-      if (field.isLink()) {
-        links.add(field);
+      if (field.isLink() || (field.isArray() && !field.isArrayOfSymbols())) {
+        hasLinks = true;
+        break;
       }
     }
 
-    if (links.size() > 0) {
-      QueryLinkResolver resolver = new QueryLinkResolver(spaceHelper, this);
+    if (hasLinks) {
+      LinkResolver resolver = createLinkResolver();
       for (T resource : resources) {
-        resolver.resolveLinks(resource, fields);
+        resolveLinks(resource, resolver);
       }
     }
   }
 
-  private void resolveLinks(T resource) {
-    // Skip for assets
-    if (fields == null) {
-      return;
-    }
-    new QueryLinkResolver(spaceHelper, this).resolveLinks(resource, fields);
+  private void resolveLinks(T resource, LinkResolver resolver) {
+    resolver.resolveLinks(resource, fields);
+  }
+
+  private LinkResolver createLinkResolver() {
+    return new LinkResolver(spaceHelper, this);
   }
 
   Map<String, Resource> getAssetsCache() {

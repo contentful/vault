@@ -8,7 +8,6 @@ import com.contentful.sqlite.Resource;
 import com.contentful.sqlite.Space;
 import com.google.common.base.Joiner;
 import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.TypeName;
 import com.sun.tools.javac.code.Attribute;
 import com.sun.tools.javac.code.Type;
 import java.io.PrintWriter;
@@ -89,7 +88,7 @@ public class Processor extends AbstractProcessor {
     // Parse ContentType bindings
     for (Element element : env.getElementsAnnotatedWith(ContentType.class)) {
       try {
-        parseContentType(element, modelTargets);
+        parseContentType((TypeElement) element, modelTargets);
       } catch (Exception e) {
         parsingError(element, ContentType.class, e);
       }
@@ -98,7 +97,7 @@ public class Processor extends AbstractProcessor {
     // Parse Space bindings
     for (Element element : env.getElementsAnnotatedWith(Space.class)) {
       try {
-        parseSpace(element, spaceTargets, modelTargets);
+        parseSpace((TypeElement) element, spaceTargets, modelTargets);
       } catch (Exception e) {
         parsingError(element, Space.class, e);
       }
@@ -110,30 +109,20 @@ public class Processor extends AbstractProcessor {
     return result;
   }
 
-  private void parseSpace(Element element, Map<TypeElement, SpaceInjection> spaceTargets,
+  private void parseSpace(TypeElement element, Map<TypeElement, SpaceInjection> spaceTargets,
       Map<TypeElement, ModelInjection> modelTargets) {
 
-    TypeElement typeElement = (TypeElement) element;
     String id = element.getAnnotation(Space.class).value();
     if (id.isEmpty()) {
       error(element, "@%s id may not be empty. (%s)",
           Space.class.getSimpleName(),
-          typeElement.getQualifiedName());
-      return;
-    }
-
-    if (hasInjection(spaceTargets, id, SpaceInjection.class)) {
-      error(element,
-          "@%s for \"%s\" cannot be used on multiple classes. (%s)",
-          Space.class.getSimpleName(),
-          id,
-          typeElement.getQualifiedName());
+          element.getQualifiedName());
       return;
     }
 
     TypeMirror spaceMirror = elementUtils.getTypeElement(Space.class.getName()).asType();
     List<ModelInjection> includedModels = new ArrayList<ModelInjection>();
-    for (AnnotationMirror mirror : typeElement.getAnnotationMirrors()) {
+    for (AnnotationMirror mirror : element.getAnnotationMirrors()) {
       if (typeUtils.isSameType(mirror.getAnnotationType(), spaceMirror)) {
         Set<? extends Map.Entry<? extends ExecutableElement, ? extends AnnotationValue>> items =
             mirror.getElementValues().entrySet();
@@ -144,7 +133,8 @@ public class Processor extends AbstractProcessor {
             if (l.size() == 0) {
               error(element, "@%s models must not be empty. (%s)",
                   Space.class.getSimpleName(),
-                  typeElement.getQualifiedName());
+                  element.getQualifiedName());
+              return;
             }
 
             for (Object model : l) {
@@ -156,7 +146,8 @@ public class Processor extends AbstractProcessor {
                     "Cannot include model (\"%s\"), is not annotated with @%s. (%s)",
                     e.toString(),
                     ContentType.class.getSimpleName(),
-                    typeElement.getQualifiedName());
+                    element.getQualifiedName());
+                return;
               } else {
                 includedModels.add(modelInjection);
               }
@@ -166,30 +157,26 @@ public class Processor extends AbstractProcessor {
       }
     }
 
-    ClassName injectionClassName = getInjectionClassName(typeElement, SUFFIX_SPACE);
+    ClassName injectionClassName = getInjectionClassName(element, SUFFIX_SPACE);
     String tableName = "space_" + SqliteUtils.hashForId(id);
     SpaceInjection injection =
-        new SpaceInjection(id, injectionClassName, typeElement, includedModels, tableName);
+        new SpaceInjection(id, injectionClassName, element, includedModels, tableName);
 
-    spaceTargets.put(typeElement, injection);
+    spaceTargets.put(element, injection);
   }
 
-  private void parseContentType(Element element, Map<TypeElement, ModelInjection> targets) {
-    TypeElement typeElement = (TypeElement) element;
+  private void parseContentType(TypeElement element, Map<TypeElement, ModelInjection> targets) {
     String id = element.getAnnotation(ContentType.class).value();
     if (id.isEmpty()) {
       error(element, "@%s id may not be empty. (%s)",
           ContentType.class.getSimpleName(),
-          typeElement.getQualifiedName());
+          element.getQualifiedName());
       return;
     }
 
     if (hasInjection(targets, id, ModelInjection.class)) {
-      error(element,
-          "@%s for \"%s\" cannot be used on multiple classes. (%s)",
-          ContentType.class.getSimpleName(),
-          id,
-          typeElement.getQualifiedName());
+      error(element, "@%s for \"%s\" cannot be used on multiple classes. (%s)",
+          ContentType.class.getSimpleName(), id, element.getQualifiedName());
       return;
     }
 
@@ -197,7 +184,8 @@ public class Processor extends AbstractProcessor {
       error(element,
           "Classes annotated with @%s must extend \"" + Resource.class.getName() + "\". (%s)",
           ContentType.class.getSimpleName(),
-          typeElement.getQualifiedName());
+          element.getQualifiedName());
+      return;
     }
 
     Set<ModelMember> members = new LinkedHashSet<ModelMember>();
@@ -216,57 +204,92 @@ public class Processor extends AbstractProcessor {
       if (!memberIds.add(fieldId)) {
         error(element,
             "@%s for the same id (\"%s\") was used multiple times in the same class. (%s)",
-            Field.class.getSimpleName(),
-            fieldId,
-            typeElement.getQualifiedName());
+            Field.class.getSimpleName(), fieldId, element.getQualifiedName());
         return;
       }
 
-      members.add(createMember(element, typeElement, enclosedElement, fieldId));
+      ModelMember.Builder memberBuilder = ModelMember.builder();
+      if (isList(enclosedElement)) {
+        DeclaredType declaredType = (DeclaredType) enclosedElement.asType();
+        List<? extends TypeMirror> typeArguments = declaredType.getTypeArguments();
+        if (typeArguments.size() == 0) {
+          error(element,
+              "Array fields must have a type parameter specified. (%s.%s)",
+              element.getQualifiedName(),
+              enclosedElement.getSimpleName());
+          return;
+        }
+
+        TypeMirror arrayType = typeArguments.get(0);
+        if (!isValidListType(arrayType)) {
+          error(element,"Invalid list type \"%s\" specified. (%s.%s)",
+              arrayType.toString(),
+              element.getQualifiedName(),
+              enclosedElement.getSimpleName());
+          return;
+        }
+
+        String sqliteType = null;
+        if (String.class.getName().equals(arrayType.toString())) {
+          sqliteType = SqliteUtils.typeForClass(List.class.getName());
+        }
+
+        memberBuilder.setSqliteType(sqliteType)
+            .setArrayType(arrayType);
+      } else {
+        TypeMirror enclosedType = enclosedElement.asType();
+        String linkType = getLinkType(enclosedType);
+        String sqliteType = null;
+        if (linkType == null) {
+          sqliteType = SqliteUtils.typeForClass(enclosedType.toString());
+          if (sqliteType == null) {
+            error(element,
+                "@%s specified for unsupported type (\"%s\"). (%s.%s)",
+                Field.class.getSimpleName(),
+                enclosedType.toString(),
+                element.getQualifiedName(),
+                enclosedElement.getSimpleName());
+            return;
+          }
+        }
+
+        memberBuilder.setSqliteType(sqliteType)
+            .setLinkType(linkType);
+      }
+
+      members.add(memberBuilder.setId(fieldId)
+          .setFieldName(enclosedElement.getSimpleName().toString())
+          .setFieldElement(enclosedElement)
+          .build());
     }
 
-    ClassName injectionClassName = getInjectionClassName(typeElement, SUFFIX_MODEL);
+    ClassName injectionClassName = getInjectionClassName(element, SUFFIX_MODEL);
     String tableName = "entry_" + SqliteUtils.hashForId(id);
 
     ModelInjection injection =
-        new ModelInjection(id, injectionClassName, typeElement, tableName, members);
+        new ModelInjection(id, injectionClassName, element, tableName, members);
 
-    targets.put(typeElement, injection);
+    targets.put(element, injection);
+  }
+
+  private boolean isValidListType(TypeMirror typeMirror) {
+    return isSubtypeOfType(typeMirror, String.class.getName()) ||
+        isSubtypeOfType(typeMirror, Resource.class.getName());
+  }
+
+  private boolean isList(Element element) {
+    TypeMirror typeMirror = element.asType();
+    if (List.class.getName().equals(typeMirror.toString())) {
+      return true;
+    }
+    return typeMirror instanceof DeclaredType && List.class.getName().equals(
+        ((DeclaredType) typeMirror).asElement().toString());
   }
 
   private ClassName getInjectionClassName(TypeElement typeElement, String suffix) {
     ClassName specClassName = ClassName.get(typeElement);
     return ClassName.get(specClassName.packageName(),
         Joiner.on('$').join(specClassName.simpleNames()) + suffix);
-  }
-
-  private ModelMember createMember(Element element, TypeElement typeElement,
-      Element enclosedElement, String fieldId) {
-    TypeMirror enclosedType = enclosedElement.asType();
-    TypeName typeName = ClassName.get(enclosedType);
-    String linkType = getLinkType(enclosedType);
-    String fieldName = enclosedElement.getSimpleName().toString();
-    String sqliteType = null;
-
-    if (linkType == null) {
-      sqliteType = SqliteUtils.typeForClass(typeName.toString());
-      if (sqliteType == null) {
-        error(element,
-            "@%s specified for unsupported type (\"%s\"). (%s.%s)",
-            Field.class.getSimpleName(),
-            typeName.toString(),
-            typeElement.getQualifiedName(),
-            enclosedElement.getSimpleName());
-      }
-    }
-
-    return ModelMember.builder()
-        .setId(fieldId)
-        .setFieldName(fieldName)
-        .setTypeName(typeName)
-        .setSqliteType(sqliteType)
-        .setLinkType(linkType)
-        .build();
   }
 
   private String getLinkType(TypeMirror typeMirror) {

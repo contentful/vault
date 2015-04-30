@@ -14,6 +14,8 @@ public abstract class ModelHelper<T extends Resource> {
 
   public abstract T fromCursor(Cursor cursor);
 
+  protected abstract boolean setField(T resource, String name, Object value);
+
   protected final <E extends Serializable> E fieldFromBlob(Class<E> clazz, Cursor cursor,
       int columnIndex) {
     byte[] blob = cursor.getBlob(columnIndex);
