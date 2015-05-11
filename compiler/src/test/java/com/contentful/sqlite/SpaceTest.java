@@ -46,6 +46,35 @@ public class SpaceTest {
         .generatesSources(expectedSource);
   }
 
+  @Test public void testLocale() throws Exception {
+    JavaFileObject source = JavaFileObjects.forSourceString("Test", Joiner.on('\n').join(
+        "import com.contentful.sqlite.ContentType;",
+        "import com.contentful.sqlite.Field;",
+        "import com.contentful.sqlite.Resource;",
+        "import com.contentful.sqlite.Space;",
+        "import java.util.Map;",
+        "class Test {",
+        "  @ContentType(\"cid\")",
+        "  static class Model extends Resource {",
+        "    @Field String field;",
+        "  }",
+        "",
+        "  @Space(value = \"sid\", models = { Model.class }, localeCode = \"locale\")",
+        "  static class AwesomeSpace {",
+        "  }",
+        "}"));
+
+    JavaFileObject expectedSource = JavaFileObjects.forSourceString(
+        "Test$AwesomeSpace$$SpaceHelper",
+        readTestResource("SpaceInjectionLocale.java"));
+
+    ASSERT.about(javaSource()).that(source)
+        .processedWith(processors())
+        .compilesWithoutError()
+        .and()
+        .generatesSources(expectedSource);
+  }
+
   @Test public void failsEmptyId() throws Exception {
     JavaFileObject source = JavaFileObjects.forSourceString("Test", Joiner.on('\n').join(
         "import com.contentful.sqlite.Space;",

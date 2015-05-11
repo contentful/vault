@@ -3,7 +3,6 @@ package com.contentful.sqlite.compiler;
 import com.contentful.sqlite.ModelHelper;
 import com.contentful.sqlite.SpaceHelper;
 import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
@@ -19,14 +18,16 @@ import javax.lang.model.element.TypeElement;
 final class SpaceInjection extends Injection {
   private final List<ModelInjection> models;
   private final String tableName;
+  private final String locale;
   private FieldSpec specModels;
   private FieldSpec specTypes;
 
   public SpaceInjection(String remoteId, ClassName className, TypeElement originatingElement,
-      List<ModelInjection> models, String tableName) {
+      List<ModelInjection> models, String tableName, String locale) {
     super(remoteId, className, originatingElement);
     this.models = models;
     this.tableName = tableName;
+    this.locale = locale;
   }
 
   @Override TypeSpec.Builder getTypeSpecBuilder() {
@@ -37,8 +38,7 @@ final class SpaceInjection extends Injection {
     appendModels(builder);
     appendTypes(builder);
     appendSingleton(builder);
-    appendOnCreate(builder);
-    appendOnUpgrade(builder);
+    appendLocale(builder);
     appendConstructor(builder);
 
     return builder;
@@ -96,57 +96,6 @@ final class SpaceInjection extends Injection {
     builder.addMethod(createGetterImpl(specModels, "getModels").build());
   }
 
-  private void appendOnUpgrade(TypeSpec.Builder builder) {
-    builder.addMethod(MethodSpec.methodBuilder("onUpgrade")
-        .addAnnotation(Override.class)
-        .addModifiers(Modifier.PUBLIC)
-        .addParameter(
-            ParameterSpec.builder(ClassName.get("android.database.sqlite", "SQLiteDatabase"), "db")
-                .build())
-        .addParameter(ParameterSpec.builder(int.class, "oldVersion").build())
-        .addParameter(ParameterSpec.builder(int.class, "newVersion").build())
-        .build());
-  }
-
-  private CodeBlock bodyForOnCreate() {
-    CodeBlock.Builder builder = CodeBlock.builder()
-        .addStatement("db.beginTransaction()")
-        .beginControlFlow("try");
-
-    // default create statements
-    builder.beginControlFlow("for ($T sql : DEFAULT_CREATE)", String.class)
-        .addStatement("db.execSQL(sql)")
-        .endControlFlow();
-
-    // models create statements
-    TypeName helperType = ParameterizedTypeName.get(ClassName.get(ModelHelper.class),
-        WildcardTypeName.subtypeOf(Object.class));
-
-    builder.beginControlFlow("for ($T modelHelper : $N.values())", helperType, specModels)
-        .beginControlFlow("for ($T sql : modelHelper.getCreateStatements())", String.class)
-        .addStatement("db.execSQL(sql)")
-        .endControlFlow()
-        .endControlFlow();
-
-    builder.addStatement("db.setTransactionSuccessful()")
-        .nextControlFlow("finally")
-        .addStatement("db.endTransaction()")
-        .endControlFlow();
-
-    return builder.build();
-  }
-
-  private void appendOnCreate(TypeSpec.Builder builder) {
-    builder.addMethod(MethodSpec.methodBuilder("onCreate")
-        .addAnnotation(Override.class)
-        .addModifiers(Modifier.PUBLIC)
-        .addParameter(
-            ParameterSpec.builder(ClassName.get("android.database.sqlite", "SQLiteDatabase"), "db")
-                .build())
-        .addCode(bodyForOnCreate())
-        .build());
-  }
-
   private void appendSingleton(TypeSpec.Builder builder) {
     FieldSpec fieldInstance = FieldSpec.builder(className, "instance", Modifier.STATIC).build();
 
@@ -162,5 +111,16 @@ final class SpaceInjection extends Injection {
         .endControlFlow()
         .addStatement("return $N", fieldInstance)
         .build());
+  }
+
+  private void appendLocale(TypeSpec.Builder builder) {
+    if (!locale.isEmpty()) {
+      builder.addMethod(MethodSpec.methodBuilder("getLocale")
+          .returns(String.class)
+          .addAnnotation(Override.class)
+          .addModifiers(Modifier.PUBLIC)
+          .addStatement("return $S", locale)
+          .build());
+    }
   }
 }

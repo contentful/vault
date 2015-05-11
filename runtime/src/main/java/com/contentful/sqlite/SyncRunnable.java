@@ -184,6 +184,11 @@ public final class SyncRunnable implements Runnable {
     String tableName = (String) objects[0];
     List<FieldMeta> fields = (List<FieldMeta>) objects[1];
 
+    String locale = spaceHelper.getLocale();
+    if (locale != null) {
+      entry.setLocale(locale);
+    }
+
     ContentValues values = new ContentValues();
     putResourceFields(entry, values);
     for (FieldMeta field : fields) {
