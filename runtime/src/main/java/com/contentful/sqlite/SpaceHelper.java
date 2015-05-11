@@ -24,6 +24,7 @@ public abstract class SpaceHelper extends SQLiteOpenHelper {
   static final String TABLE_ASSETS = "assets";
   static final String TABLE_ENTRY_TYPES = "entry_types";
   static final String TABLE_LINKS = "links";
+  static final String TABLE_SYNC_INFO = "sync_info";
 
   // Static resources column indexes
   static final int COLUMN_REMOTE_ID = 0;
@@ -60,8 +61,19 @@ public abstract class SpaceHelper extends SQLiteOpenHelper {
       + "UNIQUE (`parent`, `child`, `field`)"
       + ");";
 
+  static final String CREATE_SYNC_INFO = "CREATE TABLE `"
+      + TABLE_SYNC_INFO
+      + "` ("
+      + "`token` STRING NOT NULL,"
+      + "`locale` STRING,"
+      + "`last_sync_ts` TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL"
+      + ");";
+
   public static final List<String> DEFAULT_CREATE =
-      Arrays.asList(CREATE_ASSETS, CREATE_ENTRY_TYPES, CREATE_LINKS);
+      Arrays.asList(CREATE_ASSETS, CREATE_ENTRY_TYPES, CREATE_LINKS, CREATE_SYNC_INFO);
+
+  public static final List<String> DEFAULT_TABLES =
+      Arrays.asList(TABLE_ASSETS, TABLE_ENTRY_TYPES, TABLE_LINKS, TABLE_SYNC_INFO);
 
   public abstract Map<Class<?>, ModelHelper<?>> getModels();
 

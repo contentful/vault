@@ -2,7 +2,7 @@ package com.contentful.sqlite;
 
 import com.contentful.java.cda.CDAClient;
 import com.contentful.sqlite.lib.ArraysResource;
-import com.contentful.sqlite.lib.TestSpace;
+import com.contentful.sqlite.lib.BlobResource;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -16,6 +16,10 @@ import static org.junit.Assert.assertNotNull;
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest = "src/main/AndroidManifest.xml")
 public class ArrayTest extends BaseTest {
+  @Space(value = "y005y7p7nrqo", models = { ArraysResource.class, BlobResource.class } )
+  static class TestSpace {
+  }
+
   @Override protected void setupClient() {
     client = new CDAClient.Builder()
         .setLogLevel(RestAdapter.LogLevel.FULL)
@@ -28,7 +32,7 @@ public class ArrayTest extends BaseTest {
     SyncRunnable.builder()
         .setContext(RuntimeEnvironment.application)
         .setSpace(TestSpace.class)
-        .setClient(client)
+        .setSyncConfig(SyncConfig.builder().setClient(client).build())
         .build()
         .run();
 

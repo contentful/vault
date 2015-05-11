@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
-import com.contentful.java.cda.CDAClient;
 import com.contentful.java.cda.Constants.CDAResourceType;
 import com.contentful.java.cda.model.CDAAsset;
 import com.contentful.java.cda.model.CDAEntry;
@@ -17,6 +16,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
 import java.util.concurrent.Executor;
+import org.apache.commons.lang3.StringUtils;
 
 import static android.database.sqlite.SQLiteDatabase.CONFLICT_REPLACE;
 import static com.contentful.java.cda.Constants.CDAResourceType.Asset;
@@ -32,7 +32,7 @@ import static com.contentful.sqlite.CfUtils.wasDeleted;
 public final class SyncRunnable implements Runnable {
   private final Context context;
   private final Class<?> space;
-  private final CDAClient client;
+  private final SyncConfig config;
   private final SyncCallback callback;
   private final Executor callbackExecutor;
   private SpaceHelper spaceHelper;
@@ -61,7 +61,7 @@ public final class SyncRunnable implements Runnable {
   private SyncRunnable(Builder builder) {
     this.context = builder.context;
     this.space = builder.space;
-    this.client = builder.client;
+    this.config = builder.config;
     this.callback = builder.callback;
     this.callbackExecutor = builder.callbackExecutor;
   }
@@ -76,28 +76,22 @@ public final class SyncRunnable implements Runnable {
     db = spaceHelper.getWritableDatabase();
 
     try {
-      CDASyncedSpace syncedSpace = client.synchronization().performInitial();
+      String token = fetchSyncToken();
+      CDASyncedSpace syncedSpace;
+      if (token == null) {
+        syncedSpace = config.client.synchronization().performInitial();
+      } else {
+        checkLocale();
+        syncedSpace = config.client.synchronization().performWithToken(token);
+      }
+
       db.beginTransaction();
       try {
         for (CDAResource resource : syncedSpace.getItems()) {
-          if (wasDeleted(resource)) {
-            HANDLER_DELETE.invoke(resource);
-          } else {
-            List<FieldMeta> fields = null;
-            String tableName = null;
-            if (isOfType(resource, Entry)) {
-              Class<?> modelClass = spaceHelper.getTypes().get(extractContentTypeId(resource));
-              if (modelClass == null) {
-                continue;
-              }
-
-              ModelHelper<?> modelHelper = spaceHelper.getModels().get(modelClass);
-              tableName = modelHelper.getTableName();
-              fields = modelHelper.getFields();
-            }
-            HANDLER_SAVE.invoke(resource, tableName, fields);
-          }
+          processResource(resource);
         }
+
+        saveSyncInfo(syncedSpace.getSyncToken());
         db.setTransactionSuccessful();
         success = true;
       } finally {
@@ -115,6 +109,82 @@ public final class SyncRunnable implements Runnable {
         });
       }
       context.sendBroadcast(new Intent(Persistence.ACTION_SYNC_COMPLETE));
+    }
+  }
+
+  private String fetchSyncToken() {
+    String token = null;
+    Cursor cursor = db.rawQuery("SELECT `token` FROM sync_info", null);
+    try {
+      if (cursor.moveToFirst()) {
+        token = cursor.getString(0);
+      }
+    } finally {
+      cursor.close();
+    }
+    return token;
+  }
+
+  private void saveSyncInfo(String syncToken) {
+    ContentValues values = new ContentValues();
+    values.put("token", syncToken);
+    values.put("locale", config.locale);
+    db.delete(SpaceHelper.TABLE_SYNC_INFO, null, null);
+    db.insert(SpaceHelper.TABLE_SYNC_INFO, null, values);
+  }
+
+  private void processResource(CDAResource resource) {
+    if (wasDeleted(resource)) {
+      HANDLER_DELETE.invoke(resource);
+    } else {
+      if (StringUtils.isNotBlank(config.locale)) {
+        resource.setLocale(config.locale);
+      }
+
+      List<FieldMeta> fields = null;
+      String tableName = null;
+      if (isOfType(resource, Entry)) {
+        Class<?> modelClass = spaceHelper.getTypes().get(extractContentTypeId(resource));
+        if (modelClass == null) {
+          return;
+        }
+
+        ModelHelper<?> modelHelper = spaceHelper.getModels().get(modelClass);
+        tableName = modelHelper.getTableName();
+        fields = modelHelper.getFields();
+      }
+      HANDLER_SAVE.invoke(resource, tableName, fields);
+    }
+  }
+
+  private void checkLocale() {
+    Cursor cursor = db.rawQuery("SELECT `locale` FROM sync_info", null);
+    try {
+      if (cursor.moveToFirst()) {
+        String previousLocale = cursor.getString(0);
+        if (!StringUtils.equals(config.locale, previousLocale)) {
+          clearDb();
+        }
+      }
+    } finally {
+      cursor.close();
+    }
+  }
+
+  private void clearDb() {
+    db.beginTransaction();
+    try {
+      for (String name : SpaceHelper.DEFAULT_TABLES) {
+        db.delete(name, null, null);
+      }
+
+      for (ModelHelper<?> modelHelper : spaceHelper.getModels().values()) {
+        db.delete(modelHelper.getTableName(), null, null);
+      }
+
+      db.setTransactionSuccessful();
+    } finally {
+      db.endTransaction();
     }
   }
 
@@ -283,25 +353,20 @@ public final class SyncRunnable implements Runnable {
   static class Builder {
     private Context context;
     private Class<?> space;
-    private CDAClient client;
     private SyncCallback callback;
     private Executor callbackExecutor;
+    private SyncConfig config;
 
     private Builder() {
     }
 
     public Builder setContext(Context context) {
-      this.context = context;
+      this.context = context.getApplicationContext();
       return this;
     }
 
     public Builder setSpace(Class<?> space) {
       this.space = space;
-      return this;
-    }
-
-    public Builder setClient(CDAClient client) {
-      this.client = client;
       return this;
     }
 
@@ -312,6 +377,11 @@ public final class SyncRunnable implements Runnable {
 
     public Builder setCallbackExecutor(Executor callbackExecutor) {
       this.callbackExecutor = callbackExecutor;
+      return this;
+    }
+
+    public Builder setSyncConfig(SyncConfig config) {
+      this.config = config;
       return this;
     }
 
