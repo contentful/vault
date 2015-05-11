@@ -33,4 +33,9 @@ public final class Test$AwesomeSpace$$SpaceHelper extends SpaceHelper {
     }
     return instance;
   }
+
+  @Override
+  public String getLocale() {
+    return "locale";
+  }
 }
