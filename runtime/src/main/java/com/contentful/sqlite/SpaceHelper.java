@@ -67,6 +67,26 @@ public abstract class SpaceHelper extends SQLiteOpenHelper {
 
   public abstract Map<String, Class<?>> getTypes();
 
+  @Override public void onCreate(SQLiteDatabase db) {
+    db.beginTransaction();
+    try {
+      for (String sql : DEFAULT_CREATE) {
+        db.execSQL(sql);
+      }
+      for (ModelHelper<?> modelHelper : getModels().values()) {
+        for (String sql : modelHelper.getCreateStatements()) {
+          db.execSQL(sql);
+        }
+      }
+      db.setTransactionSuccessful();
+    } finally {
+      db.endTransaction();
+    }
+  }
+
+  @Override public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
+  }
+
   @SuppressWarnings("unchecked")
   public final <T extends Resource> T fromCursor(Class<T> clazz, Cursor cursor) {
     T resource = null;
