@@ -28,7 +28,7 @@ public class BlobTest extends BaseTest {
     SyncRunnable.builder()
         .setContext(RuntimeEnvironment.application)
         .setSpace(TestSpace.class)
-        .setClient(client)
+        .setSyncConfig(SyncConfig.builder().setClient(client).build())
         .build()
         .run();
 

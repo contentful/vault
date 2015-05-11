@@ -2,6 +2,8 @@ package com.contentful.sqlite;
 
 import android.content.Context;
 import com.contentful.java.cda.CDAClient;
+import com.contentful.sqlite.lib.Cat;
+import com.squareup.okhttp.mockwebserver.RecordedRequest;
 import java.util.List;
 import org.junit.Test;
 import org.robolectric.RuntimeEnvironment;
@@ -13,14 +15,7 @@ import static org.junit.Assert.assertSame;
 
 public class SyncTest extends BaseTest {
   @Space(value = "cfexampleapi", models = Cat.class)
-  static class Cfexampleapi {
-  }
-
-  @ContentType("cat")
-  static class Cat extends Resource {
-    @Field String name;
-    @Field Cat bestFriend;
-    @Field Asset image;
+  static class DemoSpace {
   }
 
   @Test public void testSync() throws Exception {
@@ -29,7 +24,12 @@ public class SyncTest extends BaseTest {
     // Initial
     enqueue("space.json");
     enqueue("initial.json");
-    sync(context, Cfexampleapi.class, client);
+    sync(context, DemoSpace.class, client);
+
+    // Request
+    server.takeRequest();
+    RecordedRequest request = server.takeRequest();
+    assertEquals("/spaces/space/sync?initial=true", request.getPath());
 
     assertInitialAssets(context);
     assertInitialEntries(context);
@@ -38,7 +38,14 @@ public class SyncTest extends BaseTest {
     // Update
     enqueue("space.json");
     enqueue("update.json");
-    sync(context, Cfexampleapi.class, client);
+    sync(context, DemoSpace.class, client);
+
+    // Request
+    server.takeRequest();
+    request = server.takeRequest();
+    assertEquals("/spaces/space/sync?sync_token=st1", request.getPath());
+
+    // Resources
     assertUpdateAssets(context);
     assertUpdateEntries(context);
   }
@@ -47,13 +54,13 @@ public class SyncTest extends BaseTest {
     SyncRunnable.builder()
         .setContext(context)
         .setSpace(space)
-        .setClient(client)
+        .setSyncConfig(SyncConfig.builder().setClient(client).build())
         .build()
         .run();
   }
 
   private void assertSingleLink(Context context) {
-    Cat nyanCat = Persistence.with(context, Cfexampleapi.class).fetch(Cat.class)
+    Cat nyanCat = Persistence.with(context, DemoSpace.class).fetch(Cat.class)
         .where("remote_id = ?", "nyancat")
         .first();
 
@@ -64,7 +71,7 @@ public class SyncTest extends BaseTest {
   }
 
   private void assertInitialAssets(Context context) {
-    List<Asset> assets = Persistence.with(context, Cfexampleapi.class).fetch(Asset.class)
+    List<Asset> assets = Persistence.with(context, DemoSpace.class).fetch(Asset.class)
         .order("created_at")
         .all();
 
@@ -84,7 +91,7 @@ public class SyncTest extends BaseTest {
   }
 
   private void assertUpdateAssets(Context context) {
-    List<Asset> assets = Persistence.with(context, Cfexampleapi.class).fetch(Asset.class)
+    List<Asset> assets = Persistence.with(context, DemoSpace.class).fetch(Asset.class)
         .order("created_at")
         .all();
 
@@ -104,7 +111,7 @@ public class SyncTest extends BaseTest {
   }
 
   private void assertInitialEntries(Context context) {
-    List<Cat> cats = Persistence.with(context, Cfexampleapi.class).fetch(Cat.class)
+    List<Cat> cats = Persistence.with(context, DemoSpace.class).fetch(Cat.class)
         .order("created_at")
         .all();
 
@@ -130,7 +137,7 @@ public class SyncTest extends BaseTest {
   }
 
   private void assertUpdateEntries(Context context) {
-    List<Cat> cats = Persistence.with(context, Cfexampleapi.class).fetch(Cat.class)
+    List<Cat> cats = Persistence.with(context, DemoSpace.class).fetch(Cat.class)
         .order("created_at")
         .all();
 

@@ -1,5 +1,4 @@
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
 import com.contentful.sqlite.ModelHelper;
 import com.contentful.sqlite.SpaceHelper;
 import java.util.LinkedHashMap;
@@ -33,27 +32,5 @@ public final class Test$AwesomeSpace$$SpaceHelper extends SpaceHelper {
       instance = new Test$AwesomeSpace$$SpaceHelper(context);
     }
     return instance;
-  }
-
-  @Override
-  public void onCreate(SQLiteDatabase db) {
-    db.beginTransaction();
-    try {
-      for (String sql : DEFAULT_CREATE) {
-        db.execSQL(sql);
-      }
-      for (ModelHelper<?> modelHelper : models.values()) {
-        for (String sql : modelHelper.getCreateStatements()) {
-          db.execSQL(sql);
-        }
-      }
-      db.setTransactionSuccessful();
-    } finally{
-      db.endTransaction();
-    }
-  }
-
-  @Override
-  public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
   }
 }

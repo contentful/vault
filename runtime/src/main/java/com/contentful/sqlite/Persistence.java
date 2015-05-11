@@ -1,7 +1,6 @@
 package com.contentful.sqlite;
 
 import android.content.Context;
-import com.contentful.java.cda.CDAClient;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
@@ -41,18 +40,22 @@ public class Persistence {
     return new Persistence(context, space);
   }
 
-  public void requestSync(CDAClient client) {
-    if (client == null) {
-      throw new IllegalArgumentException("Cannot be invoked with null client.");
-    }
-    requestSync(client, null);
+  public void requestSync(SyncConfig config) {
+    requestSync(config, null);
   }
 
-  public void requestSync(CDAClient client, SyncCallback callback) {
+  public void requestSync(SyncConfig config, SyncCallback callback) {
+    if (config == null) {
+      throw new IllegalArgumentException("Cannot be invoked with null configuration.");
+    }
+    if (config.client == null) {
+      throw new IllegalArgumentException("Cannot be invoked with null client.");
+    }
+
     syncExecutor.submit(SyncRunnable.builder()
         .setContext(context)
         .setSpace(space)
-        .setClient(client)
+        .setSyncConfig(config)
         .setCallback(callback)
         .setCallbackExecutor(callbackExecutor)
         .build());
