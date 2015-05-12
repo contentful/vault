@@ -10,15 +10,15 @@
     <version>7</version>
   </parent>
 
-  <groupId>com.contentful</groupId>
-  <artifactId>sqlite-parent</artifactId>
+  <groupId>com.contentful.vault</groupId>
+  <artifactId>vault-parent</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <modules>
     <module>compiler</module>
-    <module>runtime</module>
-    <module>sample</module>
+    <module>core</module>
+    <module>tests-integration</module>
   </modules>
 
   <properties>

@@ -1,6 +1,6 @@
 import android.content.Context;
-import com.contentful.sqlite.ModelHelper;
-import com.contentful.sqlite.SpaceHelper;
+import com.contentful.vault.ModelHelper;
+import com.contentful.vault.SpaceHelper;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
