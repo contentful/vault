@@ -1,4 +1,4 @@
-package com.contentful.vault.integration;
+package com.contentful.vaultintegration;
 
 import com.contentful.java.cda.CDAClient;
 import com.squareup.okhttp.mockwebserver.MockResponse;

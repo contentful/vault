@@ -1,8 +1,8 @@
-package com.contentful.vault.integration;
+package com.contentful.vaultintegration;
 
 import android.content.Context;
 import com.contentful.vault.Space;
-import com.contentful.vault.integration.lib.Cat;
+import com.contentful.vaultintegration.lib.Cat;
 import java.io.IOException;
 import org.junit.Test;
 import org.robolectric.RuntimeEnvironment;

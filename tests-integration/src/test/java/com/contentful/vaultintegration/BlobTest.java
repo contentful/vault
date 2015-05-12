@@ -1,8 +1,8 @@
-package com.contentful.vault.integration;
+package com.contentful.vaultintegration;
 
 import com.contentful.java.cda.CDAClient;
 import com.contentful.vault.Space;
-import com.contentful.vault.integration.lib.BlobResource;
+import com.contentful.vaultintegration.lib.BlobResource;
 import org.junit.Test;
 import retrofit.RestAdapter;
 

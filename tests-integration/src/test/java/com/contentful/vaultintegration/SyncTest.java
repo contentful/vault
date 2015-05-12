@@ -1,10 +1,10 @@
-package com.contentful.vault.integration;
+package com.contentful.vaultintegration;
 
 import android.content.Context;
 import com.contentful.vault.Asset;
 import com.contentful.vault.Vault;
 import com.contentful.vault.Space;
-import com.contentful.vault.integration.lib.Cat;
+import com.contentful.vaultintegration.lib.Cat;
 import java.util.List;
 import org.junit.Test;
 
