@@ -9,12 +9,10 @@ import java.util.Map;
 
 final class LinkResolver {
   final SpaceHelper spaceHelper;
-  final SQLiteDatabase db;
   final Query<?> query;
 
   LinkResolver(SpaceHelper spaceHelper, Query<?> query) {
     this.spaceHelper = spaceHelper;
-    this.db = spaceHelper.getReadableDatabase();
     this.query = query;
   }
 
@@ -85,18 +83,24 @@ final class LinkResolver {
         field.name
     };
 
-    Cursor cursor = db.rawQuery(builder.toString(), args);
-    List<Link> result = new ArrayList<Link>();
+    List<Link> result;
+    SQLiteDatabase db = spaceHelper.getReadableDatabase();
     try {
-      if (cursor.moveToFirst()) {
-        String child = cursor.getString(0);
-        String childContentType = cursor.getString(1);
-        do {
-          result.add(new Link(parent, child, field.name, childContentType));
-        } while (cursor.moveToNext());
+      Cursor cursor = db.rawQuery(builder.toString(), args);
+      result = new ArrayList<Link>();
+      try {
+        if (cursor.moveToFirst()) {
+          String child = cursor.getString(0);
+          String childContentType = cursor.getString(1);
+          do {
+            result.add(new Link(parent, child, field.name, childContentType));
+          } while (cursor.moveToNext());
+        }
+      } finally {
+        cursor.close();
       }
     } finally {
-      cursor.close();
+      db.close();
     }
     return result;
   }

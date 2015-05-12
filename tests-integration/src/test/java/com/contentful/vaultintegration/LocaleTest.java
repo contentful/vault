@@ -1,67 +1,39 @@
 package com.contentful.vaultintegration;
 
-import android.content.Context;
-import com.contentful.vault.Space;
-import com.contentful.vaultintegration.lib.Cat;
-import java.io.IOException;
+import com.contentful.vault.SyncConfig;
+import com.contentful.vault.Vault;
+import com.contentful.vaultintegration.lib.demo.Cat;
+import com.contentful.vaultintegration.lib.demo.DemoSpace;
 import org.junit.Test;
 import org.robolectric.RuntimeEnvironment;
 
+import static org.junit.Assert.assertEquals;
+
 public class LocaleTest extends BaseTest {
-  @Space(value = "cfexampleapi", models = Cat.class)
-  static class DemoSpace {
+  @Override protected void setupVault() {
+    vault = Vault.with(RuntimeEnvironment.application, DemoSpace.class);
   }
 
   @Test public void testLocale() throws Exception {
-    Context context = RuntimeEnvironment.application;
-
-    checkDefaultLocale(context);
-    checkCustomLocale(context);
+    checkDefaultLocale();
+    checkCustomLocale();
   }
 
-  private void checkCustomLocale(Context context) throws IOException {
-    /*
-    TODO
-    // Initial (Klingon)
+  private void checkCustomLocale() throws Exception {
+    // Klingon
     enqueue("space.json");
     enqueue("initial.json");
-
-    SyncRunnable.builder()
-        .setContext(context)
-        .setSpace(DemoSpace.class)
-        .setSyncConfig(SyncConfig.builder()
-            .setClient(client).setLocale("tlh")
-            .build())
-        .build()
-        .run();
-
-    Cat cat = Persistence.with(context, DemoSpace.class)
-        .fetch(Cat.class)
-        .first();
-
+    sync(SyncConfig.builder().setClient(client).setLocale("tlh").build());
+    Cat cat = vault.fetch(Cat.class).first();
     assertEquals("Quch vIghro'", cat.name);
-    */
   }
 
-  private void checkDefaultLocale(Context context) throws IOException {
-    /*
-    TODO
-    // Initial (default locale)
+  private void checkDefaultLocale() throws Exception {
+    // Default locale
     enqueue("space.json");
     enqueue("initial.json");
-
-    SyncRunnable.builder()
-        .setContext(context)
-        .setSpace(DemoSpace.class)
-        .setSyncConfig(SyncConfig.builder().setClient(client).build())
-        .build()
-        .run();
-
-    Cat cat = Persistence.with(context, DemoSpace.class)
-        .fetch(Cat.class)
-        .first();
-
+    sync();
+    Cat cat = vault.fetch(Cat.class).first();
     assertEquals("Happy Cat", cat.name);
-    */
   }
 }

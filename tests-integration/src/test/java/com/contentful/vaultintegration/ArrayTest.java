@@ -1,22 +1,22 @@
 package com.contentful.vaultintegration;
 
 import com.contentful.java.cda.CDAClient;
-import com.contentful.vault.Space;
-import com.contentful.vaultintegration.lib.ArraysResource;
-import com.contentful.vaultintegration.lib.BlobResource;
+import com.contentful.vault.Vault;
+import com.contentful.vaultintegration.lib.vault.ArraysResource;
+import com.contentful.vaultintegration.lib.vault.VaultSpace;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 import retrofit.RestAdapter;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest = "src/main/AndroidManifest.xml")
 public class ArrayTest extends BaseTest {
-  @Space(value = "y005y7p7nrqo", models = { ArraysResource.class, BlobResource.class } )
-  static class TestSpace {
-  }
-
   @Override protected void setupClient() {
     client = new CDAClient.Builder()
         .setLogLevel(RestAdapter.LogLevel.FULL)
@@ -25,21 +25,15 @@ public class ArrayTest extends BaseTest {
         .build();
   }
 
+  @Override protected void setupVault() {
+    vault = Vault.with(RuntimeEnvironment.application, VaultSpace.class);
+  }
+
   @Test public void testArray() throws Exception {
-    /*
-    TODO
-    SyncRunnable.builder()
-        .setContext(RuntimeEnvironment.application)
-        .setSpace(TestSpace.class)
-        .setSyncConfig(SyncConfig.builder().setClient(client).build())
-        .build()
-        .run();
-
-    ArraysResource resource = Persistence.with(RuntimeEnvironment.application, TestSpace.class)
-        .fetch(ArraysResource.class)
-        .first();
-
+    sync();
+    ArraysResource resource = vault.fetch(ArraysResource.class).first();
     assertNotNull(resource);
+
     assertEquals(2, resource.assets.size());
 
     assertEquals(3, resource.symbols.size());
@@ -49,6 +43,5 @@ public class ArrayTest extends BaseTest {
 
     assertEquals(1, resource.blobs.size());
     assertNotNull(resource.blobs.get(0).object);
-    */
   }
 }

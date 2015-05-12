@@ -74,7 +74,6 @@ public final class SyncRunnable implements Runnable {
     boolean success = false;
     spaceHelper = Vault.getOrCreateHelper(context, space);
     db = spaceHelper.getWritableDatabase();
-
     try {
       String token = fetchSyncToken();
       CDASyncedSpace syncedSpace;
@@ -100,7 +99,9 @@ public final class SyncRunnable implements Runnable {
     } catch (Exception e) {
       throw new SyncException(e);
     } finally {
-      if (callback != null) {
+      db.close();
+
+      if (callback != null && !callback.isCancelled()) {
         final boolean finalSuccess = success;
         callbackExecutor.execute(new Runnable() {
           @Override public void run() {
@@ -108,7 +109,9 @@ public final class SyncRunnable implements Runnable {
           }
         });
       }
-      context.sendBroadcast(new Intent(Vault.ACTION_SYNC_COMPLETE));
+
+      context.sendBroadcast(new Intent(Vault.ACTION_SYNC_COMPLETE)
+          .putExtra(Vault.EXTRA_SUCCESS, success));
     }
   }
 

@@ -35,7 +35,6 @@ final class SpaceInjection extends Injection {
 
     appendModels(builder);
     appendTypes(builder);
-    appendSingleton(builder);
     appendConstructor(builder);
 
     return builder;
@@ -43,7 +42,7 @@ final class SpaceInjection extends Injection {
 
   private void appendConstructor(TypeSpec.Builder builder) {
     MethodSpec.Builder ctor = MethodSpec.constructorBuilder()
-        .addModifiers(Modifier.PRIVATE)
+        .addModifiers(Modifier.PUBLIC)
         .addParameter(
             ParameterSpec.builder(ClassName.get("android.content", "Context"), "context").build())
         .addStatement("super(context, $S, null, $L)", tableName, 1);
@@ -91,22 +90,5 @@ final class SpaceInjection extends Injection {
 
     // Getter
     builder.addMethod(createGetterImpl(specModels, "getModels").build());
-  }
-
-  private void appendSingleton(TypeSpec.Builder builder) {
-    FieldSpec fieldInstance = FieldSpec.builder(className, "instance", Modifier.STATIC).build();
-
-    builder.addField(fieldInstance);
-
-    builder.addMethod(MethodSpec.methodBuilder("get")
-        .returns(className)
-        .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.SYNCHRONIZED)
-        .addParameter(
-            ParameterSpec.builder(ClassName.get("android.content", "Context"), "context").build())
-        .beginControlFlow("if ($N == null)", fieldInstance)
-        .addStatement("$N = new $T(context)", fieldInstance, className)
-        .endControlFlow()
-        .addStatement("return $N", fieldInstance)
-        .build());
   }
 }

@@ -2,7 +2,6 @@ package com.contentful.vault;
 
 import android.content.Context;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +12,7 @@ import retrofit.android.MainThreadExecutor;
 
 public class Vault {
   public static final String ACTION_SYNC_COMPLETE = "com.contentful.vault.ACTION_SYNC_COMPLETE";
+  public static final String EXTRA_SUCCESS = "EXTRA_SUCCESS";
 
   static final Map<Class<?>, SpaceHelper> SPACE_HELPERS =
       new LinkedHashMap<Class<?>, SpaceHelper>();
@@ -45,6 +45,10 @@ public class Vault {
   }
 
   public void requestSync(SyncConfig config, SyncCallback callback) {
+    requestSync(config, callback, null);
+  }
+
+  public void requestSync(SyncConfig config, SyncCallback callback, Executor callbackExecutor) {
     if (config == null) {
       throw new IllegalArgumentException("Cannot be invoked with null configuration.");
     }
@@ -75,13 +79,7 @@ public class Vault {
   static SpaceHelper createHelper(Context context, Class<?> space) {
     try {
       Class<?> clazz = Class.forName(space.getName() + Constants.SUFFIX_SPACE);
-      Method get = clazz.getMethod("get", Context.class);
-      SpaceHelper helper = (SpaceHelper) get.invoke(null, context);
-      if (helper == null) {
-        throw new IllegalArgumentException(
-            "Space injector has no helper for class \"" + space.getName());
-      }
-      return helper;
+      return (SpaceHelper) clazz.getConstructor(Context.class).newInstance(context);
     } catch (ClassNotFoundException e) {
       throw new RuntimeException(e);
     } catch (NoSuchMethodException e) {
@@ -89,6 +87,8 @@ public class Vault {
     } catch (IllegalAccessException e) {
       throw new RuntimeException(e);
     } catch (InvocationTargetException e) {
+      throw new RuntimeException(e);
+    } catch (InstantiationException e) {
       throw new RuntimeException(e);
     }
   }
@@ -120,5 +120,14 @@ public class Vault {
           "Unable to find table mapping for class \"" + clazz.getName() + "\".");
     }
     return modelHelper;
+  }
+
+  public void releaseAll() {
+    synchronized (SPACE_HELPERS) {
+      for (SpaceHelper spaceHelper : SPACE_HELPERS.values()) {
+        spaceHelper.close();
+      }
+      SPACE_HELPERS.clear();
+    }
   }
 }

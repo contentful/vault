@@ -142,11 +142,14 @@ public class Processor extends AbstractProcessor {
               //noinspection SuspiciousMethodCalls
               ModelInjection modelInjection = modelTargets.get(e);
               if (modelInjection == null) {
+                /*
+                TODO
                 error(element,
                     "Cannot include model (\"%s\"), is not annotated with @%s. (%s)",
                     e.toString(),
                     ContentType.class.getSimpleName(),
                     element.getQualifiedName());
+                */
                 return;
               } else {
                 includedModels.add(modelInjection);

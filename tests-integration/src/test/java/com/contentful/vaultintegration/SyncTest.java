@@ -1,12 +1,14 @@
 package com.contentful.vaultintegration;
 
-import android.content.Context;
 import com.contentful.vault.Asset;
 import com.contentful.vault.Vault;
-import com.contentful.vault.Space;
-import com.contentful.vaultintegration.lib.Cat;
+import com.contentful.vaultintegration.lib.demo.Cat;
+import com.contentful.vaultintegration.lib.demo.DemoSpace;
+import com.squareup.okhttp.mockwebserver.RecordedRequest;
+import java.io.IOException;
 import java.util.List;
 import org.junit.Test;
+import org.robolectric.RuntimeEnvironment;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -14,59 +16,59 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 
 public class SyncTest extends BaseTest {
-  @Space(value = "cfexampleapi", models = Cat.class)
-  static class DemoSpace {
+  @Override protected void setupVault() {
+    vault = Vault.with(RuntimeEnvironment.application, DemoSpace.class);
   }
 
   @Test public void testSync() throws Exception {
-    /*
-    TODO
-    Context context = RuntimeEnvironment.application;
-
     // Initial
-    enqueue("space.json");
-    enqueue("initial.json");
-    sync(context, DemoSpace.class, client);
+    enqueueInitial();
+    sync();
+    assertSyncInitial();
 
-    // Request
+    // Update
+    enqueueUpdate();
+    sync();
+    assertSyncUpdate();
+  }
+
+  private void assertSyncUpdate() throws InterruptedException {
+    assertRequestUpdate();
+    assertUpdateAssets();
+    assertUpdateEntries();
+  }
+
+  private void assertSyncInitial() throws InterruptedException {
+    assertRequestInitial();
+    assertInitialAssets();
+    assertInitialEntries();
+    assertSingleLink();
+  }
+
+  private void assertRequestUpdate() throws InterruptedException {
+    server.takeRequest();
+    RecordedRequest request = server.takeRequest();
+    assertEquals("/spaces/space/sync?sync_token=st1", request.getPath());
+  }
+
+  private void assertRequestInitial() throws InterruptedException {
     server.takeRequest();
     RecordedRequest request = server.takeRequest();
     assertEquals("/spaces/space/sync?initial=true", request.getPath());
+  }
 
-    assertInitialAssets(context);
-    assertInitialEntries(context);
-    assertSingleLink(context);
+  private void enqueueInitial() throws IOException {
+    enqueue("space.json");
+    enqueue("initial.json");
+  }
 
-    // Update
+  private void enqueueUpdate() throws IOException {
     enqueue("space.json");
     enqueue("update.json");
-    sync(context, DemoSpace.class, client);
-
-    // Request
-    server.takeRequest();
-    request = server.takeRequest();
-    assertEquals("/spaces/space/sync?sync_token=st1", request.getPath());
-
-    // Resources
-    assertUpdateAssets(context);
-    assertUpdateEntries(context);
-    */
   }
 
-  /*
-  TODO
-  private void sync(Context context, Class<?> space, CDAClient client) {
-    SyncRunnable.builder()
-        .setContext(context)
-        .setSpace(space)
-        .setSyncConfig(SyncConfig.builder().setClient(client).build())
-        .build()
-        .run();
-  }
-  */
-
-  private void assertSingleLink(Context context) {
-    Cat nyanCat = Vault.with(context, DemoSpace.class).fetch(Cat.class)
+  private void assertSingleLink() {
+    Cat nyanCat = vault.fetch(Cat.class)
         .where("remote_id = ?", "nyancat")
         .first();
 
@@ -76,8 +78,8 @@ public class SyncTest extends BaseTest {
     assertSame(nyanCat, happyCat.bestFriend);
   }
 
-  private void assertInitialAssets(Context context) {
-    List<Asset> assets = Vault.with(context, DemoSpace.class).fetch(Asset.class)
+  private void assertInitialAssets() {
+    List<Asset> assets = vault.fetch(Asset.class)
         .order("created_at")
         .all();
 
@@ -96,8 +98,8 @@ public class SyncTest extends BaseTest {
     }
   }
 
-  private void assertUpdateAssets(Context context) {
-    List<Asset> assets = Vault.with(context, DemoSpace.class).fetch(Asset.class)
+  private void assertUpdateAssets() {
+    List<Asset> assets = vault.fetch(Asset.class)
         .order("created_at")
         .all();
 
@@ -116,8 +118,8 @@ public class SyncTest extends BaseTest {
     }
   }
 
-  private void assertInitialEntries(Context context) {
-    List<Cat> cats = Vault.with(context, DemoSpace.class).fetch(Cat.class)
+  private void assertInitialEntries() {
+    List<Cat> cats = vault.fetch(Cat.class)
         .order("created_at")
         .all();
 
@@ -142,8 +144,8 @@ public class SyncTest extends BaseTest {
     assertNull(garfield.bestFriend);
   }
 
-  private void assertUpdateEntries(Context context) {
-    List<Cat> cats = Vault.with(context, DemoSpace.class).fetch(Cat.class)
+  private void assertUpdateEntries() {
+    List<Cat> cats = vault.fetch(Cat.class)
         .order("created_at")
         .all();
 

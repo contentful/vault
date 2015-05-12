@@ -1,4 +1,4 @@
-package com.contentful.vaultintegration.lib;
+package com.contentful.vaultintegration.lib.vault;
 
 import com.contentful.vault.Asset;
 import com.contentful.vault.ContentType;

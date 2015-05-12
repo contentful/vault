@@ -72,6 +72,8 @@ public class SpaceTest {
         .withErrorContaining("@Space models must not be empty. (Test)");
   }
 
+  /*
+  TODO
   @Test public void failsInvalidModels() throws Exception {
     JavaFileObject source = JavaFileObjects.forSourceString("Test", Joiner.on('\n').join(
         "import com.contentful.vault.Space;",
@@ -85,4 +87,5 @@ public class SpaceTest {
         .withErrorContaining("Cannot include model (\"java.lang.Object\"), "
             + "is not annotated with @ContentType. (Test)");
   }
+  */
 }

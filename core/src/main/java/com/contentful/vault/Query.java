@@ -13,7 +13,6 @@ public final class Query<T extends Resource> {
   private final SpaceHelper spaceHelper;
   private final String tableName;
   private final Class<T> clazz;
-  private final SQLiteDatabase db;
   private final List<FieldMeta> fields;
   private final Map<String, Resource> assets = new LinkedHashMap<String, Resource>();
   private final Map<String, Resource> entries = new LinkedHashMap<String, Resource>();
@@ -27,7 +26,6 @@ public final class Query<T extends Resource> {
       List<FieldMeta> fields) {
     this.vault = vault;
     this.spaceHelper = spaceHelper;
-    this.db = spaceHelper.getReadableDatabase();
     this.clazz = clazz;
     this.tableName = tableName;
     this.fields = fields;
@@ -50,29 +48,34 @@ public final class Query<T extends Resource> {
   }
 
   public List<T> all() {
-    Cursor cursor = db.rawQuery(queryBuilder().toString(), queryArgs);
     ArrayList<T> result = new ArrayList<T>();
+    SQLiteDatabase db = spaceHelper.getReadableDatabase();
     try {
-      if (cursor.moveToFirst()) {
-        do {
-          T resource = spaceHelper.fromCursor(clazz, cursor);
-          if (resource != null) {
-            Map<String, Resource> map;
-            if (SpaceHelper.TABLE_ASSETS.equals(tableName)) {
-              map = assets;
-            } else {
-              map = entries;
+      Cursor cursor = db.rawQuery(queryBuilder().toString(), queryArgs);
+      try {
+        if (cursor.moveToFirst()) {
+          do {
+            T resource = spaceHelper.fromCursor(clazz, cursor);
+            if (resource != null) {
+              Map<String, Resource> map;
+              if (SpaceHelper.TABLE_ASSETS.equals(tableName)) {
+                map = assets;
+              } else {
+                map = entries;
+              }
+              map.put(resource.getRemoteId(), resource);
+              result.add(resource);
             }
-            map.put(resource.getRemoteId(), resource);
-            result.add(resource);
-          }
-        } while (cursor.moveToNext());
+          } while (cursor.moveToNext());
+        }
+      } finally {
+        cursor.close();
+      }
+      if (fields != null) {
+        resolveLinks(result);
       }
     } finally {
-      cursor.close();
-    }
-    if (fields != null) {
-      resolveLinks(result);
+      db.close();
     }
     return result;
   }
@@ -83,22 +86,27 @@ public final class Query<T extends Resource> {
 
   T first(boolean resolveLinks) {
     limit(1);
-    Cursor cursor = db.rawQuery(queryBuilder().toString(), queryArgs);
     T result = null;
+    SQLiteDatabase db = spaceHelper.getReadableDatabase();
     try {
-      if (cursor.moveToFirst()) {
-        result = spaceHelper.fromCursor(clazz, cursor);
+      Cursor cursor = db.rawQuery(queryBuilder().toString(), queryArgs);
+      try {
+        if (cursor.moveToFirst()) {
+          result = spaceHelper.fromCursor(clazz, cursor);
+        }
+      } finally {
+        cursor.close();
+      }
+      if (result != null) {
+        boolean isAsset = SpaceHelper.TABLE_ASSETS.equals(tableName);
+        Map<String, Resource> map = isAsset ? assets : entries;
+        map.put(result.remoteId, result);
+        if (resolveLinks) {
+          resolveLinks(result, createLinkResolver());
+        }
       }
     } finally {
-      cursor.close();
-    }
-    if (result != null) {
-      boolean isAsset = SpaceHelper.TABLE_ASSETS.equals(tableName);
-      Map<String, Resource> map = isAsset ? assets : entries;
-      map.put(result.remoteId, result);
-      if (resolveLinks) {
-        resolveLinks(result, createLinkResolver());
-      }
+      db.close();
     }
     return result;
   }
