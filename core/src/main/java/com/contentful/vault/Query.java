@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 public final class Query<T extends Resource> {
-  private final Persistence persistence;
+  private final Vault vault;
   private final SpaceHelper spaceHelper;
   private final String tableName;
   private final Class<T> clazz;
@@ -23,9 +23,9 @@ public final class Query<T extends Resource> {
   private String[] order;
   private String[] queryArgs;
 
-  public Query(Persistence persistence, SpaceHelper spaceHelper, Class<T> clazz, String tableName,
+  public Query(Vault vault, SpaceHelper spaceHelper, Class<T> clazz, String tableName,
       List<FieldMeta> fields) {
-    this.persistence = persistence;
+    this.vault = vault;
     this.spaceHelper = spaceHelper;
     this.db = spaceHelper.getReadableDatabase();
     this.clazz = clazz;
@@ -113,7 +113,7 @@ public final class Query<T extends Resource> {
     }
     if (clazz != null) {
       //noinspection unchecked
-      resource = persistence.fetch((Class<? extends Resource>) clazz)
+      resource = vault.fetch((Class<? extends Resource>) clazz)
           .where("remote_id = ?", link.child)
           .first(false);
     }

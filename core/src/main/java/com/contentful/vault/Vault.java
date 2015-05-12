@@ -11,7 +11,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import retrofit.android.MainThreadExecutor;
 
-public class Persistence {
+public class Vault {
   public static final String ACTION_SYNC_COMPLETE = "com.contentful.vault.ACTION_SYNC_COMPLETE";
 
   static final Map<Class<?>, SpaceHelper> SPACE_HELPERS =
@@ -25,19 +25,19 @@ public class Persistence {
   final Context context;
   final Class<?> space;
 
-  private Persistence(Context context, Class<?> space) {
+  private Vault(Context context, Class<?> space) {
     this.context = context.getApplicationContext();
     this.space = space;
   }
 
-  public static Persistence with(Context context, Class<?> space) {
+  public static Vault with(Context context, Class<?> space) {
     if (context == null) {
       throw new IllegalArgumentException("Cannot be invoked with null context.");
     }
     if (space == null) {
       throw new IllegalArgumentException("Cannot be invoked with null space.");
     }
-    return new Persistence(context, space);
+    return new Vault(context, space);
   }
 
   public void requestSync(SyncConfig config) {
@@ -65,7 +65,7 @@ public class Persistence {
     synchronized (SPACE_HELPERS) {
       SpaceHelper helper = SPACE_HELPERS.get(space);
       if (helper == null) {
-          helper = Persistence.createHelper(context, space);
+          helper = Vault.createHelper(context, space);
           SPACE_HELPERS.put(space, helper);
       }
       return helper;

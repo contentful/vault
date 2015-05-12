@@ -2,7 +2,7 @@ package com.contentful.vault.integration;
 
 import android.content.Context;
 import com.contentful.vault.Asset;
-import com.contentful.vault.Persistence;
+import com.contentful.vault.Vault;
 import com.contentful.vault.Space;
 import com.contentful.vault.integration.lib.Cat;
 import java.util.List;
@@ -66,7 +66,7 @@ public class SyncTest extends BaseTest {
   */
 
   private void assertSingleLink(Context context) {
-    Cat nyanCat = Persistence.with(context, DemoSpace.class).fetch(Cat.class)
+    Cat nyanCat = Vault.with(context, DemoSpace.class).fetch(Cat.class)
         .where("remote_id = ?", "nyancat")
         .first();
 
@@ -77,7 +77,7 @@ public class SyncTest extends BaseTest {
   }
 
   private void assertInitialAssets(Context context) {
-    List<Asset> assets = Persistence.with(context, DemoSpace.class).fetch(Asset.class)
+    List<Asset> assets = Vault.with(context, DemoSpace.class).fetch(Asset.class)
         .order("created_at")
         .all();
 
@@ -97,7 +97,7 @@ public class SyncTest extends BaseTest {
   }
 
   private void assertUpdateAssets(Context context) {
-    List<Asset> assets = Persistence.with(context, DemoSpace.class).fetch(Asset.class)
+    List<Asset> assets = Vault.with(context, DemoSpace.class).fetch(Asset.class)
         .order("created_at")
         .all();
 
@@ -117,7 +117,7 @@ public class SyncTest extends BaseTest {
   }
 
   private void assertInitialEntries(Context context) {
-    List<Cat> cats = Persistence.with(context, DemoSpace.class).fetch(Cat.class)
+    List<Cat> cats = Vault.with(context, DemoSpace.class).fetch(Cat.class)
         .order("created_at")
         .all();
 
@@ -143,7 +143,7 @@ public class SyncTest extends BaseTest {
   }
 
   private void assertUpdateEntries(Context context) {
-    List<Cat> cats = Persistence.with(context, DemoSpace.class).fetch(Cat.class)
+    List<Cat> cats = Vault.with(context, DemoSpace.class).fetch(Cat.class)
         .order("created_at")
         .all();
 

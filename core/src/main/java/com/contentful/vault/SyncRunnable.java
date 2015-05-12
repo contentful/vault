@@ -72,7 +72,7 @@ public final class SyncRunnable implements Runnable {
 
   @Override public void run() {
     boolean success = false;
-    spaceHelper = Persistence.getOrCreateHelper(context, space);
+    spaceHelper = Vault.getOrCreateHelper(context, space);
     db = spaceHelper.getWritableDatabase();
 
     try {
@@ -108,7 +108,7 @@ public final class SyncRunnable implements Runnable {
           }
         });
       }
-      context.sendBroadcast(new Intent(Persistence.ACTION_SYNC_COMPLETE));
+      context.sendBroadcast(new Intent(Vault.ACTION_SYNC_COMPLETE));
     }
   }
 
