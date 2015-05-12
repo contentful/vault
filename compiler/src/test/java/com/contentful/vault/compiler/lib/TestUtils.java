@@ -1,4 +1,4 @@
-package com.contentful.vault.lib;
+package com.contentful.vault.compiler.lib;
 
 import com.contentful.vault.compiler.Processor;
 import java.io.File;
