@@ -58,6 +58,10 @@ public class Vault {
       throw new IllegalArgumentException("Cannot be invoked with null client.");
     }
 
+    if (callbackExecutor == null) {
+      callbackExecutor = EXECUTOR_CALLBACK;
+    }
+
     String tag = Long.toString(System.currentTimeMillis());
 
     if (callback != null) {
