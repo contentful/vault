@@ -32,11 +32,11 @@ import static com.contentful.vault.CfUtils.wasDeleted;
 public final class SyncRunnable implements Runnable {
   private final Context context;
   private final SyncConfig config;
-  private final SyncCallback callback;
   private final Executor callbackExecutor;
   private SqliteHelper sqliteHelper;
   private SpaceHelper spaceHelper;
   private SQLiteDatabase db;
+  private String tag;
 
   private final ResourceHandler HANDLER_DELETE = new ResourceHandler() {
     @Override void asset(CDAResource resource, Object... objects) {
@@ -61,8 +61,8 @@ public final class SyncRunnable implements Runnable {
   private SyncRunnable(Builder builder) {
     this.context = builder.context;
     this.config = builder.config;
-    this.callback = builder.callback;
     this.callbackExecutor = builder.callbackExecutor;
+    this.tag = builder.tag;
     this.sqliteHelper = builder.sqliteHelper;
     this.spaceHelper = sqliteHelper.getSpaceHelper();
   }
@@ -101,17 +101,10 @@ public final class SyncRunnable implements Runnable {
     } finally {
       db.close();
 
-      if (callback != null && !callback.isCancelled()) {
-        final boolean finalSuccess = success;
-        callbackExecutor.execute(new Runnable() {
-          @Override public void run() {
-            callback.onComplete(finalSuccess);
-          }
-        });
-      }
-
       context.sendBroadcast(new Intent(Vault.ACTION_SYNC_COMPLETE)
           .putExtra(Vault.EXTRA_SUCCESS, success));
+
+      Vault.executeCallback(tag, success, callbackExecutor);
     }
   }
 
@@ -137,7 +130,6 @@ public final class SyncRunnable implements Runnable {
   }
 
   private void processResource(CDAResource resource) {
-    SpaceHelper spaceHelper = sqliteHelper.getSpaceHelper();
     if (wasDeleted(resource)) {
       HANDLER_DELETE.invoke(resource);
     } else {
@@ -183,7 +175,7 @@ public final class SyncRunnable implements Runnable {
         db.delete(name, null, null);
       }
 
-      for (ModelHelper<?> modelHelper : sqliteHelper.getSpaceHelper().getModels().values()) {
+      for (ModelHelper<?> modelHelper : spaceHelper.getModels().values()) {
         db.delete(modelHelper.getTableName(), null, null);
       }
 
@@ -201,10 +193,9 @@ public final class SyncRunnable implements Runnable {
     String remoteId = extractResourceId(resource);
     String contentTypeId = fetchContentTypeId(remoteId);
     if (contentTypeId != null) {
-      Class<?> clazz = sqliteHelper.getSpaceHelper().getTypes().get(contentTypeId);
+      Class<?> clazz = spaceHelper.getTypes().get(contentTypeId);
       if (clazz != null) {
-        deleteResource(remoteId,
-            sqliteHelper.getSpaceHelper().getModels().get(clazz).getTableName());
+        deleteResource(remoteId, spaceHelper.getModels().get(clazz).getTableName());
         deleteEntryType(remoteId);
       }
     }
@@ -351,6 +342,10 @@ public final class SyncRunnable implements Runnable {
     values.put("updated_at", (String) resource.getSys().get("updatedAt"));
   }
 
+  String getTag() {
+    return tag;
+  }
+
   static abstract class ResourceHandler {
     abstract void asset(CDAResource resource, Object... objects);
     abstract void entry(CDAResource resource, Object... objects);
@@ -368,9 +363,9 @@ public final class SyncRunnable implements Runnable {
   static class Builder {
     private Context context;
     private SqliteHelper sqliteHelper;
-    private SyncCallback callback;
     private Executor callbackExecutor;
     private SyncConfig config;
+    private String tag;
 
     private Builder() {
     }
@@ -385,11 +380,6 @@ public final class SyncRunnable implements Runnable {
       return this;
     }
 
-    public Builder setCallback(SyncCallback callback) {
-      this.callback = callback;
-      return this;
-    }
-
     public Builder setCallbackExecutor(Executor callbackExecutor) {
       this.callbackExecutor = callbackExecutor;
       return this;
@@ -397,6 +387,11 @@ public final class SyncRunnable implements Runnable {
 
     public Builder setSyncConfig(SyncConfig config) {
       this.config = config;
+      return this;
+    }
+
+    public Builder setTag(String tag) {
+      this.tag = tag;
       return this;
     }
 

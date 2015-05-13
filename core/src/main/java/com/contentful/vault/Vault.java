@@ -1,6 +1,7 @@
 package com.contentful.vault;
 
 import android.content.Context;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,10 +17,12 @@ public class Vault {
   static final Map<Class<?>, SqliteHelper> SQLITE_HELPERS =
       new LinkedHashMap<Class<?>, SqliteHelper>();
 
-  static final ExecutorService syncExecutor = Executors.newSingleThreadExecutor(
+  static final ExecutorService EXECUTOR_SYNC = Executors.newSingleThreadExecutor(
       new CFThreadFactory());
 
-  static final Executor defaultCallbackExecutor = new MainThreadExecutor();
+  static final Executor EXECUTOR_CALLBACK = new MainThreadExecutor();
+
+  static final Map<String, SyncCallback> CALLBACKS = new HashMap<String, SyncCallback>();
 
   final Context context;
   final Class<?> space;
@@ -44,7 +47,7 @@ public class Vault {
   }
 
   public void requestSync(SyncConfig config, SyncCallback callback) {
-    requestSync(config, callback, defaultCallbackExecutor);
+    requestSync(config, callback, EXECUTOR_CALLBACK);
   }
 
   public void requestSync(SyncConfig config, SyncCallback callback, Executor callbackExecutor) {
@@ -55,14 +58,21 @@ public class Vault {
       throw new IllegalArgumentException("Cannot be invoked with null client.");
     }
 
-    syncExecutor.submit(
-        SyncRunnable.builder()
-            .setContext(context)
-            .setSqliteHelper(getOrCreateSqliteHelper(context, space))
-            .setSyncConfig(config)
-            .setCallback(callback)
-            .setCallbackExecutor(callbackExecutor)
-            .build());
+    String tag = Long.toString(System.currentTimeMillis());
+
+    if (callback != null) {
+      synchronized (CALLBACKS) {
+        CALLBACKS.put(tag, callback);
+      }
+    }
+
+    EXECUTOR_SYNC.submit(SyncRunnable.builder()
+        .setTag(tag)
+        .setContext(context)
+        .setSqliteHelper(getOrCreateSqliteHelper(context, space))
+        .setSyncConfig(config)
+        .setCallbackExecutor(callbackExecutor)
+        .build());
   }
 
   static SqliteHelper getOrCreateSqliteHelper(Context context, Class<?> space) {
@@ -118,6 +128,38 @@ public class Vault {
           "Unable to find table mapping for class \"" + clazz.getName() + "\".");
     }
     return modelHelper;
+  }
+
+  static void executeCallback(String tag, final boolean success, Executor executor) {
+    final SyncCallback callback = clearCallback(tag);
+    if (callback != null) {
+      executor.execute(new Runnable() {
+        @Override public void run() {
+          callback.onComplete(success);
+        }
+      });
+    }
+  }
+
+  static SyncCallback clearCallback(String tag) {
+    synchronized (CALLBACKS) {
+      return CALLBACKS.remove(tag);
+    }
+  }
+
+  public static void cancel(SyncCallback callback) {
+    if (callback == null) {
+      throw new IllegalArgumentException("callback argument must not be null.");
+    }
+
+    synchronized (CALLBACKS) {
+      for (Map.Entry<String, SyncCallback> entry : CALLBACKS.entrySet()) {
+        if (entry.getValue() == callback) {
+          CALLBACKS.remove(entry.getKey());
+          return;
+        }
+      }
+    }
   }
 
   public void releaseAll() {
