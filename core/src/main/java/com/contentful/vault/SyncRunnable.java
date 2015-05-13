@@ -262,34 +262,13 @@ public final class SyncRunnable implements Runnable {
     for (FieldMeta field : fields) {
       Object value = entry.getFields().get(field.id);
       if (field.isLink()) {
-        if (value != null && value instanceof CDAResource) { // TODO enforcing nullifyUnresolved will make this test redundant
-          //noinspection ConstantConditions
-          saveLink(entry, field.name, (CDAResource) value);
-        } else {
-          deleteResourceLinks(entry, field.name);
-        }
+        processLink(entry, field, value);
+      } else if (field.isArray()) {
+        processArray(entry, values, field, value);
+      } else if ("BLOB".equals(field.sqliteType)) {
+        saveBlob(entry, values, field, (Serializable) value);
       } else {
-        if (field.isArray()) {
-          if (field.isArrayOfSymbols()) {
-            saveBlob(entry, values, field, (Serializable) value);
-          } else {
-            // Array of resources
-            if (value == null || !(value instanceof List) || ((List) value).size() == 0) {
-              deleteResourceLinks(entry, field.name);
-            } else {
-              List<CDAResource> resources = (List) value;
-              for (CDAResource resource : resources) {
-                saveLink(entry, field.name, resource);
-              }
-            }
-          }
-        } else {
-          if ("BLOB".equals(field.sqliteType)) {
-            saveBlob(entry, values, field, (Serializable) value);
-          } else {
-            values.put(field.name, value.toString());
-          }
-        }
+        values.put(field.name, value.toString());
       }
     }
     db.insertWithOnConflict(tableName, null, values, CONFLICT_REPLACE);
@@ -300,13 +279,39 @@ public final class SyncRunnable implements Runnable {
     db.insertWithOnConflict(SpaceHelper.TABLE_ENTRY_TYPES, null, values, CONFLICT_REPLACE);
   }
 
+  private void processArray(CDAEntry entry, ContentValues values, FieldMeta field, Object value) {
+    if (field.isArrayOfSymbols()) {
+      saveBlob(entry, values, field, (Serializable) value);
+    } else {
+      // Array of resources
+      if (value == null || !(value instanceof List) || ((List) value).size() == 0) {
+        deleteResourceLinks(entry, field.name);
+      } else {
+        //noinspection unchecked
+        List<CDAResource> resources = (List) value;
+        for (CDAResource resource : resources) {
+          saveLink(entry, field.name, resource);
+        }
+      }
+    }
+  }
+
+  private void processLink(CDAEntry entry, FieldMeta field, Object value) {
+    if (value != null && value instanceof CDAResource) {
+      //noinspection ConstantConditions
+      saveLink(entry, field.name, (CDAResource) value);
+    } else {
+      deleteResourceLinks(entry, field.name);
+    }
+  }
+
   private void saveBlob(CDAEntry entry, ContentValues values, FieldMeta field, Serializable value) {
     try {
       values.put(field.name, BlobUtils.toBlob(value));
     } catch (IOException e) {
       throw new RuntimeException(
           String.format("Failed converting value to BLOB for entry id %s field %s.",
-              entry.getSys().get("remoteId"), field.name));
+              extractResourceId(entry), field.name));
     }
   }
 
