@@ -10,7 +10,7 @@ import java.util.Map;
 
 public final class Query<T extends Resource> {
   private final Vault vault;
-  private final SpaceHelper spaceHelper;
+  private final SqliteHelper sqliteHelper;
   private final String tableName;
   private final Class<T> clazz;
   private final List<FieldMeta> fields;
@@ -22,10 +22,10 @@ public final class Query<T extends Resource> {
   private String[] order;
   private String[] queryArgs;
 
-  public Query(Vault vault, SpaceHelper spaceHelper, Class<T> clazz, String tableName,
+  public Query(Vault vault, SqliteHelper sqliteHelper, Class<T> clazz, String tableName,
       List<FieldMeta> fields) {
     this.vault = vault;
-    this.spaceHelper = spaceHelper;
+    this.sqliteHelper = sqliteHelper;
     this.clazz = clazz;
     this.tableName = tableName;
     this.fields = fields;
@@ -49,13 +49,13 @@ public final class Query<T extends Resource> {
 
   public List<T> all() {
     ArrayList<T> result = new ArrayList<T>();
-    SQLiteDatabase db = spaceHelper.getReadableDatabase();
+    SQLiteDatabase db = sqliteHelper.getReadableDatabase();
     try {
       Cursor cursor = db.rawQuery(queryBuilder().toString(), queryArgs);
       try {
         if (cursor.moveToFirst()) {
           do {
-            T resource = spaceHelper.fromCursor(clazz, cursor);
+            T resource = sqliteHelper.fromCursor(clazz, cursor);
             if (resource != null) {
               Map<String, Resource> map;
               if (SpaceHelper.TABLE_ASSETS.equals(tableName)) {
@@ -87,12 +87,12 @@ public final class Query<T extends Resource> {
   T first(boolean resolveLinks) {
     limit(1);
     T result = null;
-    SQLiteDatabase db = spaceHelper.getReadableDatabase();
+    SQLiteDatabase db = sqliteHelper.getReadableDatabase();
     try {
       Cursor cursor = db.rawQuery(queryBuilder().toString(), queryArgs);
       try {
         if (cursor.moveToFirst()) {
-          result = spaceHelper.fromCursor(clazz, cursor);
+          result = sqliteHelper.fromCursor(clazz, cursor);
         }
       } finally {
         cursor.close();
@@ -117,7 +117,7 @@ public final class Query<T extends Resource> {
     if (link.childContentType == null) {
       clazz = Asset.class;
     } else {
-      clazz = spaceHelper.getTypes().get(link.childContentType);
+      clazz = sqliteHelper.getSpaceHelper().getTypes().get(link.childContentType);
     }
     if (clazz != null) {
       //noinspection unchecked
@@ -178,7 +178,7 @@ public final class Query<T extends Resource> {
   }
 
   private LinkResolver createLinkResolver() {
-    return new LinkResolver(spaceHelper, this);
+    return new LinkResolver(sqliteHelper, this);
   }
 
   Map<String, Resource> getAssetsCache() {

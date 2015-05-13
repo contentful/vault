@@ -5,7 +5,6 @@ import com.contentful.vault.SpaceHelper;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
@@ -17,15 +16,15 @@ import javax.lang.model.element.TypeElement;
 
 final class SpaceInjection extends Injection {
   private final List<ModelInjection> models;
-  private final String tableName;
+  private final String dbName;
   private FieldSpec specModels;
   private FieldSpec specTypes;
 
   public SpaceInjection(String remoteId, ClassName className, TypeElement originatingElement,
-      List<ModelInjection> models, String tableName) {
+      List<ModelInjection> models, String dbName) {
     super(remoteId, className, originatingElement);
     this.models = models;
-    this.tableName = tableName;
+    this.dbName = dbName;
   }
 
   @Override TypeSpec.Builder getTypeSpecBuilder() {
@@ -33,6 +32,8 @@ final class SpaceInjection extends Injection {
         .superclass(ClassName.get(SpaceHelper.class))
         .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
 
+    appendDbName(builder);
+    appendDbVersion(builder);
     appendModels(builder);
     appendTypes(builder);
     appendConstructor(builder);
@@ -42,13 +43,11 @@ final class SpaceInjection extends Injection {
 
   private void appendConstructor(TypeSpec.Builder builder) {
     MethodSpec.Builder ctor = MethodSpec.constructorBuilder()
-        .addModifiers(Modifier.PUBLIC)
-        .addParameter(
-            ParameterSpec.builder(ClassName.get("android.content", "Context"), "context").build())
-        .addStatement("super(context, $S, null, $L)", tableName, 1);
+        .addModifiers(Modifier.PUBLIC);
 
     for (ModelInjection model : models) {
       ClassName enclosingClassName = ClassName.get(model.originatingElement);
+
       ctor.addStatement("$N.put($L.class, new $L())", specModels, enclosingClassName,
           model.className);
 
@@ -90,5 +89,22 @@ final class SpaceInjection extends Injection {
 
     // Getter
     builder.addMethod(createGetterImpl(specModels, "getModels").build());
+  }
+
+  private void appendDbVersion(TypeSpec.Builder builder) {
+    builder.addMethod(MethodSpec.methodBuilder("getDatabaseVersion")
+        .returns(int.class)
+        .addAnnotation(Override.class)
+        .addModifiers(Modifier.PUBLIC).addStatement("return $L", 1) // TODO
+        .build());
+  }
+
+  private void appendDbName(TypeSpec.Builder builder) {
+    builder.addMethod(MethodSpec.methodBuilder("getDatabaseName")
+        .returns(String.class)
+        .addAnnotation(Override.class)
+        .addModifiers(Modifier.PUBLIC)
+        .addStatement("return $S", dbName)
+        .build());
   }
 }
