@@ -104,7 +104,7 @@ public final class SyncRunnable implements Runnable {
       context.sendBroadcast(new Intent(Vault.ACTION_SYNC_COMPLETE)
           .putExtra(Vault.EXTRA_SUCCESS, success));
 
-      Vault.executeCallback(tag, success, callbackExecutor);
+      Vault.executeCallback(tag, success);
     }
   }
 

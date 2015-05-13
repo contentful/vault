@@ -22,7 +22,7 @@ public class Vault {
 
   static final Executor EXECUTOR_CALLBACK = new MainThreadExecutor();
 
-  static final Map<String, SyncCallback> CALLBACKS = new HashMap<String, SyncCallback>();
+  static final Map<String, CallbackBundle> CALLBACKS = new HashMap<String, CallbackBundle>();
 
   final Context context;
   final Class<?> space;
@@ -47,7 +47,7 @@ public class Vault {
   }
 
   public void requestSync(SyncConfig config, SyncCallback callback) {
-    requestSync(config, callback, EXECUTOR_CALLBACK);
+    requestSync(config, callback, null);
   }
 
   public void requestSync(SyncConfig config, SyncCallback callback, Executor callbackExecutor) {
@@ -58,15 +58,18 @@ public class Vault {
       throw new IllegalArgumentException("Cannot be invoked with null client.");
     }
 
-    if (callbackExecutor == null) {
-      callbackExecutor = EXECUTOR_CALLBACK;
-    }
-
     String tag = Long.toString(System.currentTimeMillis());
 
     if (callback != null) {
+      callback.setTag(tag);
+
+      if (callbackExecutor == null) {
+        callbackExecutor = EXECUTOR_CALLBACK;
+      }
+
+      CallbackBundle bundle = new CallbackBundle(callback, callbackExecutor);
       synchronized (CALLBACKS) {
-        CALLBACKS.put(tag, callback);
+        CALLBACKS.put(tag, bundle);
       }
     }
 
@@ -134,18 +137,18 @@ public class Vault {
     return modelHelper;
   }
 
-  static void executeCallback(String tag, final boolean success, Executor executor) {
-    final SyncCallback callback = clearCallback(tag);
-    if (callback != null) {
-      executor.execute(new Runnable() {
+  static void executeCallback(String tag, final boolean success) {
+    final CallbackBundle bundle = clearBundle(tag);
+    if (bundle != null) {
+      bundle.executor.execute(new Runnable() {
         @Override public void run() {
-          callback.onComplete(success);
+          bundle.callback.onComplete(success);
         }
       });
     }
   }
 
-  static SyncCallback clearCallback(String tag) {
+  static CallbackBundle clearBundle(String tag) {
     synchronized (CALLBACKS) {
       return CALLBACKS.remove(tag);
     }
@@ -156,13 +159,9 @@ public class Vault {
       throw new IllegalArgumentException("callback argument must not be null.");
     }
 
-    synchronized (CALLBACKS) {
-      for (Map.Entry<String, SyncCallback> entry : CALLBACKS.entrySet()) {
-        if (entry.getValue() == callback) {
-          CALLBACKS.remove(entry.getKey());
-          return;
-        }
-      }
+    String tag = callback.getTag();
+    if (tag != null) {
+      clearBundle(tag);
     }
   }
 
@@ -172,6 +171,16 @@ public class Vault {
         spaceHelper.close();
       }
       SQLITE_HELPERS.clear();
+    }
+  }
+
+  static class CallbackBundle {
+    final SyncCallback callback;
+    final Executor executor;
+
+    public CallbackBundle(SyncCallback callback, Executor executor) {
+      this.callback = callback;
+      this.executor = executor;
     }
   }
 }
