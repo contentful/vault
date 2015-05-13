@@ -74,7 +74,8 @@ class SomeActivity extends Activity {
   SyncCallback callback;
   
   @Override protected void onCreate(Bundle savedInstanceState) {
-    // ...
+    super.onCreate(savedInstanceState);
+    
     Vault.with(this, DemoSpace.class).requestSync(callback = new SyncCallback() {
       @Override public void onComplete(boolean success) {
         // Sync completed \o/
@@ -83,13 +84,13 @@ class SomeActivity extends Activity {
   }
   
   @Override protected void onDestroy() {
-    // ...
     callback.cancel();
+    super.onDestroy();
   }
 }
 ```
 
-In addition, it is possible to provide a specific sync configuration, one example would be selecting which locale to persist when saving resources:
+In addition, it is possible to provide a specific sync configuration, one example would be selecting which locale to use when saving resources:
 
 ```java
 // Sync DemoSpace using the "tlh" locale code (Klingon)
