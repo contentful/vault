@@ -268,7 +268,11 @@ public final class SyncRunnable implements Runnable {
       } else if ("BLOB".equals(field.sqliteType)) {
         saveBlob(entry, values, field, (Serializable) value);
       } else {
-        values.put(field.name, value.toString());
+        String stringValue = null;
+        if (value != null) {
+          stringValue = value.toString();
+        }
+        values.put(field.name, stringValue);
       }
     }
     db.insertWithOnConflict(tableName, null, values, CONFLICT_REPLACE);
