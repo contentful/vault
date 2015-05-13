@@ -97,3 +97,30 @@ class SomeActivity extends Activity {
   }
 }
 ```
+
+### Queries
+
+Vault provides an abstraction over the generated database which can be used to fetch previously persisted objects, some examples:
+
+```java
+Vault vault = Vault.with(conext, DemoSpace.class);
+
+// Fetch the first Cat
+vault.fetch(Cat.class)
+    .first();
+    
+// Fetch the most recently updated Cat
+vault.fetch(Cat.class)
+    .order("updated_at DESC")
+    .first();
+
+// Fetch a Cat with a specific name
+vault.fetch(Cat.class)
+    .where("name = ?", "Nyan Cat")
+    .first();
+    
+// Fetch all Cats, oredered by creation date:
+vault.fetch(Cat.class)
+    .order("created_at")
+    .all();
+```
