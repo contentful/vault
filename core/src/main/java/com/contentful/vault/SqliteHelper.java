@@ -61,4 +61,8 @@ public final class SqliteHelper extends SQLiteOpenHelper {
     asset.setMimeType(cursor.getString(SpaceHelper.COLUMN_ASSET_MIME_TYPE));
     return asset;
   }
+
+  public SpaceHelper getSpaceHelper() {
+    return spaceHelper;
+  }
 }
