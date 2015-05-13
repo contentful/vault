@@ -1,7 +1,6 @@
 package com.contentful.vault;
 
 import android.content.Context;
-import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,8 +13,8 @@ public class Vault {
   public static final String ACTION_SYNC_COMPLETE = "com.contentful.vault.ACTION_SYNC_COMPLETE";
   public static final String EXTRA_SUCCESS = "EXTRA_SUCCESS";
 
-  static final Map<Class<?>, SpaceHelper> SPACE_HELPERS =
-      new LinkedHashMap<Class<?>, SpaceHelper>();
+  static final Map<Class<?>, SqliteHelper> SQLITE_HELPERS =
+      new LinkedHashMap<Class<?>, SqliteHelper>();
 
   static final ExecutorService syncExecutor = Executors.newSingleThreadExecutor(
       new CFThreadFactory());
@@ -56,37 +55,39 @@ public class Vault {
       throw new IllegalArgumentException("Cannot be invoked with null client.");
     }
 
-    syncExecutor.submit(SyncRunnable.builder()
-        .setContext(context)
-        .setSpace(space)
-        .setSyncConfig(config)
-        .setCallback(callback)
-        .setCallbackExecutor(callbackExecutor)
-        .build());
+    syncExecutor.submit(
+        SyncRunnable.builder()
+            .setContext(context)
+            .setSqliteHelper(getOrCreateSqliteHelper(context, space))
+            .setSyncConfig(config)
+            .setCallback(callback)
+            .setCallbackExecutor(callbackExecutor)
+            .build());
   }
 
-  static SpaceHelper getOrCreateHelper(Context context, Class<?> space) {
-    synchronized (SPACE_HELPERS) {
-      SpaceHelper helper = SPACE_HELPERS.get(space);
-      if (helper == null) {
-          helper = Vault.createHelper(context, space);
-          SPACE_HELPERS.put(space, helper);
+  static SqliteHelper getOrCreateSqliteHelper(Context context, Class<?> space) {
+    synchronized (SQLITE_HELPERS) {
+      SqliteHelper sqliteHelper = SQLITE_HELPERS.get(space);
+      if (sqliteHelper == null) {
+        SpaceHelper spaceHelper = createSpaceHelper(space);
+        sqliteHelper = createSqliteHelper(context, spaceHelper);
+        SQLITE_HELPERS.put(space, sqliteHelper);
       }
-      return helper;
+      return sqliteHelper;
     }
   }
 
-  static SpaceHelper createHelper(Context context, Class<?> space) {
+  private static SqliteHelper createSqliteHelper(Context context, SpaceHelper spaceHelper) {
+    return new SqliteHelper(context, spaceHelper);
+  }
+
+  private static SpaceHelper createSpaceHelper(Class<?> space) {
     try {
       Class<?> clazz = Class.forName(space.getName() + Constants.SUFFIX_SPACE);
-      return (SpaceHelper) clazz.getConstructor(Context.class).newInstance(context);
+      return (SpaceHelper) clazz.newInstance();
     } catch (ClassNotFoundException e) {
       throw new RuntimeException(e);
-    } catch (NoSuchMethodException e) {
-      throw new RuntimeException(e);
     } catch (IllegalAccessException e) {
-      throw new RuntimeException(e);
-    } catch (InvocationTargetException e) {
       throw new RuntimeException(e);
     } catch (InstantiationException e) {
       throw new RuntimeException(e);
@@ -94,12 +95,9 @@ public class Vault {
   }
 
   public <T extends Resource> Query<T> fetch(Class<T> resource) {
-    SpaceHelper spaceHelper = getOrCreateHelper(context, space);
-    return fetch(spaceHelper, resource);
-  }
+    SqliteHelper sqliteHelper = getOrCreateSqliteHelper(context, space);
+    SpaceHelper spaceHelper = sqliteHelper.getSpaceHelper();
 
-  public <T extends Resource> Query<T> fetch(SpaceHelper spaceHelper,
-      Class<T> resource) {
     String tableName;
     List<FieldMeta> fields = null;
     if (Asset.class.equals(resource)) {
@@ -109,7 +107,7 @@ public class Vault {
       tableName = modelHelper.getTableName();
       fields = modelHelper.getFields();
     }
-    return new Query<T>(this, spaceHelper, resource, tableName, fields);
+    return new Query<T>(this, sqliteHelper, resource, tableName, fields);
   }
 
   private <T extends Resource> ModelHelper<?> getModelHelperOrThrow(SpaceHelper spaceHelper,
@@ -123,11 +121,11 @@ public class Vault {
   }
 
   public void releaseAll() {
-    synchronized (SPACE_HELPERS) {
-      for (SpaceHelper spaceHelper : SPACE_HELPERS.values()) {
+    synchronized (SQLITE_HELPERS) {
+      for (SqliteHelper spaceHelper : SQLITE_HELPERS.values()) {
         spaceHelper.close();
       }
-      SPACE_HELPERS.clear();
+      SQLITE_HELPERS.clear();
     }
   }
 }
