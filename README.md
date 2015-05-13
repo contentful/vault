@@ -75,7 +75,6 @@ class SomeActivity extends Activity {
   
   @Override protected void onCreate(Bundle savedInstanceState) {
     // ...
-    
     Vault.with(this, DemoSpace.class).requestSync(callback = new SyncCallback() {
       @Override public void onComplete(boolean success) {
         // Sync completed \o/
@@ -85,7 +84,6 @@ class SomeActivity extends Activity {
   
   @Override protected void onDestroy() {
     // ...
-  
     callback.cancel();
   }
 }
