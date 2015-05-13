@@ -1,20 +1,11 @@
 package com.contentful.vault;
 
-import android.content.Context;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 
-public abstract class SpaceHelper extends SQLiteOpenHelper {
-  public SpaceHelper(Context context, String name, SQLiteDatabase.CursorFactory factory,
-      int version) {
-    super(context, name, factory, version);
-  }
-
+public abstract class SpaceHelper {
   public static final String[] RESOURCE_COLUMNS = new String[] {
       "`remote_id` STRING NOT NULL UNIQUE",
       "`created_at` STRING NOT NULL",
@@ -75,54 +66,11 @@ public abstract class SpaceHelper extends SQLiteOpenHelper {
   public static final List<String> DEFAULT_TABLES =
       Arrays.asList(TABLE_ASSETS, TABLE_ENTRY_TYPES, TABLE_LINKS, TABLE_SYNC_INFO);
 
+  public abstract String getDatabaseName();
+
+  public abstract int getDatabaseVersion();
+
   public abstract Map<Class<?>, ModelHelper<?>> getModels();
 
   public abstract Map<String, Class<?>> getTypes();
-
-  @Override public void onCreate(SQLiteDatabase db) {
-    db.beginTransaction();
-    try {
-      for (String sql : DEFAULT_CREATE) {
-        db.execSQL(sql);
-      }
-      for (ModelHelper<?> modelHelper : getModels().values()) {
-        for (String sql : modelHelper.getCreateStatements()) {
-          db.execSQL(sql);
-        }
-      }
-      db.setTransactionSuccessful();
-    } finally {
-      db.endTransaction();
-    }
-  }
-
-  @Override public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
-  }
-
-  @SuppressWarnings("unchecked")
-  public final <T extends Resource> T fromCursor(Class<T> clazz, Cursor cursor) {
-    T resource = null;
-    if (Asset.class.equals(clazz)) {
-      resource = (T) assetFromCursor(cursor);
-    } else {
-      ModelHelper<?> modelHelper = getModels().get(clazz);
-      if (modelHelper != null) {
-        resource = (T) modelHelper.fromCursor(cursor);
-      }
-    }
-    if (resource != null) {
-      resource.setRemoteId(cursor.getString(SpaceHelper.COLUMN_REMOTE_ID));
-      resource.setCreatedAt(cursor.getString(SpaceHelper.COLUMN_CREATED_AT));
-      resource.setUpdatedAt(cursor.getString(SpaceHelper.COLUMN_UPDATED_AT));
-    }
-
-    return resource;
-  }
-
-  private static Asset assetFromCursor(Cursor cursor) {
-    Asset asset = new Asset();
-    asset.setUrl(cursor.getString(SpaceHelper.COLUMN_ASSET_URL));
-    asset.setMimeType(cursor.getString(SpaceHelper.COLUMN_ASSET_MIME_TYPE));
-    return asset;
-  }
 }
