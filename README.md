@@ -61,10 +61,18 @@ public class DemoSpace { }
 Once a Space is defined, you can tell Vault to sync the local database with the remote state:
 
 ```java
-Vault.with(context, DemoSpace.class).requestSync();
+// Create a CDA client
+CDAClient client = new CDAClient.Builder()
+    .setSpaceKey("cfexampleapi");
+    .setAccessToken("b4c0n73n7fu1");
+    .build();
+
+// Request sync
+Vault.with(context, DemoSpace.class, 
+    SyncConfig.builder().setClient(client).build());
 ```
 
-Vault will use the Contentful Sync API to request delta updates of the data and reflect the remote changes to the db.
+Vault will use the Contentful Sync API to request delta updates of the data and reflect the remote changes to the database.
 Once sync is completed, Vault will fire a broadcast with the action `Vault.ACTION_SYNC_COMPLETE`.
 
 Alternatively, you can provide a `SyncCallback` which will be invoked once sync is completed, but make sure to cancel it according to it's host lifecycle events:
@@ -76,7 +84,7 @@ class SomeActivity extends Activity {
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     
-    Vault.with(this, DemoSpace.class).requestSync(callback = new SyncCallback() {
+    Vault.with(this, DemoSpace.class).requestSync(config, callback = new SyncCallback() {
       @Override public void onComplete(boolean success) {
         // Sync completed \o/
       }
@@ -88,12 +96,4 @@ class SomeActivity extends Activity {
     super.onDestroy();
   }
 }
-```
-
-In addition, it is possible to provide a specific sync configuration, one example would be selecting which locale to use when saving resources:
-
-```java
-// Sync DemoSpace using the "tlh" locale code (Klingon)
-Vault.with(context, DemoSpace.class).requestSync(
-  SyncConfig.builder().setLocale("tlh").build());
 ```
