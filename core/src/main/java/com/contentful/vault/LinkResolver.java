@@ -8,11 +8,11 @@ import java.util.List;
 import java.util.Map;
 
 final class LinkResolver {
-  final SpaceHelper spaceHelper;
+  final SqliteHelper sqliteHelper;
   final Query<?> query;
 
-  LinkResolver(SpaceHelper spaceHelper, Query<?> query) {
-    this.spaceHelper = spaceHelper;
+  LinkResolver(SqliteHelper sqliteHelper, Query<?> query) {
+    this.sqliteHelper = sqliteHelper;
     this.query = query;
   }
 
@@ -44,7 +44,9 @@ final class LinkResolver {
         if (child != null) {
           if (isEntryLink) {
             // Resolve links for linked target
-            ModelHelper modelHelper = spaceHelper.getModels().get(child.getClass());
+            ModelHelper modelHelper =
+                sqliteHelper.getSpaceHelper().getModels().get(child.getClass());
+
             resolveLinks(child, modelHelper.getFields());
           }
 
@@ -59,7 +61,7 @@ final class LinkResolver {
 
     if (targets.size() > 0) {
       Object result = field.isArray() ? targets : targets.get(0);
-      ModelHelper modelHelper = spaceHelper.getModels().get(resource.getClass());
+      ModelHelper modelHelper = sqliteHelper.getSpaceHelper().getModels().get(resource.getClass());
       modelHelper.setField(resource, field.name, result);
     }
   }
@@ -84,7 +86,7 @@ final class LinkResolver {
     };
 
     List<Link> result;
-    SQLiteDatabase db = spaceHelper.getReadableDatabase();
+    SQLiteDatabase db = sqliteHelper.getReadableDatabase();
     try {
       Cursor cursor = db.rawQuery(builder.toString(), args);
       result = new ArrayList<Link>();
