@@ -1,7 +1,7 @@
 import android.database.Cursor;
-import com.contentful.sqlite.Asset;
-import com.contentful.sqlite.FieldMeta;
-import com.contentful.sqlite.ModelHelper;
+import com.contentful.vault.Asset;
+import com.contentful.vault.FieldMeta;
+import com.contentful.vault.ModelHelper;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,7 +19,7 @@ public final class Test$AwesomeModel$$ModelHelper extends ModelHelper<Test.Aweso
     fields.add(FieldMeta.builder().setId("assetLink").setName("assetLink").setLinkType("Asset").build());
     fields.add(FieldMeta.builder().setId("entryLink").setName("entryLink").setLinkType("Entry").build());
     fields.add(FieldMeta.builder().setId("arrayOfAssets").setName("arrayOfAssets").setArrayType(
-        "com.contentful.sqlite.Asset").build());
+        "com.contentful.vault.Asset").build());
     fields.add(FieldMeta.builder().setId("arrayOfModels").setName("arrayOfModels").setArrayType("Test.AwesomeModel").build());
     fields.add(FieldMeta.builder().setId("arrayOfSymbols").setName("arrayOfSymbols").setSqliteType(
         "BLOB").setArrayType("java.lang.String").build());

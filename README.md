@@ -1,5 +1,6 @@
-# sqlite-processor
+# Vault
 
-[![Build Status](https://magnum.travis-ci.com/contentful/sqlite-processor.svg?token=J8uWM5wmFQZTgYu2HNmp&branch=master)](https://magnum.travis-ci.com/contentful/sqlite-processor)
+[![Build Status](https://magnum.travis-ci.com/contentful/vault.svg?token=J8uWM5wmFQZTgYu2HNmp&branch=master)](https://magnum.travis-ci.com/contentful/vault)
 
-Annotation processor for easy persistence of Contentful data over SQLite.
+Easy persistence of Contentful data for Android via SQLite.
+

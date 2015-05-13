@@ -10,57 +10,73 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>compiler</artifactId>
+  <artifactId>tests-integration</artifactId>
+  <packaging>apk</packaging>
 
   <dependencies>
+    <dependency>
+      <groupId>com.contentful.java</groupId>
+      <artifactId>java-sdk</artifactId>
+      <version>2.0.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.contentful.vault</groupId>
+      <artifactId>compiler</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.contentful.vault</groupId>
+      <artifactId>core</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
     <dependency>
       <groupId>com.google.android</groupId>
       <artifactId>android</artifactId>
       <scope>provided</scope>
     </dependency>
+
     <dependency>
-      <groupId>commons-codec</groupId>
-      <artifactId>commons-codec</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.squareup</groupId>
-      <artifactId>javapoet</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.contentful.vault</groupId>
-      <artifactId>core</artifactId>
-      <version>${project.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.contentful.java</groupId>
-      <artifactId>java-sdk</artifactId>
-      <scope>provided</scope>
+      <groupId>org.robolectric</groupId>
+      <artifactId>robolectric</artifactId>
+      <scope>test</scope>
     </dependency>
 
-    <!-- Test dependencies -->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>test</scope>
     </dependency>
+
     <dependency>
-      <groupId>com.google.testing.compile</groupId>
-      <artifactId>compile-testing</artifactId>
+      <groupId>com.squareup.okhttp</groupId>
+      <artifactId>mockwebserver</artifactId>
       <scope>test</scope>
     </dependency>
+
     <dependency>
-      <groupId>com.google.truth</groupId>
-      <artifactId>truth</artifactId>
+      <groupId>com.squareup.okhttp</groupId>
+      <artifactId>okhttp</artifactId>
       <scope>test</scope>
     </dependency>
+
+    <dependency>
+      <groupId>com.squareup.okhttp</groupId>
+      <artifactId>okhttp-urlconnection</artifactId>
+      <scope>test</scope>
+    </dependency>
+
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-all</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -68,11 +84,9 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <compilerArgument>-proc:none</compilerArgument>
-        </configuration>
+        <groupId>com.simpligility.maven.plugins</groupId>
+        <artifactId>android-maven-plugin</artifactId>
+        <extensions>true</extensions>
       </plugin>
     </plugins>
   </build>
