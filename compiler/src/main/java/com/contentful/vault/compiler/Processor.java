@@ -137,21 +137,20 @@ public class Processor extends AbstractProcessor {
               return;
             }
 
+            Set<String> modelIds = new LinkedHashSet<String>();
             for (Object model : l) {
               Element e = ((Type) ((Attribute) model).getValue()).asElement();
               //noinspection SuspiciousMethodCalls
               ModelInjection modelInjection = modelTargets.get(e);
               if (modelInjection == null) {
-                /*
-                TODO
-                error(element,
-                    "Cannot include model (\"%s\"), is not annotated with @%s. (%s)",
-                    e.toString(),
-                    ContentType.class.getSimpleName(),
-                    element.getQualifiedName());
-                */
                 return;
               } else {
+                String rid = modelInjection.remoteId;
+                if (!modelIds.add(rid)) {
+                  error(element, "@%s includes multiple models with the same id \"%s\". (%s)",
+                      Space.class.getSimpleName(), rid, element.getQualifiedName());
+                  return;
+                }
                 includedModels.add(modelInjection);
               }
             }
@@ -174,12 +173,6 @@ public class Processor extends AbstractProcessor {
       error(element, "@%s id may not be empty. (%s)",
           ContentType.class.getSimpleName(),
           element.getQualifiedName());
-      return;
-    }
-
-    if (hasInjection(targets, id, ModelInjection.class)) {
-      error(element, "@%s for \"%s\" cannot be used on multiple classes. (%s)",
-          ContentType.class.getSimpleName(), id, element.getQualifiedName());
       return;
     }
 

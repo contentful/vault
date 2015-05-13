@@ -5,7 +5,8 @@ import com.google.testing.compile.JavaFileObjects;
 import javax.tools.JavaFileObject;
 import org.junit.Test;
 
-import static com.contentful.vault.compiler.lib.TestUtils.*;
+import static com.contentful.vault.compiler.lib.TestUtils.processors;
+import static com.contentful.vault.compiler.lib.TestUtils.readTestResource;
 import static com.google.common.truth.Truth.ASSERT;
 import static com.google.testing.compile.JavaSourceSubjectFactory.javaSource;
 
@@ -72,20 +73,24 @@ public class SpaceTest {
         .withErrorContaining("@Space models must not be empty. (Test)");
   }
 
-  /*
-  TODO
-  @Test public void failsInvalidModels() throws Exception {
-    JavaFileObject source = JavaFileObjects.forSourceString("Test", Joiner.on('\n').join(
+  @Test public void failsDuplicateId() throws Exception {
+    JavaFileObject source = JavaFileObjects.forSourceString("test.Test", Joiner.on('\n').join(
+        "import com.contentful.vault.ContentType;",
+        "import com.contentful.vault.Resource;",
         "import com.contentful.vault.Space;",
-        "@Space(value = \"sid\", models = { Object.class })",
         "class Test {",
+        "  @ContentType(\"cid\")",
+        "  static class Test1 extends Resource { }",
+        "  @ContentType(\"cid\")",
+        "  static class Test2 extends Resource { }",
+        "  @Space(value = \"sid\", models = { Test1.class, Test2.class })",
+        "  static class Test3 {}",
         "}"));
 
     ASSERT.about(javaSource()).that(source)
         .processedWith(processors())
         .failsToCompile()
-        .withErrorContaining("Cannot include model (\"java.lang.Object\"), "
-            + "is not annotated with @ContentType. (Test)");
+        .withErrorContaining(
+            "@Space includes multiple models with the same id \"cid\". (Test.Test3)");
   }
-  */
 }
