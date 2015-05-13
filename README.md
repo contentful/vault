@@ -41,7 +41,7 @@ public class Cat extends Resource {
 }
 ```
 
-The ID of the field will by inferred by the name of the attribute, unless provided explicitly as the value for the `@Field` annotation:
+The ID of the field will by inferred from the name of the attribute, unless provided explicitly as the value for the `@Field` annotation:
 ```java
 @Field("field-id-goes-here") 
 public String someField; 
