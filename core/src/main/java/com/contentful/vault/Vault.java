@@ -20,7 +20,7 @@ public class Vault {
   static final ExecutorService syncExecutor = Executors.newSingleThreadExecutor(
       new CFThreadFactory());
 
-  static final Executor callbackExecutor = new MainThreadExecutor();
+  static final Executor defaultCallbackExecutor = new MainThreadExecutor();
 
   final Context context;
   final Class<?> space;
@@ -45,7 +45,7 @@ public class Vault {
   }
 
   public void requestSync(SyncConfig config, SyncCallback callback) {
-    requestSync(config, callback, null);
+    requestSync(config, callback, defaultCallbackExecutor);
   }
 
   public void requestSync(SyncConfig config, SyncCallback callback, Executor callbackExecutor) {
