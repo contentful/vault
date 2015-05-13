@@ -160,9 +160,9 @@ public class Processor extends AbstractProcessor {
     }
 
     ClassName injectionClassName = getInjectionClassName(element, SUFFIX_SPACE);
-    String tableName = "space_" + SqliteUtils.hashForId(id);
+    String dbName = "space_" + SqliteUtils.hashForId(id);
     SpaceInjection injection =
-        new SpaceInjection(id, injectionClassName, element, includedModels, tableName);
+        new SpaceInjection(id, injectionClassName, element, includedModels, dbName);
 
     spaceTargets.put(element, injection);
   }

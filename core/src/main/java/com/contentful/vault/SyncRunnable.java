@@ -31,10 +31,10 @@ import static com.contentful.vault.CfUtils.wasDeleted;
 
 public final class SyncRunnable implements Runnable {
   private final Context context;
-  private final Class<?> space;
   private final SyncConfig config;
   private final SyncCallback callback;
   private final Executor callbackExecutor;
+  private SqliteHelper sqliteHelper;
   private SpaceHelper spaceHelper;
   private SQLiteDatabase db;
 
@@ -60,10 +60,11 @@ public final class SyncRunnable implements Runnable {
 
   private SyncRunnable(Builder builder) {
     this.context = builder.context;
-    this.space = builder.space;
     this.config = builder.config;
     this.callback = builder.callback;
     this.callbackExecutor = builder.callbackExecutor;
+    this.sqliteHelper = builder.sqliteHelper;
+    this.spaceHelper = sqliteHelper.getSpaceHelper();
   }
 
   static Builder builder() {
@@ -72,8 +73,7 @@ public final class SyncRunnable implements Runnable {
 
   @Override public void run() {
     boolean success = false;
-    spaceHelper = Vault.getOrCreateHelper(context, space);
-    db = spaceHelper.getWritableDatabase();
+    db = sqliteHelper.getWritableDatabase();
     try {
       String token = fetchSyncToken();
       CDASyncedSpace syncedSpace;
@@ -137,6 +137,7 @@ public final class SyncRunnable implements Runnable {
   }
 
   private void processResource(CDAResource resource) {
+    SpaceHelper spaceHelper = sqliteHelper.getSpaceHelper();
     if (wasDeleted(resource)) {
       HANDLER_DELETE.invoke(resource);
     } else {
@@ -174,6 +175,7 @@ public final class SyncRunnable implements Runnable {
     }
   }
 
+  // TODO move to SqliteHelper
   private void clearDb() {
     db.beginTransaction();
     try {
@@ -181,7 +183,7 @@ public final class SyncRunnable implements Runnable {
         db.delete(name, null, null);
       }
 
-      for (ModelHelper<?> modelHelper : spaceHelper.getModels().values()) {
+      for (ModelHelper<?> modelHelper : sqliteHelper.getSpaceHelper().getModels().values()) {
         db.delete(modelHelper.getTableName(), null, null);
       }
 
@@ -199,9 +201,10 @@ public final class SyncRunnable implements Runnable {
     String remoteId = extractResourceId(resource);
     String contentTypeId = fetchContentTypeId(remoteId);
     if (contentTypeId != null) {
-      Class<?> clazz = spaceHelper.getTypes().get(contentTypeId);
+      Class<?> clazz = sqliteHelper.getSpaceHelper().getTypes().get(contentTypeId);
       if (clazz != null) {
-        deleteResource(remoteId, spaceHelper.getModels().get(clazz).getTableName());
+        deleteResource(remoteId,
+            sqliteHelper.getSpaceHelper().getModels().get(clazz).getTableName());
         deleteEntryType(remoteId);
       }
     }
@@ -364,7 +367,7 @@ public final class SyncRunnable implements Runnable {
 
   static class Builder {
     private Context context;
-    private Class<?> space;
+    private SqliteHelper sqliteHelper;
     private SyncCallback callback;
     private Executor callbackExecutor;
     private SyncConfig config;
@@ -377,8 +380,8 @@ public final class SyncRunnable implements Runnable {
       return this;
     }
 
-    public Builder setSpace(Class<?> space) {
-      this.space = space;
+    public Builder setSqliteHelper(SqliteHelper sqliteHelper) {
+      this.sqliteHelper = sqliteHelper;
       return this;
     }
 

@@ -10,7 +10,6 @@ import static com.google.common.truth.Truth.ASSERT;
 import static com.google.testing.compile.JavaSourceSubjectFactory.javaSource;
 
 public class ContentTypeTest {
-  /*
   @Test public void failsEmptyId() throws Exception {
     JavaFileObject source = JavaFileObjects.forSourceString("Test",
         Joiner.on('\n').join(
@@ -42,5 +41,4 @@ public class ContentTypeTest {
             "Classes annotated with @ContentType must extend \"com.contentful.vault.Resource\". "
                 + "(Test)");
   }
-  */
 }
