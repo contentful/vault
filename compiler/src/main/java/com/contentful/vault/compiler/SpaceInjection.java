@@ -16,8 +16,11 @@ import javax.lang.model.element.TypeElement;
 
 final class SpaceInjection extends Injection {
   private final List<ModelInjection> models;
+
   private final String dbName;
+
   private FieldSpec specModels;
+
   private FieldSpec specTypes;
 
   public SpaceInjection(String remoteId, ClassName className, TypeElement originatingElement,

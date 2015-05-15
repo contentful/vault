@@ -1,23 +1,47 @@
 package com.contentful.vault;
 
 public final class Asset extends Resource {
-  String url;
+  private String url;
 
-  String mimeType;
+  private String mimeType;
 
-  public String getUrl() {
+  private Asset(Builder builder) {
+    this.url = builder.url;
+    this.mimeType = builder.mimeType;
+  }
+
+  public String url() {
     return url;
   }
 
-  public void setUrl(String url) {
-    this.url = url;
-  }
-
-  public String getMimeType() {
+  public String mimeType() {
     return mimeType;
   }
 
-  public void setMimeType(String mimeType) {
-    this.mimeType = mimeType;
+  static Builder builder() {
+    return new Builder();
+  }
+
+  static class Builder {
+    private Builder() {
+    }
+
+    private String url;
+
+    private String mimeType;
+
+    public Builder setUrl(String url) {
+      this.url = url;
+      return this;
+    }
+
+    public Builder setMimeType(String mimeType) {
+      this.mimeType = mimeType;
+      return this;
+    }
+
+    public Asset build() {
+      return new Asset(this);
+    }
   }
 }

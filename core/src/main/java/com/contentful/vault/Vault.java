@@ -12,20 +12,22 @@ import retrofit.android.MainThreadExecutor;
 
 public class Vault {
   public static final String ACTION_SYNC_COMPLETE = "com.contentful.vault.ACTION_SYNC_COMPLETE";
+
   public static final String EXTRA_SUCCESS = "EXTRA_SUCCESS";
 
   static final Map<Class<?>, SqliteHelper> SQLITE_HELPERS =
       new LinkedHashMap<Class<?>, SqliteHelper>();
 
   static final ExecutorService EXECUTOR_SYNC = Executors.newSingleThreadExecutor(
-      new CFThreadFactory());
+      new VaultThreadFactory());
 
   static final Executor EXECUTOR_CALLBACK = new MainThreadExecutor();
 
   static final Map<String, CallbackBundle> CALLBACKS = new HashMap<String, CallbackBundle>();
 
-  final Context context;
-  final Class<?> space;
+  private final Context context;
+
+  private final Class<?> space;
 
   private Vault(Context context, Class<?> space) {
     this.context = context.getApplicationContext();
@@ -54,7 +56,7 @@ public class Vault {
     if (config == null) {
       throw new IllegalArgumentException("Cannot be invoked with null configuration.");
     }
-    if (config.client == null) {
+    if (config.client() == null) {
       throw new IllegalArgumentException("Cannot be invoked with null client.");
     }
 
@@ -78,7 +80,6 @@ public class Vault {
         .setContext(context)
         .setSqliteHelper(getOrCreateSqliteHelper(context, space))
         .setSyncConfig(config)
-        .setCallbackExecutor(callbackExecutor)
         .build());
   }
 

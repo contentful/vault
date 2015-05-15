@@ -3,9 +3,10 @@ package com.contentful.vault;
 import android.os.Process;
 import java.util.concurrent.ThreadFactory;
 
-final class CFThreadFactory implements ThreadFactory {
+final class VaultThreadFactory implements ThreadFactory {
   @SuppressWarnings("NullableProblems")
-  @Override public Thread newThread(Runnable r) {
+  @Override
+  public Thread newThread(Runnable r) {
     return new CFThread(r);
   }
 

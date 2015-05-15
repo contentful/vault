@@ -14,7 +14,9 @@ import javax.lang.model.element.TypeElement;
 
 abstract class Injection {
   final String remoteId;
+
   final ClassName className;
+
   final TypeElement originatingElement;
 
   public Injection(String remoteId, ClassName className, TypeElement originatingElement) {

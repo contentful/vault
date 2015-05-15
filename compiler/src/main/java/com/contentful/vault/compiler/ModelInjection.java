@@ -21,7 +21,9 @@ import javax.lang.model.element.TypeElement;
 
 final class ModelInjection extends Injection {
   final String sqlTableName;
+
   final Set<FieldMeta> fields;
+
   private FieldSpec specFields;
 
   public ModelInjection(String remoteId, ClassName className, TypeElement originatingElement,

@@ -56,10 +56,13 @@ public final class SqliteHelper extends SQLiteOpenHelper {
   }
 
   private static Asset assetFromCursor(Cursor cursor) {
-    Asset asset = new Asset();
-    asset.setUrl(cursor.getString(SpaceHelper.COLUMN_ASSET_URL));
-    asset.setMimeType(cursor.getString(SpaceHelper.COLUMN_ASSET_MIME_TYPE));
-    return asset;
+    String url = cursor.getString(SpaceHelper.COLUMN_ASSET_URL);
+    String mimeType = cursor.getString(SpaceHelper.COLUMN_ASSET_MIME_TYPE);
+
+    return Asset.builder()
+        .setUrl(url)
+        .setMimeType(mimeType)
+        .build();
   }
 
   public SpaceHelper getSpaceHelper() {

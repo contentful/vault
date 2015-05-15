@@ -15,7 +15,6 @@ import com.contentful.java.cda.model.CDASyncedSpace;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
-import java.util.concurrent.Executor;
 import org.apache.commons.lang3.StringUtils;
 
 import static android.database.sqlite.SQLiteDatabase.CONFLICT_REPLACE;
@@ -23,19 +22,23 @@ import static com.contentful.java.cda.Constants.CDAResourceType.Asset;
 import static com.contentful.java.cda.Constants.CDAResourceType.DeletedAsset;
 import static com.contentful.java.cda.Constants.CDAResourceType.DeletedEntry;
 import static com.contentful.java.cda.Constants.CDAResourceType.Entry;
-import static com.contentful.vault.CfUtils.extractContentTypeId;
-import static com.contentful.vault.CfUtils.extractResourceId;
-import static com.contentful.vault.CfUtils.extractResourceType;
-import static com.contentful.vault.CfUtils.isOfType;
-import static com.contentful.vault.CfUtils.wasDeleted;
+import static com.contentful.vault.CDAUtils.extractContentTypeId;
+import static com.contentful.vault.CDAUtils.extractResourceId;
+import static com.contentful.vault.CDAUtils.extractResourceType;
+import static com.contentful.vault.CDAUtils.isOfType;
+import static com.contentful.vault.CDAUtils.wasDeleted;
 
 public final class SyncRunnable implements Runnable {
   private final Context context;
+
   private final SyncConfig config;
-  private final Executor callbackExecutor;
+
   private SqliteHelper sqliteHelper;
+
   private SpaceHelper spaceHelper;
+
   private SQLiteDatabase db;
+
   private String tag;
 
   private final ResourceHandler HANDLER_DELETE = new ResourceHandler() {
@@ -61,7 +64,6 @@ public final class SyncRunnable implements Runnable {
   private SyncRunnable(Builder builder) {
     this.context = builder.context;
     this.config = builder.config;
-    this.callbackExecutor = builder.callbackExecutor;
     this.tag = builder.tag;
     this.sqliteHelper = builder.sqliteHelper;
     this.spaceHelper = sqliteHelper.getSpaceHelper();
@@ -78,10 +80,10 @@ public final class SyncRunnable implements Runnable {
       String token = fetchSyncToken();
       CDASyncedSpace syncedSpace;
       if (token == null) {
-        syncedSpace = config.client.synchronization().performInitial();
+        syncedSpace = config.client().synchronization().performInitial();
       } else {
         checkLocale();
-        syncedSpace = config.client.synchronization().performWithToken(token);
+        syncedSpace = config.client().synchronization().performWithToken(token);
       }
 
       db.beginTransaction();
@@ -124,7 +126,7 @@ public final class SyncRunnable implements Runnable {
   private void saveSyncInfo(String syncToken) {
     ContentValues values = new ContentValues();
     values.put("token", syncToken);
-    values.put("locale", config.locale);
+    values.put("locale", config.locale());
     db.delete(SpaceHelper.TABLE_SYNC_INFO, null, null);
     db.insert(SpaceHelper.TABLE_SYNC_INFO, null, values);
   }
@@ -133,8 +135,8 @@ public final class SyncRunnable implements Runnable {
     if (wasDeleted(resource)) {
       HANDLER_DELETE.invoke(resource);
     } else {
-      if (StringUtils.isNotBlank(config.locale)) {
-        resource.setLocale(config.locale);
+      if (StringUtils.isNotBlank(config.locale())) {
+        resource.setLocale(config.locale());
       }
 
       List<FieldMeta> fields = null;
@@ -158,7 +160,7 @@ public final class SyncRunnable implements Runnable {
     try {
       if (cursor.moveToFirst()) {
         String previousLocale = cursor.getString(0);
-        if (!StringUtils.equals(config.locale, previousLocale)) {
+        if (!StringUtils.equals(config.locale(), previousLocale)) {
           clearDb();
         }
       }
@@ -254,19 +256,19 @@ public final class SyncRunnable implements Runnable {
     ContentValues values = new ContentValues();
     putResourceFields(entry, values);
     for (FieldMeta field : fields) {
-      Object value = entry.getFields().get(field.id);
+      Object value = entry.getFields().get(field.id());
       if (field.isLink()) {
         processLink(entry, field, value);
       } else if (field.isArray()) {
         processArray(entry, values, field, value);
-      } else if ("BLOB".equals(field.sqliteType)) {
+      } else if ("BLOB".equals(field.sqliteType())) {
         saveBlob(entry, values, field, (Serializable) value);
       } else {
         String stringValue = null;
         if (value != null) {
           stringValue = value.toString();
         }
-        values.put(field.name, stringValue);
+        values.put(field.name(), stringValue);
       }
     }
     db.insertWithOnConflict(tableName, null, values, CONFLICT_REPLACE);
@@ -283,12 +285,12 @@ public final class SyncRunnable implements Runnable {
     } else {
       // Array of resources
       if (value == null || !(value instanceof List) || ((List) value).size() == 0) {
-        deleteResourceLinks(entry, field.name);
+        deleteResourceLinks(entry, field.name());
       } else {
         //noinspection unchecked
         List<CDAResource> resources = (List) value;
         for (CDAResource resource : resources) {
-          saveLink(entry, field.name, resource);
+          saveLink(entry, field.name(), resource);
         }
       }
     }
@@ -297,19 +299,19 @@ public final class SyncRunnable implements Runnable {
   private void processLink(CDAEntry entry, FieldMeta field, Object value) {
     if (value != null && value instanceof CDAResource) {
       //noinspection ConstantConditions
-      saveLink(entry, field.name, (CDAResource) value);
+      saveLink(entry, field.name(), (CDAResource) value);
     } else {
-      deleteResourceLinks(entry, field.name);
+      deleteResourceLinks(entry, field.name());
     }
   }
 
   private void saveBlob(CDAEntry entry, ContentValues values, FieldMeta field, Serializable value) {
     try {
-      values.put(field.name, BlobUtils.toBlob(value));
+      values.put(field.name(), BlobUtils.toBlob(value));
     } catch (IOException e) {
       throw new RuntimeException(
           String.format("Failed converting value to BLOB for entry id %s field %s.",
-              extractResourceId(entry), field.name));
+              extractResourceId(entry), field.name()));
     }
   }
 
@@ -363,7 +365,6 @@ public final class SyncRunnable implements Runnable {
   static class Builder {
     private Context context;
     private SqliteHelper sqliteHelper;
-    private Executor callbackExecutor;
     private SyncConfig config;
     private String tag;
 
@@ -377,11 +378,6 @@ public final class SyncRunnable implements Runnable {
 
     public Builder setSqliteHelper(SqliteHelper sqliteHelper) {
       this.sqliteHelper = sqliteHelper;
-      return this;
-    }
-
-    public Builder setCallbackExecutor(Executor callbackExecutor) {
-      this.callbackExecutor = callbackExecutor;
       return this;
     }
 

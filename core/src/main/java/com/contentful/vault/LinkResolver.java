@@ -8,8 +8,9 @@ import java.util.List;
 import java.util.Map;
 
 final class LinkResolver {
-  final SqliteHelper sqliteHelper;
-  final Query<?> query;
+  private final SqliteHelper sqliteHelper;
+
+  private final Query<?> query;
 
   LinkResolver(SqliteHelper sqliteHelper, Query<?> query) {
     this.sqliteHelper = sqliteHelper;
@@ -28,16 +29,16 @@ final class LinkResolver {
 
   @SuppressWarnings("unchecked")
   private void resolveLinksForField(Resource resource, FieldMeta field) {
-    List<Link> links = fetchLinks(resource.getRemoteId(), field);
+    List<Link> links = fetchLinks(resource.remoteId(), field);
     if (links.size() == 0) {
       return;
     }
 
     List<Resource> targets = new ArrayList<Resource>();
     for (Link link : links) {
-      boolean isEntryLink = link.childContentType != null;
+      boolean isEntryLink = link.childContentType() != null;
       Map<String, Resource> cache = isEntryLink ? query.getEntriesCache() : query.getAssetsCache();
-      Resource child = cache.get(link.child);
+      Resource child = cache.get(link.child());
       if (child == null) {
         // Link target not found in cache, fetch from DB
         child = query.fetchResource(link);
@@ -51,7 +52,7 @@ final class LinkResolver {
           }
 
           // Put into cache
-          cache.put(child.getRemoteId(), child);
+          cache.put(child.remoteId(), child);
         }
       }
       if (child != null) {
@@ -62,7 +63,7 @@ final class LinkResolver {
     if (targets.size() > 0) {
       Object result = field.isArray() ? targets : targets.get(0);
       ModelHelper modelHelper = sqliteHelper.getSpaceHelper().getModels().get(resource.getClass());
-      modelHelper.setField(resource, field.name, result);
+      modelHelper.setField(resource, field.name(), result);
     }
   }
 
@@ -72,18 +73,15 @@ final class LinkResolver {
         .append(SpaceHelper.TABLE_LINKS)
         .append(" WHERE parent = ? AND field = ? AND `child_content_type` IS ");
 
-    boolean linksToAssets = CDAResourceType.Asset.toString().equals(field.linkType) ||
-        Asset.class.getName().equals(field.arrayType);
+    boolean linksToAssets = CDAResourceType.Asset.toString().equals(field.linkType()) ||
+        Asset.class.getName().equals(field.arrayType());
 
     if (!linksToAssets) {
       builder.append("NOT ");
     }
     builder.append("NULL;");
 
-    String[] args = new String[]{
-        parent,
-        field.name
-    };
+    String[] args = new String[] { parent, field.name() };
 
     List<Link> result;
     SQLiteDatabase db = sqliteHelper.getReadableDatabase();
@@ -95,7 +93,7 @@ final class LinkResolver {
           String child = cursor.getString(0);
           String childContentType = cursor.getString(1);
           do {
-            result.add(new Link(parent, child, field.name, childContentType));
+            result.add(new Link(parent, child, field.name(), childContentType));
           } while (cursor.moveToNext());
         }
       } finally {

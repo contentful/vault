@@ -13,17 +13,23 @@ public abstract class SpaceHelper {
   };
 
   static final String TABLE_ASSETS = "assets";
+
   static final String TABLE_ENTRY_TYPES = "entry_types";
+
   static final String TABLE_LINKS = "links";
+
   static final String TABLE_SYNC_INFO = "sync_info";
 
   // Static resources column indexes
   static final int COLUMN_REMOTE_ID = 0;
+
   static final int COLUMN_CREATED_AT = 1;
+
   static final int COLUMN_UPDATED_AT = 2;
 
   // Static assets column indexes
   static final int COLUMN_ASSET_URL = RESOURCE_COLUMNS.length;
+
   static final int COLUMN_ASSET_MIME_TYPE = RESOURCE_COLUMNS.length + 1;
 
   static final String CREATE_ASSETS = "CREATE TABLE `"

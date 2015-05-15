@@ -7,8 +7,8 @@ import java.util.Map;
 import static com.contentful.java.cda.Constants.CDAResourceType.DeletedAsset;
 import static com.contentful.java.cda.Constants.CDAResourceType.DeletedEntry;
 
-final class CfUtils {
-  private CfUtils() {
+final class CDAUtils {
+  private CDAUtils() {
     throw new AssertionError();
   }
 

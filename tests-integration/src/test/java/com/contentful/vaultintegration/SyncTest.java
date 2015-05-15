@@ -84,17 +84,17 @@ public class SyncTest extends BaseTest {
         .all();
 
     assertEquals(4, assets.size());
-    assertEquals("nyancat", assets.get(0).getRemoteId());
-    assertEquals("jake", assets.get(1).getRemoteId());
-    assertEquals("happycat", assets.get(2).getRemoteId());
-    assertEquals("1x0xpXu4pSGS4OukSyWGUK", assets.get(3).getRemoteId());
-    assertEquals("http://happycat.jpg", assets.get(2).getUrl());
+    assertEquals("nyancat", assets.get(0).remoteId());
+    assertEquals("jake", assets.get(1).remoteId());
+    assertEquals("happycat", assets.get(2).remoteId());
+    assertEquals("1x0xpXu4pSGS4OukSyWGUK", assets.get(3).remoteId());
+    assertEquals("http://happycat.jpg", assets.get(2).url());
 
     for (Asset asset : assets) {
-      assertNotNull(asset.getUrl());
-      assertNotNull(asset.getMimeType());
-      assertNotNull(asset.getCreatedAt());
-      assertNotNull(asset.getUpdatedAt());
+      assertNotNull(asset.url());
+      assertNotNull(asset.mimeType());
+      assertNotNull(asset.remoteId());
+      assertNotNull(asset.updatedAt());
     }
   }
 
@@ -104,17 +104,17 @@ public class SyncTest extends BaseTest {
         .all();
 
     assertEquals(3, assets.size());
-    assertEquals("nyancat", assets.get(0).getRemoteId());
-    assertEquals("happycat", assets.get(1).getRemoteId());
-    assertEquals("1x0xpXu4pSGS4OukSyWGUK", assets.get(2).getRemoteId());
+    assertEquals("nyancat", assets.get(0).remoteId());
+    assertEquals("happycat", assets.get(1).remoteId());
+    assertEquals("1x0xpXu4pSGS4OukSyWGUK", assets.get(2).remoteId());
 
-    assertEquals("http://happiercat.jpg", assets.get(1).getUrl());
+    assertEquals("http://happiercat.jpg", assets.get(1).url());
 
     for (Asset asset : assets) {
-      assertNotNull(asset.getUrl());
-      assertNotNull(asset.getMimeType());
-      assertNotNull(asset.getCreatedAt());
-      assertNotNull(asset.getUpdatedAt());
+      assertNotNull(asset.url());
+      assertNotNull(asset.mimeType());
+      assertNotNull(asset.createdAt());
+      assertNotNull(asset.updatedAt());
     }
   }
 
@@ -126,16 +126,16 @@ public class SyncTest extends BaseTest {
     assertEquals(3, cats.size());
 
     Cat nyanCat = cats.get(0);
-    assertEquals("nyancat", nyanCat.getRemoteId());
+    assertEquals("nyancat", nyanCat.remoteId());
     assertNotNull(nyanCat.image);
 
     Cat happyCat = cats.get(1);
-    assertEquals("happycat", happyCat.getRemoteId());
+    assertEquals("happycat", happyCat.remoteId());
     assertEquals("Happy Cat", happyCat.name);
     assertNotNull(happyCat.image);
 
     Cat garfield = cats.get(2);
-    assertEquals("garfield", garfield.getRemoteId());
+    assertEquals("garfield", garfield.remoteId());
     assertNotNull(garfield.image);
     assertSame(happyCat.image, garfield.image);
 
@@ -150,10 +150,10 @@ public class SyncTest extends BaseTest {
         .all();
 
     Cat happyCat = cats.get(0);
-    assertEquals("happycat", happyCat.getRemoteId());
+    assertEquals("happycat", happyCat.remoteId());
     assertEquals("Happier Cat", happyCat.name);
 
-    assertEquals("garfield", cats.get(1).getRemoteId());
-    assertEquals("supercat", cats.get(2).getRemoteId());
+    assertEquals("garfield", cats.get(1).remoteId());
+    assertEquals("supercat", cats.get(2).remoteId());
   }
 }

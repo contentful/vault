@@ -3,12 +3,21 @@ package com.contentful.vault;
 import com.contentful.java.cda.CDAClient;
 
 public final class SyncConfig {
-  final CDAClient client;
-  final String locale;
+  private final CDAClient client;
+
+  private final String locale;
 
   private SyncConfig(Builder builder) {
     this.client = builder.client;
     this.locale = builder.locale;
+  }
+
+  public CDAClient client() {
+    return client;
+  }
+
+  public String locale() {
+    return locale;
   }
 
   public static Builder builder() {

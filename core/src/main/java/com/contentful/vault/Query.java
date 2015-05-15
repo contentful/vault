@@ -10,16 +10,27 @@ import java.util.Map;
 
 public final class Query<T extends Resource> {
   private final Vault vault;
+
   private final SqliteHelper sqliteHelper;
+
   private final String tableName;
+
   private final Class<T> clazz;
+
   private final List<FieldMeta> fields;
+
   private final Map<String, Resource> assets = new LinkedHashMap<String, Resource>();
+
   private final Map<String, Resource> entries = new LinkedHashMap<String, Resource>();
+
   private String whereClause;
+
   private String[] whereArgs;
+
   private Integer limit;
+
   private String[] order;
+
   private String[] queryArgs;
 
   public Query(Vault vault, SqliteHelper sqliteHelper, Class<T> clazz, String tableName,
@@ -63,7 +74,7 @@ public final class Query<T extends Resource> {
               } else {
                 map = entries;
               }
-              map.put(resource.getRemoteId(), resource);
+              map.put(resource.remoteId(), resource);
               result.add(resource);
             }
           } while (cursor.moveToNext());
@@ -100,7 +111,7 @@ public final class Query<T extends Resource> {
       if (result != null) {
         boolean isAsset = SpaceHelper.TABLE_ASSETS.equals(tableName);
         Map<String, Resource> map = isAsset ? assets : entries;
-        map.put(result.remoteId, result);
+        map.put(result.remoteId(), result);
         if (resolveLinks) {
           resolveLinks(result, createLinkResolver());
         }
@@ -114,15 +125,15 @@ public final class Query<T extends Resource> {
   Resource fetchResource(Link link) {
     Resource resource = null;
     Class<?> clazz;
-    if (link.childContentType == null) {
+    if (link.childContentType() == null) {
       clazz = Asset.class;
     } else {
-      clazz = sqliteHelper.getSpaceHelper().getTypes().get(link.childContentType);
+      clazz = sqliteHelper.getSpaceHelper().getTypes().get(link.childContentType());
     }
     if (clazz != null) {
       //noinspection unchecked
       resource = vault.fetch((Class<? extends Resource>) clazz)
-          .where("remote_id = ?", link.child)
+          .where("remote_id = ?", link.child())
           .first(false);
     }
     return resource;

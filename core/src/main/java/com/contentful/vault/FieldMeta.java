@@ -3,17 +3,17 @@ package com.contentful.vault;
 import javax.lang.model.type.TypeMirror;
 
 public final class FieldMeta {
-  final String id;
+  private final String id;
 
-  final String name;
+  private final String name;
 
-  final TypeMirror type;
+  private final TypeMirror type;
 
-  final String sqliteType;
+  private final String sqliteType;
 
-  final String linkType;
+  private final String linkType;
 
-  final String arrayType;
+  private final String arrayType;
 
   private FieldMeta(Builder builder) {
     this.id = builder.id;

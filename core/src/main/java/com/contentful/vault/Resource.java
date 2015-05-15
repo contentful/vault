@@ -1,33 +1,33 @@
 package com.contentful.vault;
 
 public abstract class Resource {
-  String remoteId;
+  private String remoteId;
 
-  String createdAt;
+  private String createdAt;
 
-  String updatedAt;
+  private String updatedAt;
 
-  public String getRemoteId() {
+  public String remoteId() {
     return remoteId;
   }
 
-  public void setRemoteId(String remoteId) {
-    this.remoteId = remoteId;
-  }
-
-  public String getCreatedAt() {
+  public String createdAt() {
     return createdAt;
   }
 
-  public void setCreatedAt(String createdAt) {
-    this.createdAt = createdAt;
-  }
-
-  public String getUpdatedAt() {
+  public String updatedAt() {
     return updatedAt;
   }
 
-  public void setUpdatedAt(String updatedAt) {
+  void setRemoteId(String remoteId) {
+    this.remoteId = remoteId;
+  }
+
+  void setCreatedAt(String createdAt) {
+    this.createdAt = createdAt;
+  }
+
+  void setUpdatedAt(String updatedAt) {
     this.updatedAt = updatedAt;
   }
 }

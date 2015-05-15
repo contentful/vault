@@ -6,5 +6,6 @@ public final class Constants {
   }
 
   public static final String SUFFIX_SPACE = "$$SpaceHelper";
+
   public static final String SUFFIX_MODEL = "$$ModelHelper";
 }
