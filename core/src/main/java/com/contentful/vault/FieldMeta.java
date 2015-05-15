@@ -1,18 +1,51 @@
 package com.contentful.vault;
 
+import javax.lang.model.type.TypeMirror;
+
 public final class FieldMeta {
   final String id;
+
   final String name;
+
+  final TypeMirror type;
+
   final String sqliteType;
+
   final String linkType;
+
   final String arrayType;
 
   private FieldMeta(Builder builder) {
     this.id = builder.id;
     this.name = builder.name;
+    this.type = builder.type;
     this.sqliteType = builder.sqliteType;
     this.linkType = builder.linkType;
     this.arrayType = builder.arrayType;
+  }
+
+  public String id() {
+    return id;
+  }
+
+  public String name() {
+    return name;
+  }
+
+  public TypeMirror type() {
+    return type;
+  }
+
+  public String sqliteType() {
+    return sqliteType;
+  }
+
+  public String linkType() {
+    return linkType;
+  }
+
+  public String arrayType() {
+    return arrayType;
   }
 
   public boolean isLink() {
@@ -41,11 +74,17 @@ public final class FieldMeta {
   }
 
   public static class Builder {
-    String id;
-    String name;
-    String sqliteType;
-    String linkType;
-    String arrayType;
+    private String id;
+
+    private String name;
+
+    private TypeMirror type;
+
+    private String sqliteType;
+
+    private String linkType;
+
+    private String arrayType;
 
     private Builder() {
     }
@@ -57,6 +96,11 @@ public final class FieldMeta {
 
     public Builder setName(String name) {
       this.name = name;
+      return this;
+    }
+
+    public Builder setType(TypeMirror type) {
+      this.type = type;
       return this;
     }
 

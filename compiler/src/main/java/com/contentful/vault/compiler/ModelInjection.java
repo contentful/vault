@@ -20,14 +20,14 @@ import javax.lang.model.element.TypeElement;
 
 final class ModelInjection extends Injection {
   final String sqlTableName;
-  final Set<ModelMember> members;
+  final Set<FieldMeta> fields;
   private FieldSpec specFields;
 
   public ModelInjection(String remoteId, ClassName className, TypeElement originatingElement,
-      String sqlTableName, Set<ModelMember> members) {
+      String sqlTableName, Set<FieldMeta> fields) {
     super(remoteId, className, originatingElement);
     this.sqlTableName = sqlTableName;
-    this.members = members;
+    this.fields = fields;
   }
 
   @Override TypeSpec.Builder getTypeSpecBuilder() {
@@ -53,7 +53,7 @@ final class ModelInjection extends Injection {
   private void appendConstructor(TypeSpec.Builder builder) {
     MethodSpec.Builder ctor = MethodSpec.constructorBuilder().addModifiers(Modifier.PUBLIC);
 
-    for (ModelMember m : members) {
+    for (FieldMeta f : fields) {
       StringBuilder statement = new StringBuilder();
       List args = new ArrayList();
 
@@ -62,24 +62,24 @@ final class ModelInjection extends Injection {
       args.add(ClassName.get(FieldMeta.class));
 
       statement.append(".setId($S)");
-      args.add(m.id);
+      args.add(f.id());
 
       statement.append(".setName($S)");
-      args.add(m.fieldName);
+      args.add(f.name());
 
-      if (m.sqliteType != null) {
+      if (f.sqliteType() != null) {
         statement.append(".setSqliteType($S)");
-        args.add(m.sqliteType);
+        args.add(f.sqliteType());
       }
 
-      if (m.isLink()) {
+      if (f.isLink()) {
         statement.append(".setLinkType($S)");
-        args.add(m.linkType);
+        args.add(f.linkType());
       }
 
-      if (m.isArray()) {
+      if (f.isArray()) {
         statement.append(".setArrayType($S)");
-        args.add(m.arrayType);
+        args.add(f.arrayType());
       }
 
       statement.append(".build())");
@@ -103,15 +103,15 @@ final class ModelInjection extends Injection {
         .addParameter(ParameterSpec.builder(ClassName.get(String.class), "name").build())
         .addParameter(ParameterSpec.builder(ClassName.get(Object.class), "value").build());
 
-    ModelMember[] array = members.toArray(new ModelMember[members.size()]);
+    FieldMeta[] array = fields.toArray(new FieldMeta[fields.size()]);
     for (int i = 0; i < array.length; i++) {
-      ModelMember member = array[i];
+      FieldMeta field = array[i];
       if (i == 0) {
-        method.beginControlFlow("if ($S.equals(name))", member.fieldName);
+        method.beginControlFlow("if ($S.equals(name))", field.name());
       } else {
-        method.endControlFlow().beginControlFlow("else if ($S.equals(name))", member.fieldName);
+        method.endControlFlow().beginControlFlow("else if ($S.equals(name))", field.name());
       }
-      method.addStatement("resource.$L = ($T) value", member.fieldName, member.element.asType());
+      method.addStatement("resource.$L = ($T) value", field.name(), field.type());
     }
     method.endControlFlow()
         .beginControlFlow("else")
@@ -135,25 +135,27 @@ final class ModelInjection extends Injection {
     String result = "result";
     method.addStatement("$T $N = new $T()", modelClassName, result, modelClassName);
 
-    List<ModelMember> nonLinkMembers = extractFieldMembers();
-    for (int i = 0; i < nonLinkMembers.size(); i++) {
-      ModelMember member = nonLinkMembers.get(i);
+    List<FieldMeta> nonLinkFields = extractNonLinkFields();
+    for (int i = 0; i < nonLinkFields.size(); i++) {
+      FieldMeta field = nonLinkFields.get(i);
       int columnIndex = SpaceHelper.RESOURCE_COLUMNS.length + i;
-      String typeNameString = member.element.asType().toString();
-      if (String.class.getName().equals(typeNameString)) {
-        method.addStatement("$N.$L = cursor.getString($L)", result, member.fieldName, columnIndex);
-      } else if (Boolean.class.getName().equals(typeNameString)) {
+      String fqClassName = field.type().toString();
+      String name = field.name();
+
+      if (String.class.getName().equals(fqClassName)) {
+        method.addStatement("$N.$L = cursor.getString($L)", result, name, columnIndex);
+      } else if (Boolean.class.getName().equals(fqClassName)) {
         method.addStatement("$N.$L = Integer.valueOf(1).equals(cursor.getInt($L))", result,
-            member.fieldName, columnIndex);
-      } else if (Integer.class.getName().equals(typeNameString)) {
-        method.addStatement("$N.$L = cursor.getInt($L)", result, member.fieldName, columnIndex);
-      } else if (Double.class.getName().equals(typeNameString)) {
-        method.addStatement("$N.$L = cursor.getDouble($L)", result, member.fieldName, columnIndex);
-      } else if (Map.class.getName().equals(typeNameString)) {
-        method.addStatement("$N.$L = fieldFromBlob($T.class, cursor, $L)", result, member.fieldName,
+            name, columnIndex);
+      } else if (Integer.class.getName().equals(fqClassName)) {
+        method.addStatement("$N.$L = cursor.getInt($L)", result, name, columnIndex);
+      } else if (Double.class.getName().equals(fqClassName)) {
+        method.addStatement("$N.$L = cursor.getDouble($L)", result, name, columnIndex);
+      } else if (Map.class.getName().equals(fqClassName)) {
+        method.addStatement("$N.$L = fieldFromBlob($T.class, cursor, $L)", result, name,
             ClassName.get(HashMap.class), columnIndex);
-      } else if (member.isArrayOfSymbols()) {
-        method.addStatement("$N.$L = fieldFromBlob($T.class, cursor, $L)", result, member.fieldName,
+      } else if (field.isArrayOfSymbols()) {
+        method.addStatement("$N.$L = fieldFromBlob($T.class, cursor, $L)", result, name,
             ClassName.get(ArrayList.class), columnIndex);
       }
     }
@@ -214,31 +216,31 @@ final class ModelInjection extends Injection {
       }
     }
 
-    List<ModelMember> list = extractFieldMembers();
+    List<FieldMeta> list = extractNonLinkFields();
     for (int i = 0; i < list.size(); i++) {
-      ModelMember member = list.get(i);
+      FieldMeta f = list.get(i);
       builder.append(", `")
-          .append(member.fieldName)
+          .append(f.name())
           .append("` ")
-          .append(member.sqliteType);
+          .append(f.sqliteType());
     }
     builder.append(");");
     statements.add(builder.toString());
     return statements;
   }
 
-  List<ModelMember> extractFieldMembers() {
-    List<ModelMember> result = new ArrayList<ModelMember>();
-    for (ModelMember member : members) {
+  List<FieldMeta> extractNonLinkFields() {
+    List<FieldMeta> result = new ArrayList<FieldMeta>();
+    for (FieldMeta f : fields) {
       // Skip links
-      if (member.isLink()) {
+      if (f.isLink()) {
         continue;
       }
       // Skip arrays of links
-      if (member.arrayType != null && !String.class.getName().equals(member.arrayType.toString())) {
+      if (f.isArray() && !f.isArrayOfSymbols()) {
         continue;
       }
-      result.add(member);
+      result.add(f);
     }
     return result;
   }

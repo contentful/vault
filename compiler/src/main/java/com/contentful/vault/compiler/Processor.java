@@ -4,6 +4,7 @@ import com.contentful.java.cda.Constants.CDAResourceType;
 import com.contentful.vault.Asset;
 import com.contentful.vault.ContentType;
 import com.contentful.vault.Field;
+import com.contentful.vault.FieldMeta;
 import com.contentful.vault.Resource;
 import com.contentful.vault.Space;
 import com.google.common.base.Joiner;
@@ -70,9 +71,8 @@ public class Processor extends AbstractProcessor {
         Injection injection = entry.getValue();
         injection.brewJava().writeTo(filer);
       } catch (Exception e) {
-        error(typeElement,
-            "Failed writing injection for \"" + typeElement.getQualifiedName() + "\", message: ",
-            e.getMessage());
+        error(typeElement, "Failed writing injection for \"%s\", message: %s",
+            typeElement.getQualifiedName(), e.getMessage());
       }
     }
     return true;
@@ -184,7 +184,7 @@ public class Processor extends AbstractProcessor {
       return;
     }
 
-    Set<ModelMember> members = new LinkedHashSet<ModelMember>();
+    Set<FieldMeta> fields = new LinkedHashSet<FieldMeta>();
     Set<String> memberIds = new LinkedHashSet<String>();
     for (Element enclosedElement : element.getEnclosedElements()) {
       Field field = enclosedElement.getAnnotation(Field.class);
@@ -204,7 +204,7 @@ public class Processor extends AbstractProcessor {
         return;
       }
 
-      ModelMember.Builder memberBuilder = ModelMember.builder();
+      FieldMeta.Builder fieldBuilder = FieldMeta.builder();
       if (isList(enclosedElement)) {
         DeclaredType declaredType = (DeclaredType) enclosedElement.asType();
         List<? extends TypeMirror> typeArguments = declaredType.getTypeArguments();
@@ -230,8 +230,7 @@ public class Processor extends AbstractProcessor {
           sqliteType = SqliteUtils.typeForClass(List.class.getName());
         }
 
-        memberBuilder.setSqliteType(sqliteType)
-            .setArrayType(arrayType);
+        fieldBuilder.setSqliteType(sqliteType).setArrayType(arrayType.toString());
       } else {
         TypeMirror enclosedType = enclosedElement.asType();
         String linkType = getLinkType(enclosedType);
@@ -249,13 +248,13 @@ public class Processor extends AbstractProcessor {
           }
         }
 
-        memberBuilder.setSqliteType(sqliteType)
+        fieldBuilder.setSqliteType(sqliteType)
             .setLinkType(linkType);
       }
 
-      members.add(memberBuilder.setId(fieldId)
-          .setFieldName(enclosedElement.getSimpleName().toString())
-          .setFieldElement(enclosedElement)
+      fields.add(fieldBuilder.setId(fieldId)
+          .setName(enclosedElement.getSimpleName().toString())
+          .setType(enclosedElement.asType())
           .build());
     }
 
@@ -263,7 +262,7 @@ public class Processor extends AbstractProcessor {
     String tableName = "entry_" + SqliteUtils.hashForId(id);
 
     ModelInjection injection =
-        new ModelInjection(id, injectionClassName, element, tableName, members);
+        new ModelInjection(id, injectionClassName, element, tableName, fields);
 
     targets.put(element, injection);
   }
@@ -304,16 +303,6 @@ public class Processor extends AbstractProcessor {
     }
 
     return resourceType.toString();
-  }
-
-  private boolean hasInjection(Map<TypeElement, ? extends Injection> targets,
-      String id, Class<? extends Injection> injectionClass) {
-    for (Injection target : targets.values()) {
-      if (id.equals(target.remoteId) && injectionClass.isInstance(target)) {
-        return true;
-      }
-    }
-    return false;
   }
 
   private void parsingError(Element element, Class<? extends Annotation> annotation, Exception e) {
