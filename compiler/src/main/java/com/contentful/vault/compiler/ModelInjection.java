@@ -5,6 +5,7 @@ import com.contentful.vault.ModelHelper;
 import com.contentful.vault.SpaceHelper;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
@@ -54,37 +55,27 @@ final class ModelInjection extends Injection {
     MethodSpec.Builder ctor = MethodSpec.constructorBuilder().addModifiers(Modifier.PUBLIC);
 
     for (FieldMeta f : fields) {
-      StringBuilder statement = new StringBuilder();
-      List args = new ArrayList();
+      CodeBlock.Builder block = CodeBlock.builder();
 
-      statement.append("$N.add($T.builder()");
-      args.add(specFields);
-      args.add(ClassName.get(FieldMeta.class));
-
-      statement.append(".setId($S)");
-      args.add(f.id());
-
-      statement.append(".setName($S)");
-      args.add(f.name());
+      block.add("$N.add($T.builder()", specFields, ClassName.get(FieldMeta.class))
+          .add(".setId($S)", f.id())
+          .add(".setName($S)", f.name());
 
       if (f.sqliteType() != null) {
-        statement.append(".setSqliteType($S)");
-        args.add(f.sqliteType());
+        block.add(".setSqliteType($S)", f.sqliteType());
       }
 
       if (f.isLink()) {
-        statement.append(".setLinkType($S)");
-        args.add(f.linkType());
+        block.add(".setLinkType($S)", f.linkType());
       }
 
       if (f.isArray()) {
-        statement.append(".setArrayType($S)");
-        args.add(f.arrayType());
+        block.add(".setArrayType($S)", f.arrayType());
       }
 
-      statement.append(".build())");
+      block.add(".build());\n");
 
-      ctor.addStatement(statement.toString(), args.toArray());
+      ctor.addCode(block.build());
     }
 
     builder.addMethod(ctor.build());

@@ -41,7 +41,9 @@ import static javax.tools.Diagnostic.Kind.ERROR;
 
 public class Processor extends AbstractProcessor {
   private Elements elementUtils;
+
   private Types typeUtils;
+
   private Filer filer;
 
   @Override public Set<String> getSupportedAnnotationTypes() {
