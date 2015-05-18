@@ -21,6 +21,30 @@
     <module>tests-integration</module>
   </modules>
 
+  <scm>
+    <url>http://github.com/contentful/vault/</url>
+    <connection>scm:git:git://github.com/contentful/vault.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/contentful/vault.git</developerConnection>
+    <tag>HEAD</tag>
+  </scm>
+
+  <issueManagement>
+    <system>GitHub Issues</system>
+    <url>http://github.com/contentful/vault/issues</url>
+  </issueManagement>
+
+  <licenses>
+    <license>
+      <name>Apache 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+    </license>
+  </licenses>
+
+  <organization>
+    <name>Contentful, GmbH.</name>
+    <url>http://contentful.com.com</url>
+  </organization>
+
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <java.version>1.6</java.version>
