@@ -108,7 +108,7 @@ class SomeActivity extends Activity {
 Vault provides a wrapper around it's generated database which can be easily used to fetch persisted objects, some examples:
 
 ```java
-Vault vault = Vault.with(conext, DemoSpace.class);
+Vault vault = Vault.with(context, DemoSpace.class);
 
 // Fetch the first Cat
 vault.fetch(Cat.class)
