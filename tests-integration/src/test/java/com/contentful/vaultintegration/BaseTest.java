@@ -17,7 +17,6 @@ import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
-import retrofit.RestAdapter;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest = "src/main/AndroidManifest.xml")
@@ -42,7 +41,6 @@ public abstract class BaseTest {
 
   protected void setupClient() {
     client = new CDAClient.Builder()
-        .setLogLevel(RestAdapter.LogLevel.FULL)
         .setSpaceKey("space")
         .setAccessToken("token")
         .setEndpoint(getServerUrl())

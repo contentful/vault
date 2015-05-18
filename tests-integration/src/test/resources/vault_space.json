@@ -1,0 +1,19 @@
+{
+  "sys": {
+    "type": "Space",
+    "id": "y005y7p7nrqo"
+  },
+  "name": "Vault Test Space",
+  "locales": [
+    {
+      "code": "en-US",
+      "default": true,
+      "name": "U.S. English"
+    },
+    {
+      "code": "es-ES",
+      "default": false,
+      "name": "Spanish"
+    }
+  ]
+}

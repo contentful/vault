@@ -43,7 +43,7 @@ public final class Query<T extends Resource> {
   }
 
   public Query<T> where(String expression, String... args) {
-    this.whereClause = expression; // TODO replace field names
+    this.whereClause = expression;
     this.whereArgs = args;
     return this;
   }
