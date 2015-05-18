@@ -1,6 +1,6 @@
 # Vault
 
-[![Build Status](https://travis-ci.org/contentful/vault.java.svg)](https://travis-ci.org/contentful/vault/builds#)
+[![Build Status](https://travis-ci.org/contentful/vault.svg)](https://travis-ci.org/contentful/vault/builds#)
 
 Easy persistence of Contentful data for Android over SQLite.
 
