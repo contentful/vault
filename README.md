@@ -131,6 +131,18 @@ vault.fetch(Cat.class)
 ```
 
 
+### Migrations
+
+Whenever changes are introduced to any of the previously used models, a migration has to be applied. Simply increment the version number for your space to trigger a migration:
+
+```java
+@Space(value = "cfexampleapi", models = { Cat.class }, dbVersion = 2)
+public class DemoSpace { }
+```
+
+Note: this will delete any previously persisted data.
+
+
 License
 -------
 
