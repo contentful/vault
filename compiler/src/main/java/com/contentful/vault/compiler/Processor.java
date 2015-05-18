@@ -114,7 +114,8 @@ public class Processor extends AbstractProcessor {
   private void parseSpace(TypeElement element, Map<TypeElement, SpaceInjection> spaceTargets,
       Map<TypeElement, ModelInjection> modelTargets) {
 
-    String id = element.getAnnotation(Space.class).value();
+    Space annotation = element.getAnnotation(Space.class);
+    String id = annotation.value();
     if (id.isEmpty()) {
       error(element, "@%s id may not be empty. (%s)",
           Space.class.getSimpleName(),
@@ -163,9 +164,9 @@ public class Processor extends AbstractProcessor {
 
     ClassName injectionClassName = getInjectionClassName(element, SUFFIX_SPACE);
     String dbName = "space_" + SqliteUtils.hashForId(id);
+    int dbVersion = annotation.dbVersion();
     SpaceInjection injection =
-        new SpaceInjection(id, injectionClassName, element, includedModels, dbName);
-
+        new SpaceInjection(id, injectionClassName, element, includedModels, dbName, dbVersion);
     spaceTargets.put(element, injection);
   }
 

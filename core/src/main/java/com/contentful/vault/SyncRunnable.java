@@ -161,29 +161,11 @@ public final class SyncRunnable implements Runnable {
       if (cursor.moveToFirst()) {
         String previousLocale = cursor.getString(0);
         if (!StringUtils.equals(config.locale(), previousLocale)) {
-          clearDb();
+          SqliteHelper.clearRecords(spaceHelper, db);
         }
       }
     } finally {
       cursor.close();
-    }
-  }
-
-  // TODO move to SqliteHelper
-  private void clearDb() {
-    db.beginTransaction();
-    try {
-      for (String name : SpaceHelper.DEFAULT_TABLES) {
-        db.delete(name, null, null);
-      }
-
-      for (ModelHelper<?> modelHelper : spaceHelper.getModels().values()) {
-        db.delete(modelHelper.getTableName(), null, null);
-      }
-
-      db.setTransactionSuccessful();
-    } finally {
-      db.endTransaction();
     }
   }
 

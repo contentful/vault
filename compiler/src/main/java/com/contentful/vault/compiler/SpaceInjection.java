@@ -19,15 +19,18 @@ final class SpaceInjection extends Injection {
 
   private final String dbName;
 
+  private final int dbVersion;
+
   private FieldSpec specModels;
 
   private FieldSpec specTypes;
 
   public SpaceInjection(String remoteId, ClassName className, TypeElement originatingElement,
-      List<ModelInjection> models, String dbName) {
+      List<ModelInjection> models, String dbName, int dbVersion) {
     super(remoteId, className, originatingElement);
     this.models = models;
     this.dbName = dbName;
+    this.dbVersion = dbVersion;
   }
 
   @Override TypeSpec.Builder getTypeSpecBuilder() {
@@ -98,7 +101,7 @@ final class SpaceInjection extends Injection {
     builder.addMethod(MethodSpec.methodBuilder("getDatabaseVersion")
         .returns(int.class)
         .addAnnotation(Override.class)
-        .addModifiers(Modifier.PUBLIC).addStatement("return $L", 1) // TODO
+        .addModifiers(Modifier.PUBLIC).addStatement("return $L", dbVersion)
         .build());
   }
 

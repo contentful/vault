@@ -4,9 +4,10 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import java.util.ArrayList;
+import java.util.List;
 
-// TODO package-local
-public final class SqliteHelper extends SQLiteOpenHelper {
+final class SqliteHelper extends SQLiteOpenHelper {
   private final SpaceHelper spaceHelper;
 
   public SqliteHelper(Context context, SpaceHelper spaceHelper) {
@@ -17,14 +18,7 @@ public final class SqliteHelper extends SQLiteOpenHelper {
   @Override public void onCreate(SQLiteDatabase db) {
     db.beginTransaction();
     try {
-      for (String sql : SpaceHelper.DEFAULT_CREATE) {
-        db.execSQL(sql);
-      }
-      for (ModelHelper<?> modelHelper : spaceHelper.getModels().values()) {
-        for (String sql : modelHelper.getCreateStatements()) {
-          db.execSQL(sql);
-        }
-      }
+      execCreate(spaceHelper, db);
       db.setTransactionSuccessful();
     } finally {
       db.endTransaction();
@@ -32,7 +26,63 @@ public final class SqliteHelper extends SQLiteOpenHelper {
   }
 
   @Override public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-    // TODO clear db
+    deleteTables(db);
+    onCreate(db);
+  }
+
+  static void execCreate(SpaceHelper helper, SQLiteDatabase db) {
+    for (String sql : SpaceHelper.DEFAULT_CREATE) {
+      db.execSQL(sql);
+    }
+    for (ModelHelper<?> modelHelper : helper.getModels().values()) {
+      for (String sql : modelHelper.getCreateStatements()) {
+        db.execSQL(sql);
+      }
+    }
+  }
+
+  static void clearRecords(SpaceHelper helper, SQLiteDatabase db) {
+    db.beginTransaction();
+    try {
+      for (String name : SpaceHelper.DEFAULT_TABLES) {
+        db.delete(name, null, null);
+      }
+      for (ModelHelper<?> modelHelper : helper.getModels().values()) {
+        db.delete(modelHelper.getTableName(), null, null);
+      }
+      db.setTransactionSuccessful();
+    } finally {
+      db.endTransaction();
+    }
+  }
+
+  static void deleteTables(SQLiteDatabase db) {
+    String[] columns = new String[] { "name" };
+    String selection = "type = ? AND name != ?";
+    String[] args = new String[] { "table", "android_metadata" };
+    Cursor cursor = db.query("sqlite_master", columns, selection, args, null, null, null);
+    List<String> tables = null;
+    try {
+      if (cursor.moveToFirst()) {
+        tables = new ArrayList<String>();
+        do {
+          tables.add(cursor.getString(0));
+        } while (cursor.moveToNext());
+      }
+    } finally {
+      cursor.close();
+    }
+    if (tables != null) {
+      db.beginTransaction();
+      try {
+        for (String table : tables) {
+          db.execSQL("DROP TABLE " + table);
+        }
+        db.setTransactionSuccessful();
+      } finally {
+        db.endTransaction();
+      }
+    }
   }
 
   @SuppressWarnings("unchecked")
