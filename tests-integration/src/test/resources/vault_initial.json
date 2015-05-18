@@ -1,0 +1,204 @@
+{
+  "sys": {
+    "type": "Array"
+  },
+  "items": [
+    {
+      "sys": {
+        "space": {
+          "sys": {
+            "type": "Link",
+            "linkType": "Space",
+            "id": "y005y7p7nrqo"
+          }
+        },
+        "type": "Entry",
+        "contentType": {
+          "sys": {
+            "type": "Link",
+            "linkType": "ContentType",
+            "id": "6yhJBtk1nUYq0iumy6gMY4"
+          }
+        },
+        "id": "32CFKK4sjKSM8KWoMEigwM",
+        "revision": 2,
+        "createdAt": "2015-05-11T13:23:19.498Z",
+        "updatedAt": "2015-05-11T13:23:41.412Z"
+      },
+      "fields": {
+        "text": {
+          "en-US": "english",
+          "es-ES": "español"
+        }
+      }
+    },
+    {
+      "sys": {
+        "space": {
+          "sys": {
+            "type": "Link",
+            "linkType": "Space",
+            "id": "y005y7p7nrqo"
+          }
+        },
+        "type": "Entry",
+        "contentType": {
+          "sys": {
+            "type": "Link",
+            "linkType": "ContentType",
+            "id": "4rD4z2Ex0kEOgeWCWG4Se2"
+          }
+        },
+        "id": "u2L1goyi3eA4W0AKcqEou",
+        "revision": 1,
+        "createdAt": "2015-04-30T09:20:36.286Z",
+        "updatedAt": "2015-04-30T09:20:36.286Z"
+      },
+      "fields": {
+        "symbols": {
+          "en-US": [
+            "a",
+            "b",
+            "c"
+          ]
+        },
+        "assets": {
+          "en-US": [
+            {
+              "sys": {
+                "type": "Link",
+                "linkType": "Asset",
+                "id": "1yj8f2uFEgGEkuqeoGIQws"
+              }
+            },
+            {
+              "sys": {
+                "type": "Link",
+                "linkType": "Asset",
+                "id": "2cMA1o04G42KGoQioOqqUA"
+              }
+            }
+          ]
+        },
+        "blobs": {
+          "en-US": [
+            {
+              "sys": {
+                "type": "Link",
+                "linkType": "Entry",
+                "id": "6tOdhkd6Ewekq8M6MQe4GY"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "sys": {
+        "space": {
+          "sys": {
+            "type": "Link",
+            "linkType": "Space",
+            "id": "y005y7p7nrqo"
+          }
+        },
+        "type": "Entry",
+        "contentType": {
+          "sys": {
+            "type": "Link",
+            "linkType": "ContentType",
+            "id": "1HRG7uai2g8YMswwqoAaC8"
+          }
+        },
+        "id": "6tOdhkd6Ewekq8M6MQe4GY",
+        "revision": 4,
+        "createdAt": "2015-04-27T14:56:36.713Z",
+        "updatedAt": "2015-04-30T09:20:17.339Z"
+      },
+      "fields": {
+        "object": {
+          "en-US": {
+            "fieldString": "hello",
+            "fieldInteger": 31337,
+            "fieldFloat": 3.1337,
+            "fieldBoolean": true,
+            "fieldMap": {
+              "key": "value"
+            }
+          }
+        }
+      }
+    },
+    {
+      "sys": {
+        "space": {
+          "sys": {
+            "type": "Link",
+            "linkType": "Space",
+            "id": "y005y7p7nrqo"
+          }
+        },
+        "type": "Asset",
+        "id": "1yj8f2uFEgGEkuqeoGIQws",
+        "revision": 1,
+        "createdAt": "2015-04-28T12:11:11.683Z",
+        "updatedAt": "2015-04-28T12:11:11.683Z"
+      },
+      "fields": {
+        "file": {
+          "en-US": {
+            "fileName": "jake.png",
+            "contentType": "image/png",
+            "details": {
+              "image": {
+                "width": 100,
+                "height": 161
+              },
+              "size": 20480
+            },
+            "url": "//images.contentful.com/y005y7p7nrqo/1yj8f2uFEgGEkuqeoGIQws/8787e09f322e17c089cbe4d4af6f4dbf/jake.png"
+          }
+        },
+        "title": {
+          "en-US": "jake"
+        }
+      }
+    },
+    {
+      "sys": {
+        "space": {
+          "sys": {
+            "type": "Link",
+            "linkType": "Space",
+            "id": "y005y7p7nrqo"
+          }
+        },
+        "type": "Asset",
+        "id": "2cMA1o04G42KGoQioOqqUA",
+        "revision": 1,
+        "createdAt": "2015-04-28T12:10:46.283Z",
+        "updatedAt": "2015-04-28T12:10:46.283Z"
+      },
+      "fields": {
+        "title": {
+          "en-US": "doge"
+        },
+        "file": {
+          "en-US": {
+            "fileName": "doge.jpg",
+            "contentType": "image/jpeg",
+            "details": {
+              "image": {
+                "width": 5800,
+                "height": 4350
+              },
+              "size": 522943
+            },
+            "url": "//images.contentful.com/y005y7p7nrqo/2cMA1o04G42KGoQioOqqUA/a43a19999ac4a5fd310d176ad40a5b14/doge.jpg"
+          }
+        }
+      }
+    }
+  ],
+  "nextSyncUrl": "http://cdn.contentful.com/spaces/y005y7p7nrqo/sync?sync_token=w5ZGw6JFwqZmVcKsE8Kow4grw45QdybCvwHDqkdpw6ciw5Qsw5_CrMOTTFbClcOewrHDmVTDqcKRFQAFw7HCsMOww6YwBznCi8K9G8OtwpHCrDQXSsOobsKlw646QcOoWsOiK2JRH8Kkw7zCkEXDrgoeScOFMHQ"
+}

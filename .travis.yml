@@ -1,0 +1,31 @@
+language: android
+
+jdk:
+  - oraclejdk7
+  - oraclejdk8
+
+android:
+  components:
+    - build-tools-20.0.0
+    - android-16
+  licenses:
+    - android-sdk-license-5be876d5
+
+sudo: false
+
+env:
+  global:
+    - secure: T+KVFXBl2zLLmyhJCU7OVCpVNlPEX7tstWDeYMXUYcAY7BN4GlpgLvlzjJ12O3xtu72nDghYUiAcwu3AalIHhTcloiHpyO132mBwTE4SsroE9WnfqITKPg8JWNM8kJkSQ9R+7bx5z0MijID0odHhUkKgFdjEfU6EN8YR5yaNlG8=
+    - secure: VCqX1hkvlO1sQBo5hbiNe6lQsJyir4eSZF5J3L7MMYRXFP0OhIanQwNYVuN+xRU9bX4TmV/J4Ej+O6Jj7dJjXZphH5lRI6GCd7ihcFV5lXNzSnful0iw7UMSaES2w1OwIpwH3qAuHv0WIOqqeP5z+6Ue4AuO4fqIfCkVuiPy3DI=
+
+branches:
+  except:
+    - gh-pages
+
+after_success:
+  - .buildscript/deploy_snapshot.sh
+# TODO mvn clean cobertura:cobertura coveralls:report
+
+cache:
+  directories:
+    - $HOME/.m2
