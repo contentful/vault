@@ -97,7 +97,7 @@ class SomeActivity extends Activity {
   }
   
   @Override protected void onDestroy() {
-    callback.cancel();
+    Vault.cancel(callback);
     super.onDestroy();
   }
 }
