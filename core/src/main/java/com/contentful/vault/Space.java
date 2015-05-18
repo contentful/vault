@@ -12,4 +12,6 @@ public @interface Space {
   String value();
 
   Class<?>[] models();
+
+  int dbVersion() default 1;
 }
