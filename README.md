@@ -103,7 +103,7 @@ class SomeActivity extends Activity {
 
 ### Queries
 
-Vault provides an wrapper around it's generated database which can be easily used to fetch persisted objects, some examples:
+Vault provides a wrapper around it's generated database which can be easily used to fetch persisted objects, some examples:
 
 ```java
 Vault vault = Vault.with(conext, DemoSpace.class);
