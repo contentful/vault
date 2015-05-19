@@ -16,7 +16,9 @@
 
 package com.contentful.vault;
 
-public abstract class Resource {
+import java.io.Serializable;
+
+public abstract class Resource implements Serializable {
   private String remoteId;
 
   private String createdAt;
