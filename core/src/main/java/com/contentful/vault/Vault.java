@@ -17,6 +17,7 @@
 package com.contentful.vault;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -142,6 +143,10 @@ public class Vault {
       fields = modelHelper.getFields();
     }
     return new Query<T>(this, sqliteHelper, resource, tableName, fields);
+  }
+
+  public SQLiteDatabase getReadableDatabase() {
+    return getOrCreateSqliteHelper(context, space).getReadableDatabase();
   }
 
   private <T extends Resource> ModelHelper<?> getModelHelperOrThrow(SpaceHelper spaceHelper,
