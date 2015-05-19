@@ -89,9 +89,9 @@ final class LinkResolver {
     result = new ArrayList<Link>();
     try {
       if (cursor.moveToFirst()) {
-        String child = cursor.getString(0);
-        String childContentType = cursor.getString(1);
         do {
+          String child = cursor.getString(0);
+          String childContentType = cursor.getString(1);
           result.add(new Link(parent, child, field.name(), childContentType));
         } while (cursor.moveToNext());
       }

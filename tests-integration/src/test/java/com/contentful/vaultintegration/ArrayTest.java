@@ -44,6 +44,8 @@ public class ArrayTest extends BaseTest {
     assertNotNull(resource);
 
     assertEquals(2, resource.assets.size());
+    assertEquals("1yj8f2uFEgGEkuqeoGIQws", resource.assets.get(0).remoteId());
+    assertEquals("2cMA1o04G42KGoQioOqqUA", resource.assets.get(1).remoteId());
 
     assertEquals(3, resource.symbols.size());
     assertEquals("a", resource.symbols.get(0));
