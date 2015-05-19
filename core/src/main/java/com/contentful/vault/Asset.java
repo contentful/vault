@@ -16,7 +16,10 @@
 
 package com.contentful.vault;
 
-public final class Asset extends Resource {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public final class Asset extends Resource implements Parcelable {
   private String url;
 
   private String mimeType;
@@ -59,5 +62,37 @@ public final class Asset extends Resource {
     public Asset build() {
       return new Asset(this);
     }
+  }
+
+  // Parcelable
+  public int describeContents() {
+    return 0;
+  }
+
+  public void writeToParcel(Parcel out, int flags) {
+    out.writeString(remoteId());
+    out.writeString(createdAt());
+    out.writeString(updatedAt());
+    out.writeString(url);
+    out.writeString(mimeType);
+  }
+
+  public static final Parcelable.Creator<Asset> CREATOR
+      = new Parcelable.Creator<Asset>() {
+    public Asset createFromParcel(Parcel in) {
+      return new Asset(in);
+    }
+
+    public Asset[] newArray(int size) {
+      return new Asset[size];
+    }
+  };
+
+  private Asset(Parcel in) {
+    setRemoteId(in.readString());
+    setCreatedAt(in.readString());
+    setUpdatedAt(in.readString());
+    this.url = in.readString();
+    this.mimeType = in.readString();
   }
 }
