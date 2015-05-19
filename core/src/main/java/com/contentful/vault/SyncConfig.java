@@ -21,15 +21,22 @@ import com.contentful.java.cda.CDAClient;
 public final class SyncConfig {
   private final CDAClient client;
 
+  private final boolean invalidate;
+
   private final String locale;
 
   private SyncConfig(Builder builder) {
     this.client = builder.client;
+    this.invalidate = builder.invalidate;
     this.locale = builder.locale;
   }
 
   public CDAClient client() {
     return client;
+  }
+
+  public boolean shouldInvalidate() {
+    return invalidate;
   }
 
   public String locale() {
@@ -42,7 +49,10 @@ public final class SyncConfig {
 
   public static class Builder {
     private CDAClient client;
+
     private String locale;
+
+    private boolean invalidate;
 
     private Builder() {
     }
@@ -54,6 +64,11 @@ public final class SyncConfig {
 
     public Builder setLocale(String locale) {
       this.locale = locale;
+      return this;
+    }
+
+    public Builder setInvalidate(boolean invalidate) {
+      this.invalidate = invalidate;
       return this;
     }
 

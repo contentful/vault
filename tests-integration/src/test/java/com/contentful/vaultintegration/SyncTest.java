@@ -17,6 +17,7 @@
 package com.contentful.vaultintegration;
 
 import com.contentful.vault.Asset;
+import com.contentful.vault.SyncConfig;
 import com.contentful.vault.Vault;
 import com.contentful.vaultintegration.lib.demo.Cat;
 import com.contentful.vaultintegration.lib.demo.DemoSpace;
@@ -46,6 +47,18 @@ public class SyncTest extends BaseTest {
     enqueueUpdate();
     sync();
     assertSyncUpdate();
+  }
+
+  @Test public void testSyncInvalidate() throws Exception {
+    // Initial
+    enqueueInitial();
+    sync();
+    assertSyncInitial();
+
+    // Initial (invalidate)
+    enqueueInitial();
+    sync(SyncConfig.builder().setClient(client).setInvalidate(true).build());
+    assertSyncInitial();
   }
 
   private void assertSyncUpdate() throws InterruptedException {

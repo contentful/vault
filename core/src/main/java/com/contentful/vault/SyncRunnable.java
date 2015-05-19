@@ -93,7 +93,13 @@ public final class SyncRunnable implements Runnable {
     boolean success = false;
     db = sqliteHelper.getWritableDatabase();
     try {
-      String token = fetchSyncToken();
+      String token = null;
+      if (config.shouldInvalidate()) {
+        SqliteHelper.clearRecords(spaceHelper, db);
+      } else {
+        token = fetchSyncToken();
+      }
+
       CDASyncedSpace syncedSpace;
       if (token == null) {
         syncedSpace = config.client().synchronization().performInitial();
