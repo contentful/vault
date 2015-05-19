@@ -85,22 +85,18 @@ final class LinkResolver {
 
     List<Link> result;
     SQLiteDatabase db = sqliteHelper.getReadableDatabase();
+    Cursor cursor = db.rawQuery(builder.toString(), args);
+    result = new ArrayList<Link>();
     try {
-      Cursor cursor = db.rawQuery(builder.toString(), args);
-      result = new ArrayList<Link>();
-      try {
-        if (cursor.moveToFirst()) {
-          String child = cursor.getString(0);
-          String childContentType = cursor.getString(1);
-          do {
-            result.add(new Link(parent, child, field.name(), childContentType));
-          } while (cursor.moveToNext());
-        }
-      } finally {
-        cursor.close();
+      if (cursor.moveToFirst()) {
+        String child = cursor.getString(0);
+        String childContentType = cursor.getString(1);
+        do {
+          result.add(new Link(parent, child, field.name(), childContentType));
+        } while (cursor.moveToNext());
       }
     } finally {
-      db.close();
+      cursor.close();
     }
     return result;
   }

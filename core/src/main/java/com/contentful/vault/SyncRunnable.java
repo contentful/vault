@@ -117,8 +117,6 @@ public final class SyncRunnable implements Runnable {
     } catch (Exception e) {
       throw new SyncException(e);
     } finally {
-      db.close();
-
       context.sendBroadcast(new Intent(Vault.ACTION_SYNC_COMPLETE)
           .putExtra(Vault.EXTRA_SUCCESS, success));
 

@@ -61,32 +61,28 @@ public final class Query<T extends Resource> {
   public List<T> all() {
     ArrayList<T> result = new ArrayList<T>();
     SQLiteDatabase db = sqliteHelper.getReadableDatabase();
+    Cursor cursor = db.rawQuery(queryBuilder().toString(), queryArgs);
     try {
-      Cursor cursor = db.rawQuery(queryBuilder().toString(), queryArgs);
-      try {
-        if (cursor.moveToFirst()) {
-          do {
-            T resource = sqliteHelper.fromCursor(clazz, cursor);
-            if (resource != null) {
-              Map<String, Resource> map;
-              if (SpaceHelper.TABLE_ASSETS.equals(tableName)) {
-                map = assets;
-              } else {
-                map = entries;
-              }
-              map.put(resource.remoteId(), resource);
-              result.add(resource);
+      if (cursor.moveToFirst()) {
+        do {
+          T resource = sqliteHelper.fromCursor(clazz, cursor);
+          if (resource != null) {
+            Map<String, Resource> map;
+            if (SpaceHelper.TABLE_ASSETS.equals(tableName)) {
+              map = assets;
+            } else {
+              map = entries;
             }
-          } while (cursor.moveToNext());
-        }
-      } finally {
-        cursor.close();
-      }
-      if (fields != null) {
-        resolveLinks(result);
+            map.put(resource.remoteId(), resource);
+            result.add(resource);
+          }
+        } while (cursor.moveToNext());
       }
     } finally {
-      db.close();
+      cursor.close();
+    }
+    if (fields != null) {
+      resolveLinks(result);
     }
     return result;
   }
@@ -99,25 +95,21 @@ public final class Query<T extends Resource> {
     limit(1);
     T result = null;
     SQLiteDatabase db = sqliteHelper.getReadableDatabase();
+    Cursor cursor = db.rawQuery(queryBuilder().toString(), queryArgs);
     try {
-      Cursor cursor = db.rawQuery(queryBuilder().toString(), queryArgs);
-      try {
-        if (cursor.moveToFirst()) {
-          result = sqliteHelper.fromCursor(clazz, cursor);
-        }
-      } finally {
-        cursor.close();
-      }
-      if (result != null) {
-        boolean isAsset = SpaceHelper.TABLE_ASSETS.equals(tableName);
-        Map<String, Resource> map = isAsset ? assets : entries;
-        map.put(result.remoteId(), result);
-        if (resolveLinks) {
-          resolveLinks(result, createLinkResolver());
-        }
+      if (cursor.moveToFirst()) {
+        result = sqliteHelper.fromCursor(clazz, cursor);
       }
     } finally {
-      db.close();
+      cursor.close();
+    }
+    if (result != null) {
+      boolean isAsset = SpaceHelper.TABLE_ASSETS.equals(tableName);
+      Map<String, Resource> map = isAsset ? assets : entries;
+      map.put(result.remoteId(), result);
+      if (resolveLinks) {
+        resolveLinks(result, createLinkResolver());
+      }
     }
     return result;
   }
