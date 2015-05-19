@@ -17,7 +17,6 @@
 package com.contentful.vault.compiler;
 
 import com.contentful.java.cda.Constants.CDAResourceType;
-import com.contentful.vault.Asset;
 import com.contentful.vault.ContentType;
 import com.contentful.vault.Field;
 import com.contentful.vault.FieldMeta;
@@ -61,6 +60,8 @@ public class Processor extends AbstractProcessor {
   private Types typeUtils;
 
   private Filer filer;
+
+  private static final String FQ_ASSET = "com.contentful.vault.Asset";
 
   @Override public Set<String> getSupportedAnnotationTypes() {
     Set<String> types = new LinkedHashSet<String>();
@@ -310,7 +311,7 @@ public class Processor extends AbstractProcessor {
     CDAResourceType resourceType = null;
 
     if (isSubtypeOfType(typeMirror, Resource.class.getName())) {
-      if (isSubtypeOfType(typeMirror, Asset.class.getName())) {
+      if (isSubtypeOfType(typeMirror, FQ_ASSET)) {
         resourceType = CDAResourceType.Asset;
       } else {
         resourceType = CDAResourceType.Entry;

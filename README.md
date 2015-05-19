@@ -62,18 +62,18 @@ public class DemoSpace { }
 Once a Space is defined, invoke Vault to sync the local database with the remote state:
 
 ```java
-// Create a CDA client
+// Client
 CDAClient client = new CDAClient.Builder()
     .setSpaceKey("cfexampleapi");
     .setAccessToken("b4c0n73n7fu1");
     .build();
 
-// Create a `SyncConfig` object
+// Configuration
 SyncConfig config = SyncConfig.builder()
       .setClient(client)
       .build();
 
-// Request sync
+// Sync
 Vault.with(context, DemoSpace.class, config).requestSync();
 ```
 
