@@ -15,12 +15,6 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.contentful.java</groupId>
-      <artifactId>java-sdk</artifactId>
-      <version>${cda.version}</version>
-    </dependency>
-
-    <dependency>
       <groupId>com.contentful.vault</groupId>
       <artifactId>compiler</artifactId>
       <version>${project.version}</version>

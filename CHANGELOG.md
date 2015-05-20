@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - New: Provide direct read-only access to database objects.
 - Changed: Use empty collections instead of null for empty arrays / maps.
 - Changed: Use contentful.java v2.0.3.
+- Changed: contentful.java dependency scope changed to compile.
 - Fixed: Link resolution for arrays of resources now works correctly.
 - Fixed: Removed incorrect calls to `close()` on database objects.
 
