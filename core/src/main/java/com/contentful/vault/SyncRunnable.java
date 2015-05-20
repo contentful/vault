@@ -30,6 +30,7 @@ import com.contentful.java.cda.model.CDAResource;
 import com.contentful.java.cda.model.CDASyncedSpace;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 
@@ -262,8 +263,11 @@ public final class SyncRunnable implements Runnable {
       if (field.isLink()) {
         processLink(entry, field, value);
       } else if (field.isArray()) {
-        processArray(entry, values, field, value);
+        processArray(entry, values, field, (List) value);
       } else if ("BLOB".equals(field.sqliteType())) {
+        if (value == null) {
+          value = Collections.emptyMap();
+        }
         saveBlob(entry, values, field, (Serializable) value);
       } else {
         String stringValue = null;
@@ -281,19 +285,17 @@ public final class SyncRunnable implements Runnable {
     db.insertWithOnConflict(SpaceHelper.TABLE_ENTRY_TYPES, null, values, CONFLICT_REPLACE);
   }
 
-  private void processArray(CDAEntry entry, ContentValues values, FieldMeta field, Object value) {
+  private void processArray(CDAEntry entry, ContentValues values, FieldMeta field, List value) {
+    if (value == null) {
+      value = Collections.emptyList();
+    }
     if (field.isArrayOfSymbols()) {
       saveBlob(entry, values, field, (Serializable) value);
     } else {
       // Array of resources
-      if (value == null || !(value instanceof List) || ((List) value).size() == 0) {
-        deleteResourceLinks(entry, field.name());
-      } else {
-        //noinspection unchecked
-        List<CDAResource> resources = (List) value;
-        for (CDAResource resource : resources) {
-          saveLink(entry, field.name(), resource);
-        }
+      deleteResourceLinks(entry, field.name());
+      for (Object resource : value) {
+        saveLink(entry, field.name(), (CDAResource) resource);
       }
     }
   }

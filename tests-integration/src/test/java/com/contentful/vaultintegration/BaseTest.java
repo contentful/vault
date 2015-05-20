@@ -56,7 +56,7 @@ public abstract class BaseTest {
   protected abstract void setupVault();
 
   protected void setupClient() {
-    client = new CDAClient.Builder()
+    client = CDAClient.builder()
         .setSpaceKey("space")
         .setAccessToken("token")
         .setEndpoint(getServerUrl())
