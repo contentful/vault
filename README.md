@@ -12,18 +12,18 @@ Grab via Maven:
 <dependency>
   <groupId>com.contentful.vault</groupId>
   <artifactId>compiler</artifactId>
-  <version>0.9.0</version>
+  <version>0.9.1</version>
 </dependency>
 <dependency>
   <groupId>com.contentful.vault</groupId>
   <artifactId>core</artifactId>
-  <version>0.9.0</version>
+  <version>0.9.1</version>
 </dependency>
 ```
 or Gradle:
 ```groovy
-compile 'com.contentful.vault:compiler:0.9.0'
-compile 'com.contentful.vault:core:0.9.0'
+compile 'com.contentful.vault:compiler:0.9.1'
+compile 'com.contentful.vault:core:0.9.1'
 ```
 
 Snapshots of the development version are available in [Sonatype's `snapshots` repository][snap].
