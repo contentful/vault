@@ -22,8 +22,8 @@ android:
 sudo: false
 
 branches:
-  except:
-    - gh-pages
+  only:
+    - master
 
 cache:
   directories:
