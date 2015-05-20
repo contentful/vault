@@ -1,0 +1,10 @@
+machine:
+  java:
+    version: oraclejdk8
+  post:
+    - case $CIRCLE_NODE_INDEX in 0) sudo update-alternatives --set java /usr/lib/jvm/jdk1.7.0/bin/java; sudo update-alternatives --set javac /usr/lib/jvm/jdk1.7.0/bin/javac ;; 1) sudo update-alternatives --set java /usr/lib/jvm/jdk1.8.0/bin/java; sudo update-alternatives --set javac /usr/lib/jvm/jdk1.8.0/bin/javac ;; esac
+
+general:
+  branches:
+    ignore:
+      - gh-pages
