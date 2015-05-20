@@ -1,0 +1,15 @@
+machine:
+  java:
+    version: oraclejdk7
+    version: oraclejdk8
+
+general:
+  branches:
+    ignore:
+      - gh-pages
+
+deployment:
+  staging:
+    branch: master
+    commands:
+      - .buildscript/deploy_snapshot.sh
