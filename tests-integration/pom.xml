@@ -17,7 +17,7 @@
     <dependency>
       <groupId>com.contentful.java</groupId>
       <artifactId>java-sdk</artifactId>
-      <version>2.0.1</version>
+      <version>${cda.version}</version>
     </dependency>
 
     <dependency>

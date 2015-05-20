@@ -38,9 +38,12 @@ public class ArrayTest extends BaseTest {
   @Test public void testArray() throws Exception {
     enqueue("vault_space.json");
     enqueue("vault_initial.json");
-
     sync();
-    ArraysResource resource = vault.fetch(ArraysResource.class).first();
+
+    ArraysResource resource = vault.fetch(ArraysResource.class)
+        .where("remote_id = ?", "u2L1goyi3eA4W0AKcqEou")
+        .first();
+
     assertNotNull(resource);
 
     assertEquals(2, resource.assets.size());
@@ -54,5 +57,23 @@ public class ArrayTest extends BaseTest {
 
     assertEquals(1, resource.blobs.size());
     assertNotNull(resource.blobs.get(0).object);
+  }
+
+  @Test public void testEmptyFields() throws Exception {
+    enqueue("vault_space.json");
+    enqueue("vault_initial.json");
+    sync();
+
+    ArraysResource resource = vault.fetch(ArraysResource.class)
+        .where("remote_id = ?", "FyFV7zVpMQUG6IIEekeI0")
+        .first();
+
+    assertNotNull(resource);
+    assertNotNull(resource.assets);
+    assertEquals(0, resource.assets.size());
+    assertNotNull(resource.symbols);
+    assertEquals(0, resource.symbols.size());
+    assertNotNull(resource.blobs);
+    assertEquals(0, resource.blobs.size());
   }
 }

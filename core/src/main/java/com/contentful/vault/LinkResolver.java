@@ -4,6 +4,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import com.contentful.java.cda.Constants.CDAResourceType;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -30,38 +31,46 @@ final class LinkResolver {
   @SuppressWarnings("unchecked")
   private void resolveLinksForField(Resource resource, FieldMeta field) {
     List<Link> links = fetchLinks(resource.remoteId(), field);
-    if (links.size() == 0) {
-      return;
-    }
+    List<Resource> targets = null;
+    if (links.size() > 0) {
+      targets = new ArrayList<Resource>();
+      for (Link link : links) {
+        boolean isEntryLink = link.childContentType() != null;
+        Map<String, Resource> cache = isEntryLink ? query.getEntriesCache() : query.getAssetsCache();
+        Resource child = cache.get(link.child());
+        if (child == null) {
+          // Link target not found in cache, fetch from DB
+          child = query.fetchResource(link);
+          if (child != null) {
+            if (isEntryLink) {
+              // Resolve links for linked target
+              ModelHelper modelHelper =
+                  sqliteHelper.getSpaceHelper().getModels().get(child.getClass());
 
-    List<Resource> targets = new ArrayList<Resource>();
-    for (Link link : links) {
-      boolean isEntryLink = link.childContentType() != null;
-      Map<String, Resource> cache = isEntryLink ? query.getEntriesCache() : query.getAssetsCache();
-      Resource child = cache.get(link.child());
-      if (child == null) {
-        // Link target not found in cache, fetch from DB
-        child = query.fetchResource(link);
-        if (child != null) {
-          if (isEntryLink) {
-            // Resolve links for linked target
-            ModelHelper modelHelper =
-                sqliteHelper.getSpaceHelper().getModels().get(child.getClass());
+              resolveLinks(child, modelHelper.getFields());
+            }
 
-            resolveLinks(child, modelHelper.getFields());
+            // Put into cache
+            cache.put(child.remoteId(), child);
           }
-
-          // Put into cache
-          cache.put(child.remoteId(), child);
+        }
+        if (child != null) {
+          targets.add(child);
         }
       }
-      if (child != null) {
-        targets.add(child);
-      }
     }
 
-    if (targets.size() > 0) {
-      Object result = field.isArray() ? targets : targets.get(0);
+    Object result = null;
+    if (field.isArray()) {
+      if (targets == null) {
+        result = Collections.emptyList();
+      } else {
+        result = Collections.unmodifiableList(targets);
+      }
+    } else if (targets != null && targets.size() > 0) {
+      result = targets.get(0);
+    }
+    if  (result != null) {
       ModelHelper modelHelper = sqliteHelper.getSpaceHelper().getModels().get(resource.getClass());
       modelHelper.setField(resource, field.name(), result);
     }
