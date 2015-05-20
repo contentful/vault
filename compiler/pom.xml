@@ -29,6 +29,11 @@
     </dependency>
 
     <dependency>
+      <groupId>com.contentful.java</groupId>
+      <artifactId>java-sdk</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>com.google.android</groupId>
       <artifactId>android</artifactId>
       <scope>provided</scope>
@@ -38,12 +43,6 @@
       <groupId>com.contentful.vault</groupId>
       <artifactId>core</artifactId>
       <version>${project.version}</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>com.contentful.java</groupId>
-      <artifactId>java-sdk</artifactId>
       <scope>provided</scope>
     </dependency>
 

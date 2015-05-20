@@ -21,7 +21,6 @@
     <dependency>
       <groupId>com.contentful.java</groupId>
       <artifactId>java-sdk</artifactId>
-      <scope>provided</scope>
     </dependency>
 
     <dependency>
