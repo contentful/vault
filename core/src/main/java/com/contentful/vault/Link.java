@@ -5,14 +5,14 @@ final class Link {
 
   private final String child;
 
-  private final String field;
+  private final String fieldId;
 
   private final String childContentType;
 
-  Link(String parent, String child, String field, String childContentType) {
+  Link(String parent, String child, String fieldId, String childContentType) {
     this.parent = parent;
     this.child = child;
-    this.field = field;
+    this.fieldId = fieldId;
     this.childContentType = childContentType;
   }
 
@@ -24,8 +24,8 @@ final class Link {
     return child;
   }
 
-  public String field() {
-    return field;
+  public String fieldId() {
+    return fieldId;
   }
 
   public String childContentType() {

@@ -256,7 +256,7 @@ public final class SyncRunnable implements Runnable {
     for (FieldMeta field : fields) {
       Object value = extractRawFieldValue(entry, field.id());
       if (field.isLink()) {
-        processLink(entry, field.name(), (Map) value);
+        processLink(entry, field.id(), (Map) value);
       } else if (field.isArray()) {
         processArray(entry, values, field);
       } else if ("BLOB".equals(field.sqliteType())) {
@@ -290,18 +290,18 @@ public final class SyncRunnable implements Runnable {
     } else {
       // Array of resources
       String entryId = extractResourceId(entry);
-      deleteResourceLinks(entryId, field.name());
+      deleteResourceLinks(entryId, field.id());
 
       List links = extractRawFieldValue(entry, field.id());
       if (links != null) {
         for (Object link : links) {
-          processLink(entry, field.name(), (Map) link);
+          processLink(entry, field.id(), (Map) link);
         }
       }
     }
   }
 
-  private void processLink(CDAEntry entry, String fieldName, Map value) {
+  private void processLink(CDAEntry entry, String fieldId, Map value) {
     String parentId = extractResourceId(entry);
     if (value != null) {
       Map linkInfo = (Map) value.get("sys");
@@ -310,11 +310,11 @@ public final class SyncRunnable implements Runnable {
         String targetId = (String) linkInfo.get("id");
 
         if (linkType != null && targetId != null) {
-          saveLink(parentId, fieldName, linkType, targetId);
+          saveLink(parentId, fieldId, linkType, targetId);
         }
       }
     } else {
-      deleteResourceLinks(parentId, fieldName);
+      deleteResourceLinks(parentId, fieldId);
     }
   }
 
@@ -328,10 +328,10 @@ public final class SyncRunnable implements Runnable {
     }
   }
 
-  private void saveLink(String parentId, String fieldName, String linkType, String targetId) {
+  private void saveLink(String parentId, String fieldId, String linkType, String targetId) {
     ContentValues values = new ContentValues();
     values.put("parent", parentId);
-    values.put("field", fieldName);
+    values.put("field", fieldId);
     values.put("child", targetId);
     values.put("is_asset", CDAResourceType.valueOf(linkType).equals(Asset));
     db.insertWithOnConflict(SpaceHelper.TABLE_LINKS, null, values, CONFLICT_REPLACE);

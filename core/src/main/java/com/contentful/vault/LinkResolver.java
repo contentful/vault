@@ -115,7 +115,7 @@ final class LinkResolver {
         do {
           String childId = cursor.getString(0);
           String childContentType = cursor.getString(1);
-          result.add(new Link(parentId, childId, field.name(), childContentType));
+          result.add(new Link(parentId, childId, field.id(), childContentType));
         } while (cursor.moveToNext());
       }
     } finally {
