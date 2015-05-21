@@ -2,8 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Version [0.9.2][unreleased] - (in development)
+## Version [0.9.3][unreleased] - (in development)
 - TBD
+
+## Version [0.9.2] - 2015-05-21
+- Fixed: Link persistence and resolution (reopened from v0.9.1).
 
 ## Version [0.9.1] - 2015-05-20
 - New: `Asset` is now `Parcelable`.
@@ -18,5 +21,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## Version 0.9.0 - 2015-05-18
 Initial release.
  
-[unreleased]: https://github.com/contentful/vault/compare/v0.9.1...HEAD
+[unreleased]: https://github.com/contentful/vault/compare/v0.9.2...HEAD
+[0.9.2]: https://github.com/contentful/vault/compare/v0.9.1...v0.9.2
 [0.9.1]: https://github.com/contentful/vault/compare/v0.9.0...v0.9.1
