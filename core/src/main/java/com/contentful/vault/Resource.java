@@ -17,11 +17,11 @@
 package com.contentful.vault;
 
 public abstract class Resource {
-  private String remoteId;
+  String remoteId;
 
-  private String createdAt;
+  String createdAt;
 
-  private String updatedAt;
+  String updatedAt;
 
   public String remoteId() {
     return remoteId;
