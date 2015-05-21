@@ -1,0 +1,60 @@
+{
+  "sys": {
+    "type": "Array"
+  },
+  "items": [
+    {
+      "sys": {
+        "space": {
+          "sys": {
+            "type": "Link",
+            "linkType": "Space",
+            "id": "fp9iccz5ot6h"
+          }
+        },
+        "type": "Entry",
+        "contentType": {
+          "sys": {
+            "type": "Link",
+            "linkType": "ContentType",
+            "id": "5QVPSeE41yo28mA4sU6gIo"
+          }
+        },
+        "id": "34ljO1zKukgIYmcQ64IgOo",
+        "revision": 2,
+        "createdAt": "2015-05-21T09:07:48.379Z",
+        "updatedAt": "2015-05-21T09:09:30.230Z"
+      },
+      "fields": {
+        "assets": {
+          "en-US": [
+            {
+              "sys": {
+                "type": "Link",
+                "linkType": "Asset",
+                "id": "2lD1fm3UBiwYk0m6CgmiQQ"
+              }
+            },
+            {
+              "sys": {
+                "type": "Link",
+                "linkType": "Asset",
+                "id": "65ou5OAxawuQIkOAe2e42c"
+              }
+            }
+          ],
+          "he-IL": [
+            {
+              "sys": {
+                "type": "Link",
+                "linkType": "Asset",
+                "id": "65ou5OAxawuQIkOAe2e42c"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "nextSyncUrl": "https://cdn.contentful.com/spaces/fp9iccz5ot6h/sync?sync_token=w5ZGw6JFwqZmVcKsE8Kow4grw45QdyYVU37CgMO4wr_Ct8KGAMOVw7fCtcOgwqcTUcK8wq7Do8K3woUZwrQVLBnDg0jDmcKNHCtwXWnCucKpXsKJwoPCpxHCt8OMw6jDqsKoCDTCi3MMw6PDgS9KwqsNHm5YwpA7XQ"
+}

@@ -117,7 +117,7 @@ public final class Query<T extends Resource> {
   Resource fetchResource(Link link) {
     Resource resource = null;
     Class<?> clazz;
-    if (link.childContentType() == null) {
+    if (link.isAsset()) {
       clazz = Asset.class;
     } else {
       clazz = sqliteHelper.getSpaceHelper().getTypes().get(link.childContentType());

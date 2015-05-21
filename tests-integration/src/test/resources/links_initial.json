@@ -1,0 +1,193 @@
+{
+  "sys": {
+    "type": "Array"
+  },
+  "items": [
+    {
+      "sys": {
+        "space": {
+          "sys": {
+            "type": "Link",
+            "linkType": "Space",
+            "id": "fp9iccz5ot6h"
+          }
+        },
+        "type": "Entry",
+        "contentType": {
+          "sys": {
+            "type": "Link",
+            "linkType": "ContentType",
+            "id": "5QVPSeE41yo28mA4sU6gIo"
+          }
+        },
+        "id": "34ljO1zKukgIYmcQ64IgOo",
+        "revision": 1,
+        "createdAt": "2015-05-21T09:07:48.379Z",
+        "updatedAt": "2015-05-21T09:07:48.379Z"
+      },
+      "fields": {
+        "assets": {
+          "en-US": [
+            {
+              "sys": {
+                "type": "Link",
+                "linkType": "Asset",
+                "id": "4eHZNAfWq4UaiYIywMiSAy"
+              }
+            }
+          ],
+          "he-IL": [
+            {
+              "sys": {
+                "type": "Link",
+                "linkType": "Asset",
+                "id": "1g07qGA9BMkucwiUysi8qQ"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "fields": {
+        "file": {
+          "en-US": {
+            "fileName": "a.png",
+            "contentType": "image/png",
+            "details": {
+              "image": {
+                "width": 114,
+                "height": 114
+              },
+              "size": 6263
+            },
+            "url": "//images.contentful.com/fp9iccz5ot6h/4eHZNAfWq4UaiYIywMiSAy/4b5ec04726e430f1fc6fd5604aad3f0d/a.png"
+          }
+        },
+        "title": {
+          "en-US": "a"
+        }
+      },
+      "sys": {
+        "space": {
+          "sys": {
+            "type": "Link",
+            "linkType": "Space",
+            "id": "fp9iccz5ot6h"
+          }
+        },
+        "type": "Asset",
+        "id": "4eHZNAfWq4UaiYIywMiSAy",
+        "revision": 1,
+        "createdAt": "2015-05-21T08:51:48.334Z",
+        "updatedAt": "2015-05-21T08:51:48.334Z"
+      }
+    },
+    {
+      "fields": {
+        "file": {
+          "en-US": {
+            "fileName": "b.jpeg",
+            "contentType": "image/jpeg",
+            "details": {
+              "image": {
+                "width": 400,
+                "height": 400
+              },
+              "size": 10809
+            },
+            "url": "//images.contentful.com/fp9iccz5ot6h/1g07qGA9BMkucwiUysi8qQ/4b7e8513fab8fe304a50581548ecbe43/b.jpeg"
+          }
+        },
+        "title": {
+          "en-US": "b"
+        }
+      },
+      "sys": {
+        "space": {
+          "sys": {
+            "type": "Link",
+            "linkType": "Space",
+            "id": "fp9iccz5ot6h"
+          }
+        },
+        "type": "Asset",
+        "id": "1g07qGA9BMkucwiUysi8qQ",
+        "revision": 1,
+        "createdAt": "2015-05-21T08:51:48.325Z",
+        "updatedAt": "2015-05-21T08:51:48.325Z"
+      }
+    },
+    {
+      "fields": {
+        "file": {
+          "en-US": {
+            "fileName": "c.png",
+            "contentType": "image/png",
+            "details": {
+              "image": {
+                "width": 640,
+                "height": 290
+              },
+              "size": 25916
+            },
+            "url": "//images.contentful.com/fp9iccz5ot6h/2lD1fm3UBiwYk0m6CgmiQQ/f849902ad8853fe5716e833294b2e1cf/c.png"
+          }
+        },
+        "title": {
+          "en-US": "c"
+        }
+      },
+      "sys": {
+        "space": {
+          "sys": {
+            "type": "Link",
+            "linkType": "Space",
+            "id": "fp9iccz5ot6h"
+          }
+        },
+        "type": "Asset",
+        "id": "2lD1fm3UBiwYk0m6CgmiQQ",
+        "revision": 1,
+        "createdAt": "2015-05-21T08:51:28.706Z",
+        "updatedAt": "2015-05-21T08:51:28.706Z"
+      }
+    },
+    {
+      "fields": {
+        "file": {
+          "en-US": {
+            "fileName": "d.png",
+            "contentType": "image/png",
+            "details": {
+              "image": {
+                "width": 649,
+                "height": 290
+              },
+              "size": 20983
+            },
+            "url": "//images.contentful.com/fp9iccz5ot6h/65ou5OAxawuQIkOAe2e42c/f849902ad8853fe5716e833294b2e1cf/d.png"
+          }
+        },
+        "title": {
+          "en-US": "d"
+        }
+      },
+      "sys": {
+        "space": {
+          "sys": {
+            "type": "Link",
+            "linkType": "Space",
+            "id": "fp9iccz5ot6h"
+          }
+        },
+        "type": "Asset",
+        "id": "65ou5OAxawuQIkOAe2e42c",
+        "revision": 1,
+        "createdAt": "2015-05-21T08:51:28.705Z",
+        "updatedAt": "2015-05-21T08:51:28.705Z"
+      }
+    }
+  ],
+  "nextSyncUrl": "https://cdn.contentful.com/spaces/fp9iccz5ot6h/sync?sync_token=w5ZGw6JFwqZmVcKsE8Kow4grw45QdybDiQjDtx7CohzCqsKzbm_DnA3DjQkfJMKZWcOww60GaFxcH8KOZMKhwprDv8KNPwrDmMKpw5bDl8ONOCVTcMOpQ8OEwpkaw4HDq8Ofw5nDhkfCgcKIOsKowpbDrn0FwrPDisKi"
+}

@@ -31,4 +31,8 @@ final class Link {
   public String childContentType() {
     return childContentType;
   }
+
+  public boolean isAsset() {
+    return childContentType == null;
+  }
 }
