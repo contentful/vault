@@ -1,6 +1,6 @@
 # Vault
 
-[![Circle CI](https://circleci.com/gh/contentful/vault.svg?style=svg)](https://circleci.com/gh/contentful/vault)
+[![Build Status](https://travis-ci.org/contentful/vault.svg)](https://travis-ci.org/contentful/vault/builds#)
 
 Easy persistence of Contentful data for Android over SQLite.
 
