@@ -70,8 +70,8 @@ public abstract class SpaceHelper {
       + "`parent` STRING NOT NULL,"
       + "`child` STRING NOT NULL,"
       + "`field` STRING NOT NULL,"
-      + "`child_content_type` STRING,"
-      + "UNIQUE (`parent`, `child`, `field`)"
+      + "`is_asset` INT NOT NULL,"
+      + "UNIQUE (`parent`, `child`, `field`, `is_asset`)"
       + ");";
 
   static final String CREATE_SYNC_INFO = "CREATE TABLE `"

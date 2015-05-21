@@ -9,6 +9,18 @@ import java.util.List;
 import java.util.Map;
 
 final class LinkResolver {
+  private static final String LINKS_WHERE_CLAUSE = "l.parent = ? AND l.is_asset = ?";
+
+  private static final String QUERY_ASSET_LINKS = String.format(
+      "SELECT l.child, null FROM %s l WHERE %s", SpaceHelper.TABLE_LINKS, LINKS_WHERE_CLAUSE);
+
+  private static final String QUERY_ENTRY_LINKS = String.format(
+      "SELECT l.child, t.type_id FROM %s l INNER JOIN %s t ON l.child = t.remote_id WHERE %s",
+      SpaceHelper.TABLE_LINKS, SpaceHelper.TABLE_ENTRY_TYPES, LINKS_WHERE_CLAUSE);
+
+  private static final String QUERY_ENTRY_TYPE = String.format(
+      "SELECT `type_id` FROM %s WHERE remote_id = ?", SpaceHelper.TABLE_ENTRY_TYPES);
+
   private final SqliteHelper sqliteHelper;
 
   private final Query<?> query;
@@ -76,33 +88,43 @@ final class LinkResolver {
     }
   }
 
-  private List<Link> fetchLinks(String parent, FieldMeta field) {
-    StringBuilder builder = new StringBuilder()
-        .append("SELECT `child`, `child_content_type` FROM ")
-        .append(SpaceHelper.TABLE_LINKS)
-        .append(" WHERE parent = ? AND field = ? AND `child_content_type` IS ");
+  private List<Link> fetchLinks(String parentId, FieldMeta field) {
+    List<Link> result;
 
     boolean linksToAssets = CDAResourceType.Asset.toString().equals(field.linkType()) ||
         Asset.class.getName().equals(field.arrayType());
 
-    if (!linksToAssets) {
-      builder.append("NOT ");
-    }
-    builder.append("NULL;");
+    String query = linksToAssets ? QUERY_ASSET_LINKS : QUERY_ENTRY_LINKS;
 
-    String[] args = new String[] { parent, field.name() };
+    String[] args = new String[] {
+        parentId,
+        linksToAssets ? "1" : "0"
+    };
 
-    List<Link> result;
     SQLiteDatabase db = sqliteHelper.getReadableDatabase();
-    Cursor cursor = db.rawQuery(builder.toString(), args);
-    result = new ArrayList<Link>();
+    Cursor cursor = db.rawQuery(query, args);
     try {
+      result = new ArrayList<Link>();
       if (cursor.moveToFirst()) {
         do {
-          String child = cursor.getString(0);
+          String childId = cursor.getString(0);
           String childContentType = cursor.getString(1);
-          result.add(new Link(parent, child, field.name(), childContentType));
+          result.add(new Link(parentId, childId, field.name(), childContentType));
         } while (cursor.moveToNext());
+      }
+    } finally {
+      cursor.close();
+    }
+    return result;
+  }
+
+  public static String fetchEntryType(SQLiteDatabase db, String remoteId) {
+    String args[] = new String[]{ remoteId };
+    String result = null;
+    Cursor cursor = db.rawQuery(QUERY_ENTRY_TYPE, args);
+    try {
+      if (cursor.moveToFirst()) {
+        result = cursor.getString(0);
       }
     } finally {
       cursor.close();

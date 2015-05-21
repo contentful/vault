@@ -120,6 +120,7 @@ public final class Query<T extends Resource> {
     if (link.childContentType() == null) {
       clazz = Asset.class;
     } else {
+      // TODO get child content type from entry_types
       clazz = sqliteHelper.getSpaceHelper().getTypes().get(link.childContentType());
     }
     if (clazz != null) {

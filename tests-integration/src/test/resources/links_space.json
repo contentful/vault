@@ -1,0 +1,19 @@
+{
+  "sys": {
+    "type": "Space",
+    "id": "fp9iccz5ot6h"
+  },
+  "name": "Vault Links Tests",
+  "locales": [
+    {
+      "code": "en-US",
+      "default": true,
+      "name": "U.S. English"
+    },
+    {
+      "code": "he-IL",
+      "default": false,
+      "name": "Hebrew"
+    }
+  ]
+}
