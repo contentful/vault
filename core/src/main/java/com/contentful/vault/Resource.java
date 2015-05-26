@@ -16,6 +16,8 @@
 
 package com.contentful.vault;
 
+import org.apache.commons.lang3.StringUtils;
+
 public abstract class Resource {
   String remoteId;
 
@@ -45,5 +47,23 @@ public abstract class Resource {
 
   void setUpdatedAt(String updatedAt) {
     this.updatedAt = updatedAt;
+  }
+
+  String getIdPrefix() {
+    return null;
+  }
+
+  @Override public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof Resource)) return false;
+
+    Resource resource = (Resource) o;
+    String prefix = StringUtils.defaultString(getIdPrefix(), "");
+    if (!prefix.equals(StringUtils.defaultString(resource.getIdPrefix(), ""))) return false;
+    return (prefix + remoteId()).equals(prefix + resource.remoteId());
+  }
+
+  @Override public int hashCode() {
+    return (StringUtils.defaultString(getIdPrefix(), "") + remoteId).hashCode();
   }
 }

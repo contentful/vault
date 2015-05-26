@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Version [0.9.3][unreleased] - (in development)
-- TBD
+- New: `Resource` implementation for `equals()` and `hashCode()`
 
 ## Version [0.9.2] - 2015-05-21
 - Fixed: Link persistence and resolution (reopened from v0.9.1).
