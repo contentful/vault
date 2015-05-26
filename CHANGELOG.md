@@ -24,7 +24,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## Version 0.9.0 - 2015-05-18
 Initial release.
  
-[unreleased]: https://github.com/contentful/vault/compare/v0.9.3...HEAD
-[0.9.3]: https://github.com/contentful/vault/compare/v0.9.2...v0.9.3
+[unreleased]: https://github.com/contentful/vault/compare/vault-parent-0.9.3...HEAD
+[0.9.3]: https://github.com/contentful/vault/compare/v0.9.2...vault-parent-0.9.3
 [0.9.2]: https://github.com/contentful/vault/compare/v0.9.1...v0.9.2
 [0.9.1]: https://github.com/contentful/vault/compare/v0.9.0...v0.9.1
