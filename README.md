@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/contentful/vault.svg)](https://travis-ci.org/contentful/vault/builds#)
 
-Easy persistence of Contentful data for Android over SQLite.
+Vault is an Android library that simplifies persistence of data from Contentful via SQLite. It lets you define Java representations for your Contentful models. Then, at compile-time it will create a corresponding database schema by generating all the required boilerplate code and injecting it to the classpath. It is also bundled with a complementary lightweight runtime which exposes a simple ORM-like API for pulling resources from the generated database.
 
 Setup
 =====
@@ -30,7 +30,7 @@ Snapshots of the development version are available in [Sonatype's `snapshots` re
 
 ### Models & Fields
 
-Models are defined by declaring a subclass of the `Resource` class. Annotate the class with `@ContentType`, which takes the Content Type's ID as it's value.
+Models are defined by declaring a subclass of the `Resource` class. Annotate the class with `@ContentType`, which takes the Content Type's ID as its value.
 
 Fields are defined by annotating class attributes with the `@Field` annotation. 
 ```java
@@ -74,13 +74,13 @@ SyncConfig config = SyncConfig.builder()
       .build();
 
 // Sync
-Vault.with(context, DemoSpace.class, config).requestSync();
+Vault.with(context, DemoSpace.class).requestSync(config);
 ```
 
-Vault will use a worker thread to request incremental updates from the Sync API and reflect the remote changes to it's database.
+Vault will use a worker thread to request incremental updates from the Sync API and reflect the remote changes to its database.
 Once sync is completed, Vault will fire a broadcast with the action `Vault.ACTION_SYNC_COMPLETE`.
 
-Alternatively, you can provide a `SyncCallback` which will be invoked once sync is completed, but make sure to cancel it according to it's host lifecycle events:
+Alternatively, you can provide a `SyncCallback` which will be invoked once sync is completed, but make sure to cancel it according to its host lifecycle events:
 
 ```java
 class SomeActivity extends Activity {
@@ -105,7 +105,7 @@ class SomeActivity extends Activity {
 
 ### Queries
 
-Vault provides a wrapper around it's generated database which can be easily used to fetch persisted objects, some examples:
+Vault provides a wrapper around its generated database which can be easily used to fetch persisted objects, some examples:
 
 ```java
 Vault vault = Vault.with(context, DemoSpace.class);
