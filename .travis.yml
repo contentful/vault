@@ -25,6 +25,10 @@ branches:
   except:
     - gh-pages
 
+notifications:
+  slack:
+    - secure: KTrEbtoFwNCHe3Xa+WVpyVMENu35Y+rml9Xs7XNtcjk6Ke//DvjGZTIUwuG9GWXmT+aDkLL4CaBUUhRapZdg7CUsBjIU5rusBSsOJEuAWUu0QcLDVRC1lxhSo8Ebcf8KxMtrFAW4h7psjGvDg3eBCj6vH5/+wUMS4lzgeDYoouhZUKETshKd7rrYCQy5qH4nmkoHFKQ5qJNFh/uVCyvQerEZnLOK6EHFfV5ZG9f74gt+3yNYJkQRBEvCccj7cpLUYQze42ZHyvQmqBg8AEad8stJQa4G6wVd186BXTkz03vVdtzivdLgHwcDS0NNkbd4OOiVBR0jX0EyiTAD83GYxX2tSMuumpqEDNGzZuCLdHPR+X2ZpWgHY7XB8ipafpSMMAaB0sxe+YTfjJduFiGcnPr1PcVOIY/sOWZZ4AM7jOR5ymFozQ5XlKcCZQJqrtm4cgQezmJzsTYqRZjmfp4H5VxpFN07qejOcTjKTN/n7nFpbH8LKsEflwhfN/MPHyA4iL9E00X2m3wp+jZLdj9lwjPyPhxRXynmGickvDHbLk7yYb+blO0b2fMYhnKHg1vJMxaB53iChzFv70IWW05O3n+eFH7FwVsboZBWofEmxPmat73HG2x3ViUbAwPEa/LZVAQ8Cw89mxiBZXVd1/3vyIQXWF3iaKdZrDGXIvtx6qY=
+
 cache:
   directories:
     - $HOME/.m2
