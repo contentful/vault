@@ -37,4 +37,8 @@ public abstract class ModelHelper<T extends Resource> {
     }
     return result;
   }
+
+  protected final void setContentType(T resource, String type) {
+    resource.setContentType(type);
+  }
 }

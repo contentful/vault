@@ -45,6 +45,7 @@ public final class Test$AwesomeModel$$ModelHelper extends ModelHelper<Test.Aweso
   @Override
   public Test.AwesomeModel fromCursor(Cursor cursor) {
     Test.AwesomeModel result = new Test.AwesomeModel();
+    setContentType(result, "cid");
     result.textField = cursor.getString(3);
     result.booleanField = Integer.valueOf(1).equals(cursor.getInt(4));
     result.integerField = cursor.getInt(5);

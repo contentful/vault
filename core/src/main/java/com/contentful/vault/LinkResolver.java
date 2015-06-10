@@ -61,10 +61,7 @@ final class LinkResolver {
           if (child != null) {
             if (!linksToAsset) {
               // Resolve links for linked target
-              ModelHelper modelHelper =
-                  sqliteHelper.getSpaceHelper().getModels().get(child.getClass());
-
-              resolveLinks(child, modelHelper.getFields());
+              resolveLinks(child, getHelperForEntry(child).getFields());
             }
 
             // Put into cache
@@ -88,9 +85,15 @@ final class LinkResolver {
       result = targets.get(0);
     }
     if  (result != null) {
-      ModelHelper modelHelper = sqliteHelper.getSpaceHelper().getModels().get(resource.getClass());
+      ModelHelper modelHelper = getHelperForEntry(resource);
       modelHelper.setField(resource, field.name(), result);
     }
+  }
+
+  private ModelHelper<?> getHelperForEntry(Resource resource) {
+    SpaceHelper spaceHelper = sqliteHelper.getSpaceHelper();
+    Class<?> modelType = spaceHelper.getTypes().get(resource.contentType());
+    return spaceHelper.getModels().get(modelType);
   }
 
   private List<Link> fetchLinks(String parentId, FieldMeta field) {
