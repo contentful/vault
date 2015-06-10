@@ -31,14 +31,14 @@
     </dependency>
 
     <dependency>
-      <groupId>org.robolectric</groupId>
-      <artifactId>robolectric</artifactId>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
       <scope>test</scope>
     </dependency>
 
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
+      <groupId>org.robolectric</groupId>
+      <artifactId>robolectric</artifactId>
       <scope>test</scope>
     </dependency>
 

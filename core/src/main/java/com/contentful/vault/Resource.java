@@ -25,6 +25,8 @@ public abstract class Resource {
 
   String updatedAt;
 
+  String contentType;
+
   public String remoteId() {
     return remoteId;
   }
@@ -47,6 +49,14 @@ public abstract class Resource {
 
   void setUpdatedAt(String updatedAt) {
     this.updatedAt = updatedAt;
+  }
+
+  void setContentType(String contentType) {
+    this.contentType = contentType;
+  }
+
+  String contentType() {
+    return contentType;
   }
 
   String getIdPrefix() {

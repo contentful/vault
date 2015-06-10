@@ -142,7 +142,8 @@ final class ModelInjection extends Injection {
             ParameterSpec.builder(ClassName.get("android.database", "Cursor"), "cursor").build());
 
     String result = "result";
-    method.addStatement("$T $N = new $T()", modelClassName, result, modelClassName);
+    method.addStatement("$T $N = new $T()", modelClassName, result, modelClassName)
+        .addStatement("setContentType($N, $S)", result, remoteId);
 
     List<FieldMeta> nonLinkFields = extractNonLinkFields();
     for (int i = 0; i < nonLinkFields.size(); i++) {

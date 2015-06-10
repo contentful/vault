@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Version [0.9.4][unreleased] - (in development)
-- TBD
+- Fixed: Replace `getClass()` calls with generated code for link resolution.
 
 ## Version [0.9.3] - 2015-05-26
 - New: `Resource` implementation for `equals()` and `hashCode()`
