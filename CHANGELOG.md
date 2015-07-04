@@ -4,6 +4,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Version [0.9.4][unreleased] - (in development)
 - Fixed: Replace `getClass()` calls with generated code for link resolution.
+- Fixed: Escape model field names on inserts.
+- Changed: Add `onError` and `onSuccess()` methods to `SyncCallback`.
 
 ## Version [0.9.3] - 2015-05-26
 - New: `Resource` implementation for `equals()` and `hashCode()`

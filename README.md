@@ -48,6 +48,21 @@ By default, the name of the attribute will be used as the field's ID, but can al
 public String someField; 
 ```
 
+Field ids are escaped and so can be used regularly, however when making queries with a WHERE condition it is up to the caller to escape the field name in case it is a reserved keyword. For example, consider the following model:
+```java
+@ContentType("...")
+public class Foo extends Resource {
+  @Field public String order;
+}
+```
+
+Since *order* is a reserved SQLite keyword, in order to make a query which references that field here is how to escape it:
+```java
+vault.fetch(Foo.class)
+    .where("`order` = ?", "bar")
+    .first();
+```
+
 ### Spaces
 
 Spaces can be defined by declaring a class annotated with the `@Space` annotation. It is also required to provide the Space ID and an array of model classes to include:
@@ -90,10 +105,14 @@ class SomeActivity extends Activity {
     super.onCreate(savedInstanceState);
     
     Vault.with(this, DemoSpace.class).requestSync(config, callback = new SyncCallback() {
-      @Override public void onComplete(boolean success) {
+      @Override public void onSuccess() {
         // Sync completed \o/
       }
-    });
+      
+      @Override public void onError(Throwable cause) {
+        // Handle error
+      }
+    });Add
   }
   
   @Override protected void onDestroy() {

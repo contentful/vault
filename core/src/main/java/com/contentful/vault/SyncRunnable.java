@@ -92,7 +92,7 @@ public final class SyncRunnable implements Runnable {
   }
 
   @Override public void run() {
-    boolean success = false;
+    SyncException error = null;
     db = sqliteHelper.getWritableDatabase();
     try {
       String token = null;
@@ -118,17 +118,18 @@ public final class SyncRunnable implements Runnable {
 
         saveSyncInfo(syncedSpace.getSyncToken());
         db.setTransactionSuccessful();
-        success = true;
       } finally {
         db.endTransaction();
       }
     } catch (Exception e) {
-      throw new SyncException(e);
+      error = new SyncException(e);
     } finally {
+      boolean success = error == null;
+
       context.sendBroadcast(new Intent(Vault.ACTION_SYNC_COMPLETE)
           .putExtra(Vault.EXTRA_SUCCESS, success));
 
-      Vault.executeCallback(tag, success);
+      Vault.executeCallback(tag, error);
     }
   }
 
@@ -269,7 +270,7 @@ public final class SyncRunnable implements Runnable {
         if (value != null) {
           stringValue = value.toString();
         }
-        values.put(field.name(), stringValue);
+        values.put(escape(field.name()), stringValue);
       }
     }
     db.insertWithOnConflict(tableName, null, values, CONFLICT_REPLACE);
@@ -278,6 +279,10 @@ public final class SyncRunnable implements Runnable {
     values.put("remote_id", extractResourceId(entry));
     values.put("type_id", extractContentTypeId(entry));
     db.insertWithOnConflict(SpaceHelper.TABLE_ENTRY_TYPES, null, values, CONFLICT_REPLACE);
+  }
+
+  private static String escape(String value) {
+    return "`" + value + "`";
   }
 
   private void processArray(CDAEntry entry, ContentValues values, FieldMeta field) {
@@ -320,7 +325,7 @@ public final class SyncRunnable implements Runnable {
 
   private void saveBlob(CDAEntry entry, ContentValues values, FieldMeta field, Serializable value) {
     try {
-      values.put(field.name(), BlobUtils.toBlob(value));
+      values.put(escape(field.name()), BlobUtils.toBlob(value));
     } catch (IOException e) {
       throw new RuntimeException(
           String.format("Failed converting value to BLOB for entry id %s field %s.",
