@@ -90,10 +90,14 @@ class SomeActivity extends Activity {
     super.onCreate(savedInstanceState);
     
     Vault.with(this, DemoSpace.class).requestSync(config, callback = new SyncCallback() {
-      @Override public void onComplete(boolean success) {
+      @Override public void onSuccess() {
         // Sync completed \o/
       }
-    });
+      
+      @Override public void onError(Throwable cause) {
+        // Handle error
+      }
+    });Add
   }
   
   @Override protected void onDestroy() {

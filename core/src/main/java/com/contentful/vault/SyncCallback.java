@@ -19,7 +19,9 @@ package com.contentful.vault;
 public abstract class SyncCallback {
   private String tag;
 
-  public abstract void onComplete(boolean success);
+  public abstract void onSuccess();
+
+  public abstract void onError(Throwable cause);
 
   final void setTag(String tag) {
     this.tag = tag;

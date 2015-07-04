@@ -34,6 +34,8 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
+import static com.google.common.truth.Truth.assertThat;
+
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest = "src/main/AndroidManifest.xml")
 public abstract class BaseTest {
@@ -95,13 +97,22 @@ public abstract class BaseTest {
       }
     };
 
+    final Throwable[] error = { null };
+
     SyncCallback callback = new SyncCallback() {
-      @Override public void onComplete(boolean success) {
+      @Override public void onSuccess() {
+        latch.countDown();
+      }
+
+      @Override public void onError(Throwable cause) {
+        error[0] = cause;
         latch.countDown();
       }
     };
 
     vault.requestSync(config, callback, executor);
     latch.await();
+
+    assertThat(error[0]).isNull();
   }
 }

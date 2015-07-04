@@ -92,7 +92,7 @@ public final class SyncRunnable implements Runnable {
   }
 
   @Override public void run() {
-    boolean success = false;
+    SyncException error = null;
     db = sqliteHelper.getWritableDatabase();
     try {
       String token = null;
@@ -118,17 +118,18 @@ public final class SyncRunnable implements Runnable {
 
         saveSyncInfo(syncedSpace.getSyncToken());
         db.setTransactionSuccessful();
-        success = true;
       } finally {
         db.endTransaction();
       }
     } catch (Exception e) {
-      throw new SyncException(e);
+      error = new SyncException(e);
     } finally {
+      boolean success = error == null;
+
       context.sendBroadcast(new Intent(Vault.ACTION_SYNC_COMPLETE)
           .putExtra(Vault.EXTRA_SUCCESS, success));
 
-      Vault.executeCallback(tag, success);
+      Vault.executeCallback(tag, error);
     }
   }
 

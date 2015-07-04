@@ -159,12 +159,16 @@ public class Vault {
     return modelHelper;
   }
 
-  static void executeCallback(String tag, final boolean success) {
+  static void executeCallback(String tag, final Throwable error) {
     final CallbackBundle bundle = clearBundle(tag);
     if (bundle != null) {
       bundle.executor.execute(new Runnable() {
         @Override public void run() {
-          bundle.callback.onComplete(success);
+          if (error == null) {
+            bundle.callback.onSuccess();
+          } else {
+            bundle.callback.onError(error);
+          }
         }
       });
     }
