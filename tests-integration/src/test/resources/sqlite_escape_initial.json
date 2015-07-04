@@ -1,0 +1,36 @@
+{
+  "sys": {
+    "type": "Array"
+  },
+  "items": [
+    {
+      "sys": {
+        "space": {
+          "sys": {
+            "type": "Link",
+            "linkType": "Space",
+            "id": "ev53h12ay8c5"
+          }
+        },
+        "type": "Entry",
+        "contentType": {
+          "sys": {
+            "type": "Link",
+            "linkType": "ContentType",
+            "id": "66bnqqjZCg4wkCaEUSKsGa"
+          }
+        },
+        "id": "2aK6jhLFoMQuEc2wmoEAI4",
+        "revision": 1,
+        "createdAt": "2015-07-03T01:38:11.932Z",
+        "updatedAt": "2015-07-03T01:38:11.932Z"
+      },
+      "fields": {
+        "order": {
+          "en-US": "foo"
+        }
+      }
+    }
+  ],
+  "nextSyncUrl": "http://cdn.contentful.com/spaces/ev53h12ay8c5/sync?sync_token=foo"
+}
