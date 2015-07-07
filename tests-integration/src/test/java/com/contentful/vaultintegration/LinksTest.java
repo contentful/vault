@@ -16,8 +16,8 @@ public class LinksTest extends BaseTest {
 
   @Test public void testLinks() throws Exception {
     // Initial
-    enqueue("links_space.json");
-    enqueue("links_initial.json");
+    enqueue("links/links_space.json");
+    enqueue("links/links_initial.json");
     sync();
 
     AssetsContainer container = vault.fetch(AssetsContainer.class).first();
@@ -26,8 +26,8 @@ public class LinksTest extends BaseTest {
     assertEquals("4eHZNAfWq4UaiYIywMiSAy", container.assets().get(0).remoteId());
 
     // Update
-    enqueue("links_space.json");
-    enqueue("links_update.json");
+    enqueue("links/links_space.json");
+    enqueue("links/links_update.json");
     sync();
 
     container = vault.fetch(AssetsContainer.class).first();

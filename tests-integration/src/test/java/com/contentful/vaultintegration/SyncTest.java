@@ -87,13 +87,13 @@ public class SyncTest extends BaseTest {
   }
 
   private void enqueueInitial() throws IOException {
-    enqueue("demo_space.json");
-    enqueue("demo_initial.json");
+    enqueue("demo/demo_space.json");
+    enqueue("demo/demo_initial.json");
   }
 
   private void enqueueUpdate() throws IOException {
-    enqueue("demo_space.json");
-    enqueue("demo_update.json");
+    enqueue("demo/demo_space.json");
+    enqueue("demo/demo_update.json");
   }
 
   private void assertSingleLink() {
