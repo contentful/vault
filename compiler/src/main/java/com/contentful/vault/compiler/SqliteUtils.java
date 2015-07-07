@@ -29,7 +29,7 @@ final class SqliteUtils {
     if (String.class.getName().equals(className)) {
       return "STRING";
     } else if (Boolean.class.getName().equals(className)) {
-      return "INT";
+      return "BOOL";
     } else if (Integer.class.getName().equals(className)) {
       return "INT";
     } else if (Double.class.getName().equals(className)) {

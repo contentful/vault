@@ -23,7 +23,21 @@ import com.contentful.vault.Resource;
 
 @ContentType("cat")
 public class Cat extends Resource {
-  @Field public String name;
-  @Field public Cat bestFriend;
-  @Field public Asset image;
+  @Field String name;
+
+  @Field Cat bestFriend;
+
+  @Field Asset image;
+
+  public String name() {
+    return name;
+  }
+
+  public Cat bestFriend() {
+    return bestFriend;
+  }
+
+  public Asset image() {
+    return image;
+  }
 }

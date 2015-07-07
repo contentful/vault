@@ -23,9 +23,8 @@ import java.util.Map;
 import org.junit.Test;
 import org.robolectric.RuntimeEnvironment;
 
+import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 public class BlobTest extends BaseTest {
   @Override protected void setupVault() {
@@ -33,24 +32,24 @@ public class BlobTest extends BaseTest {
   }
 
   @Test public void testBlob() throws Exception {
-    enqueue("vault_space.json");
-    enqueue("vault_initial.json");
+    enqueue("vault/space.json");
+    enqueue("vault/initial.json");
 
     sync();
-    BlobResource blobResource = vault.fetch(BlobResource.class).first();
-    assertNotNull(blobResource);
+    BlobResource blobResource = vault.fetch(BlobResource.class)
+        .where("remote_id = ?", "6tOdhkd6Ewekq8M6MQe4GY")
+        .first();
 
-    Map map = blobResource.object;
-    assertNotNull(map);
+    assertThat(blobResource).isNotNull();
+    assertThat(blobResource.object()).isNotNull();
+    assertThat(blobResource.object()).containsEntry("fieldString", "hello");
+    assertThat(blobResource.object()).containsEntry("fieldInteger", 31337.0);
+    assertThat(blobResource.object()).containsEntry("fieldFloat", 3.1337);
+    assertThat(blobResource.object()).containsEntry("fieldBoolean", true);
 
-    assertEquals("hello", blobResource.object.get("fieldString"));
-    assertEquals(31337, ((Double) blobResource.object.get("fieldInteger")).intValue());
-    assertEquals(3.1337, blobResource.object.get("fieldFloat"));
-    assertTrue((Boolean) blobResource.object.get("fieldBoolean"));
-
-    Object obj = blobResource.object.get("fieldMap");
-    assertNotNull(obj);
-    assertTrue(obj instanceof Map);
-    assertEquals("value", ((Map) obj).get("key"));
+    Object fieldMap = blobResource.object().get("fieldMap");
+    assertThat(fieldMap).isNotNull();
+    assertThat(fieldMap).isInstanceOf(Map.class);
+    assertEquals("value", ((Map) fieldMap).get("key"));
   }
 }

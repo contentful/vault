@@ -261,10 +261,9 @@ public final class SyncRunnable implements Runnable {
       } else if (field.isArray()) {
         processArray(entry, values, field);
       } else if ("BLOB".equals(field.sqliteType())) {
-        if (value == null) {
-          value = Collections.emptyMap();
-        }
         saveBlob(entry, values, field, (Serializable) value);
+      } else if ("BOOL".equals(field.sqliteType())) {
+        saveBoolean(values, field, (Boolean) value);
       } else {
         String stringValue = null;
         if (value != null) {
@@ -279,6 +278,14 @@ public final class SyncRunnable implements Runnable {
     values.put("remote_id", extractResourceId(entry));
     values.put("type_id", extractContentTypeId(entry));
     db.insertWithOnConflict(SpaceHelper.TABLE_ENTRY_TYPES, null, values, CONFLICT_REPLACE);
+  }
+
+  private void saveBoolean(ContentValues values, FieldMeta field, Boolean value) {
+    String write = "0";
+    if (value != null && value) {
+      write = "1";
+    }
+    values.put(escape(field.name()), write);
   }
 
   private static String escape(String value) {
