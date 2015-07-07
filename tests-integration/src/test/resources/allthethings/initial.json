@@ -1,0 +1,226 @@
+{
+  "sys": {
+    "type": "Array"
+  },
+  "items": [
+    {
+      "sys": {
+        "space": {
+          "sys": {
+            "type": "Link",
+            "linkType": "Space",
+            "id": "hwp8ctxa24x7"
+          }
+        },
+        "type": "Entry",
+        "contentType": {
+          "sys": {
+            "type": "Link",
+            "linkType": "ContentType",
+            "id": "2585ClSxW8OeuMEoIiKW4i"
+          }
+        },
+        "id": "6K1Md1qADuOsoom2UIEKkq",
+        "revision": 3,
+        "createdAt": "2015-07-07T08:28:22.270Z",
+        "updatedAt": "2015-07-07T08:32:32.283Z"
+      },
+      "fields": {
+        "text": {
+          "en-US": "foo"
+        },
+        "number": {
+          "en-US": 31337
+        },
+        "decimal": {
+          "en-US": 1.337
+        },
+        "yesno": {
+          "en-US": true
+        },
+        "dateTime": {
+          "en-US": "2015-07-01"
+        },
+        "location": {
+          "en-US": {
+            "lat": 52.52000659999999,
+            "lon": 13.404953999999975
+          }
+        },
+        "object": {
+          "en-US": {
+            "foo": "bar",
+            "bar": "foo"
+          }
+        },
+        "symbols": {
+          "en-US": [
+            "foo",
+            "bar"
+          ]
+        },
+        "asset": {
+          "en-US": {
+            "sys": {
+              "type": "Link",
+              "linkType": "Asset",
+              "id": "6Kknr7SqpGWs8kIKwCuQCU"
+            }
+          }
+        },
+        "assets": {
+          "en-US": [
+            {
+              "sys": {
+                "type": "Link",
+                "linkType": "Asset",
+                "id": "6Kknr7SqpGWs8kIKwCuQCU"
+              }
+            },
+            {
+              "sys": {
+                "type": "Link",
+                "linkType": "Asset",
+                "id": "w4ZPwQ0Cmko2QqyWgSEGy"
+              }
+            }
+          ]
+        },
+        "entry": {
+          "en-US": {
+            "sys": {
+              "type": "Link",
+              "linkType": "Entry",
+              "id": "4EYJjgMg0oG084iuACY6Ue"
+            }
+          }
+        },
+        "entries": {
+          "en-US": [
+            {
+              "sys": {
+                "type": "Link",
+                "linkType": "Entry",
+                "id": "4EYJjgMg0oG084iuACY6Ue"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "sys": {
+        "space": {
+          "sys": {
+            "type": "Link",
+            "linkType": "Space",
+            "id": "hwp8ctxa24x7"
+          }
+        },
+        "type": "Entry",
+        "contentType": {
+          "sys": {
+            "type": "Link",
+            "linkType": "ContentType",
+            "id": "2585ClSxW8OeuMEoIiKW4i"
+          }
+        },
+        "id": "4EYJjgMg0oG084iuACY6Ue",
+        "revision": 1,
+        "createdAt": "2015-07-07T08:32:14.737Z",
+        "updatedAt": "2015-07-07T08:32:14.737Z"
+      },
+      "fields": {
+        "text": {
+          "en-US": "bar"
+        },
+        "yesno": {
+          "en-US": false
+        },
+        "number": {
+          "en-US": 1
+        },
+        "decimal": {
+          "en-US": 2
+        }
+      }
+    },
+    {
+      "fields": {
+        "title": {
+          "en-US": "bar"
+        },
+        "description": {
+          "en-US": "baz"
+        },
+        "file": {
+          "en-US": {
+            "fileName": "snap.jpg",
+            "contentType": "image/jpeg",
+            "details": {
+              "image": {
+                "width": 400,
+                "height": 280
+              },
+              "size": 11705
+            },
+            "url": "//images.contentful.com/hwp8ctxa24x7/w4ZPwQ0Cmko2QqyWgSEGy/c5d5d5a9bd05e062caa5ca226e85266c/snap.jpg"
+          }
+        }
+      },
+      "sys": {
+        "space": {
+          "sys": {
+            "type": "Link",
+            "linkType": "Space",
+            "id": "hwp8ctxa24x7"
+          }
+        },
+        "type": "Asset",
+        "id": "w4ZPwQ0Cmko2QqyWgSEGy",
+        "revision": 1,
+        "createdAt": "2015-07-07T08:31:21.928Z",
+        "updatedAt": "2015-07-07T08:31:21.928Z"
+      }
+    },
+    {
+      "fields": {
+        "title": {
+          "en-US": "foo"
+        },
+        "description": {
+          "en-US": "bar"
+        },
+        "file": {
+          "en-US": {
+            "fileName": "snap.jpg",
+            "contentType": "image/jpeg",
+            "details": {
+              "image": {
+                "width": 400,
+                "height": 280
+              },
+              "size": 21937
+            },
+            "url": "//images.contentful.com/hwp8ctxa24x7/6Kknr7SqpGWs8kIKwCuQCU/a69bdeca0a9ce099b0093045694b28af/snap.jpg"
+          }
+        }
+      },
+      "sys": {
+        "space": {
+          "sys": {
+            "type": "Link",
+            "linkType": "Space",
+            "id": "hwp8ctxa24x7"
+          }
+        },
+        "type": "Asset",
+        "id": "6Kknr7SqpGWs8kIKwCuQCU",
+        "revision": 1,
+        "createdAt": "2015-07-07T08:30:49.700Z",
+        "updatedAt": "2015-07-07T08:30:49.700Z"
+      }
+    }
+  ],
+  "nextSyncUrl": "https://cdn.contentful.com/spaces/hwp8ctxa24x7/sync?sync_token=w5ZGw6JFwqZmVcKsE8Kow4grw45QdybCnMOGNsOHVmJzw5rCmQYjw4LCu296w4nDjQfDtsKebMKBwrkcwrPCvj7Dq2FHw7cYw4PCocOywoxWw5vCqcKgAsOrcsOESMK9wrPDmMOHBVR6SsKhdWVnOcKIVUwMwq0d"
+}

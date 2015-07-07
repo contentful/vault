@@ -261,9 +261,6 @@ public final class SyncRunnable implements Runnable {
       } else if (field.isArray()) {
         processArray(entry, values, field);
       } else if ("BLOB".equals(field.sqliteType())) {
-        if (value == null) {
-          value = Collections.emptyMap();
-        }
         saveBlob(entry, values, field, (Serializable) value);
       } else {
         String stringValue = null;
