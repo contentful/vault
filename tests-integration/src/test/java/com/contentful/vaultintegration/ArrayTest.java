@@ -19,14 +19,15 @@ package com.contentful.vaultintegration;
 import com.contentful.vault.Vault;
 import com.contentful.vaultintegration.lib.vault.ArraysResource;
 import com.contentful.vaultintegration.lib.vault.VaultSpace;
+import java.util.Arrays;
+import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static com.google.common.truth.Truth.assertThat;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest = "src/main/AndroidManifest.xml")
@@ -44,19 +45,19 @@ public class ArrayTest extends BaseTest {
         .where("remote_id = ?", "u2L1goyi3eA4W0AKcqEou")
         .first();
 
-    assertNotNull(resource);
+    assertThat(resource).isNotNull();
 
-    assertEquals(2, resource.assets.size());
-    assertEquals("1yj8f2uFEgGEkuqeoGIQws", resource.assets.get(0).remoteId());
-    assertEquals("2cMA1o04G42KGoQioOqqUA", resource.assets.get(1).remoteId());
+    assertThat(resource.assets()).hasSize(2);
+    List<String> ids = Arrays.asList("1yj8f2uFEgGEkuqeoGIQws", "2cMA1o04G42KGoQioOqqUA");
+    assertThat(ids).contains(resource.assets().get(0).remoteId());
+    assertThat(ids).contains(resource.assets().get(1).remoteId());
 
-    assertEquals(3, resource.symbols.size());
-    assertEquals("a", resource.symbols.get(0));
-    assertEquals("b", resource.symbols.get(1));
-    assertEquals("c", resource.symbols.get(2));
+    assertThat(resource.symbols()).isNotNull();
+    assertThat(resource.symbols()).containsExactly("a", "b", "c");
 
-    assertEquals(1, resource.blobs.size());
-    assertNotNull(resource.blobs.get(0).object);
+    assertThat(resource.blobs()).isNotNull();
+    assertThat(resource.blobs()).hasSize(1);
+    assertThat(resource.blobs().get(0)).isNotNull();
   }
 
   @Test public void testEmptyFields() throws Exception {
@@ -68,12 +69,14 @@ public class ArrayTest extends BaseTest {
         .where("remote_id = ?", "FyFV7zVpMQUG6IIEekeI0")
         .first();
 
-    assertNotNull(resource);
-    assertNotNull(resource.assets);
-    assertEquals(0, resource.assets.size());
-    assertNotNull(resource.symbols);
-    assertEquals(0, resource.symbols.size());
-    assertNotNull(resource.blobs);
-    assertEquals(0, resource.blobs.size());
+    assertThat(resource).isNotNull();
+    assertThat(resource.assets()).isNotNull();
+    assertThat(resource.assets()).isEmpty();
+
+    assertThat(resource.symbols()).isNotNull();
+    assertThat(resource.symbols()).isEmpty();
+
+    assertThat(resource.blobs()).isNotNull();
+    assertThat(resource.blobs()).isEmpty();
   }
 }

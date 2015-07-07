@@ -23,7 +23,7 @@ import com.contentful.vaultintegration.lib.demo.DemoSpace;
 import org.junit.Test;
 import org.robolectric.RuntimeEnvironment;
 
-import static org.junit.Assert.assertEquals;
+import static com.google.common.truth.Truth.assertThat;
 
 public class LocaleTest extends BaseTest {
   @Override protected void setupVault() {
@@ -40,8 +40,12 @@ public class LocaleTest extends BaseTest {
     enqueue("demo/space.json");
     enqueue("demo/initial.json");
     sync(SyncConfig.builder().setClient(client).setLocale("tlh").build());
-    Cat cat = vault.fetch(Cat.class).first();
-    assertEquals("Quch vIghro'", cat.name);
+    Cat cat = vault.fetch(Cat.class)
+        .where("remote_id = ?", "happycat")
+        .first();
+
+    assertThat(cat).isNotNull();
+    assertThat(cat.name()).isEqualTo("Quch vIghro'");
   }
 
   private void checkDefaultLocale() throws Exception {
@@ -49,7 +53,12 @@ public class LocaleTest extends BaseTest {
     enqueue("demo/space.json");
     enqueue("demo/initial.json");
     sync();
-    Cat cat = vault.fetch(Cat.class).first();
-    assertEquals("Happy Cat", cat.name);
+
+    Cat cat = vault.fetch(Cat.class)
+        .where("remote_id = ?", "happycat")
+        .first();
+
+    assertThat(cat).isNotNull();
+    assertThat(cat.name()).isEqualTo("Happy Cat");
   }
 }

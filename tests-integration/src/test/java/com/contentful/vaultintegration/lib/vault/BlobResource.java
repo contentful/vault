@@ -23,5 +23,9 @@ import java.util.Map;
 
 @ContentType("1HRG7uai2g8YMswwqoAaC8")
 public class BlobResource extends Resource {
-  @Field public Map object;
+  @Field Map object;
+
+  public Map object() {
+    return object;
+  }
 }

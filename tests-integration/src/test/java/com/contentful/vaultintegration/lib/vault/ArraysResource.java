@@ -24,7 +24,21 @@ import java.util.List;
 
 @ContentType("4rD4z2Ex0kEOgeWCWG4Se2")
 public class ArraysResource extends Resource {
-  @Field public List<Asset> assets;
-  @Field public List<String> symbols;
-  @Field public List<BlobResource> blobs;
+  @Field List<Asset> assets;
+
+  @Field List<String> symbols;
+
+  @Field List<BlobResource> blobs;
+
+  public List<Asset> assets() {
+    return assets;
+  }
+
+  public List<String> symbols() {
+    return symbols;
+  }
+
+  public List<BlobResource> blobs() {
+    return blobs;
+  }
 }
