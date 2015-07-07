@@ -33,8 +33,8 @@ public class BlobTest extends BaseTest {
   }
 
   @Test public void testBlob() throws Exception {
-    enqueue("vault/vault_space.json");
-    enqueue("vault/vault_initial.json");
+    enqueue("vault/space.json");
+    enqueue("vault/initial.json");
 
     sync();
     BlobResource blobResource = vault.fetch(BlobResource.class).first();
