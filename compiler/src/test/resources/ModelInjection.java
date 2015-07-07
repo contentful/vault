@@ -12,7 +12,7 @@ public final class Test$AwesomeModel$$ModelHelper extends ModelHelper<Test.Aweso
 
   public Test$AwesomeModel$$ModelHelper() {
     fields.add(FieldMeta.builder().setId("textField").setName("textField").setSqliteType("STRING").build());
-    fields.add(FieldMeta.builder().setId("booleanField").setName("booleanField").setSqliteType("INT").build());
+    fields.add(FieldMeta.builder().setId("booleanField").setName("booleanField").setSqliteType("BOOL").build());
     fields.add(FieldMeta.builder().setId("integerField").setName("integerField").setSqliteType("INT").build());
     fields.add(FieldMeta.builder().setId("doubleField").setName("doubleField").setSqliteType("DOUBLE").build());
     fields.add(FieldMeta.builder().setId("mapField").setName("mapField").setSqliteType("BLOB").build());
@@ -38,7 +38,7 @@ public final class Test$AwesomeModel$$ModelHelper extends ModelHelper<Test.Aweso
   @Override
   public List<String> getCreateStatements() {
     List<String> list = new ArrayList<String>();
-    list.add("CREATE TABLE `entry_y2lk` (`remote_id` STRING NOT NULL UNIQUE, `created_at` STRING NOT NULL, `updated_at` STRING, `textField` STRING, `booleanField` INT, `integerField` INT, `doubleField` DOUBLE, `mapField` BLOB, `arrayOfSymbols` BLOB);");
+    list.add("CREATE TABLE `entry_y2lk` (`remote_id` STRING NOT NULL UNIQUE, `created_at` STRING NOT NULL, `updated_at` STRING, `textField` STRING, `booleanField` BOOL, `integerField` INT, `doubleField` DOUBLE, `mapField` BLOB, `arrayOfSymbols` BLOB);");
     return list;
   }
 
