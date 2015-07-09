@@ -112,7 +112,7 @@ class SomeActivity extends Activity {
       @Override public void onError(Throwable cause) {
         // Handle error
       }
-    });Add
+    });
   }
   
   @Override protected void onDestroy() {
