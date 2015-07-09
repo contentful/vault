@@ -18,7 +18,8 @@ package com.contentful.vault;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import com.contentful.java.cda.Constants.CDAResourceType;
+
+import static com.contentful.java.cda.CDAType.ASSET;
 
 public final class Asset extends Resource implements Parcelable {
   private String url;
@@ -39,7 +40,7 @@ public final class Asset extends Resource implements Parcelable {
   }
 
   @Override String getIdPrefix() {
-    return CDAResourceType.Asset.toString();
+    return ASSET.toString();
   }
 
   static Builder builder() {

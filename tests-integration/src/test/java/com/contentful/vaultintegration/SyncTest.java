@@ -73,11 +73,13 @@ public class SyncTest extends BaseTest {
 
   private void assertRequestUpdate() throws InterruptedException {
     server.takeRequest();
+    server.takeRequest();
     RecordedRequest request = server.takeRequest();
     assertThat(request.getPath()).isEqualTo("/spaces/space/sync?sync_token=st1");
   }
 
   private void assertRequestInitial() throws InterruptedException {
+    server.takeRequest();
     server.takeRequest();
     RecordedRequest request = server.takeRequest();
     assertThat(request.getPath()).isEqualTo("/spaces/space/sync?initial=true");
@@ -85,11 +87,13 @@ public class SyncTest extends BaseTest {
 
   private void enqueueInitial() throws IOException {
     enqueue("demo/space.json");
+    enqueue("demo/types.json");
     enqueue("demo/initial.json");
   }
 
   private void enqueueUpdate() throws IOException {
     enqueue("demo/space.json");
+    enqueue("demo/types.json");
     enqueue("demo/update.json");
   }
 

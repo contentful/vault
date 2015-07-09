@@ -14,8 +14,7 @@ public class SqliteEscapeTest extends BaseTest {
   }
 
   @Test public void testSync() throws Exception {
-    enqueue("escape/space.json");
-    enqueue("escape/initial.json");
+    enqueueSync("escape");
     sync();
 
     SqliteEscapeModel item = vault.fetch(SqliteEscapeModel.class).first();

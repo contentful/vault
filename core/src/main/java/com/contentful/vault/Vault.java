@@ -21,6 +21,7 @@ import android.database.sqlite.SQLiteDatabase;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -31,6 +32,8 @@ public class Vault {
   public static final String ACTION_SYNC_COMPLETE = "com.contentful.vault.ACTION_SYNC_COMPLETE";
 
   public static final String EXTRA_SUCCESS = "EXTRA_SUCCESS";
+
+  static final Locale LOCALE = Locale.US;
 
   static final Map<Class<?>, SqliteHelper> SQLITE_HELPERS =
       new LinkedHashMap<Class<?>, SqliteHelper>();

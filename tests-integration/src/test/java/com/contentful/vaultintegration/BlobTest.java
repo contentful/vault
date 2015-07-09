@@ -32,10 +32,9 @@ public class BlobTest extends BaseTest {
   }
 
   @Test public void testBlob() throws Exception {
-    enqueue("vault/space.json");
-    enqueue("vault/initial.json");
-
+    enqueueSync("vault");
     sync();
+
     BlobResource blobResource = vault.fetch(BlobResource.class)
         .where("remote_id = ?", "6tOdhkd6Ewekq8M6MQe4GY")
         .first();

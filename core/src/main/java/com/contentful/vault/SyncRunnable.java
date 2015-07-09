@@ -23,11 +23,13 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
-import com.contentful.java.cda.Constants.CDAResourceType;
-import com.contentful.java.cda.model.CDAAsset;
-import com.contentful.java.cda.model.CDAEntry;
-import com.contentful.java.cda.model.CDAResource;
-import com.contentful.java.cda.model.CDASyncedSpace;
+import com.contentful.java.cda.CDAAsset;
+import com.contentful.java.cda.CDAEntry;
+import com.contentful.java.cda.CDAResource;
+import com.contentful.java.cda.CDAType;
+import com.contentful.java.cda.LocalizedResource;
+import com.contentful.java.cda.SynchronizedSpace;
+import com.squareup.okhttp.HttpUrl;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collections;
@@ -36,15 +38,10 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 
 import static android.database.sqlite.SQLiteDatabase.CONFLICT_REPLACE;
-import static com.contentful.java.cda.Constants.CDAResourceType.Asset;
-import static com.contentful.java.cda.Constants.CDAResourceType.DeletedAsset;
-import static com.contentful.java.cda.Constants.CDAResourceType.DeletedEntry;
-import static com.contentful.java.cda.Constants.CDAResourceType.Entry;
-import static com.contentful.vault.CDAUtils.extractContentTypeId;
-import static com.contentful.vault.CDAUtils.extractResourceId;
-import static com.contentful.vault.CDAUtils.extractResourceType;
-import static com.contentful.vault.CDAUtils.isOfType;
-import static com.contentful.vault.CDAUtils.wasDeleted;
+import static com.contentful.java.cda.CDAType.ASSET;
+import static com.contentful.java.cda.CDAType.DELETEDASSET;
+import static com.contentful.java.cda.CDAType.DELETEDENTRY;
+import static com.contentful.java.cda.CDAType.ENTRY;
 
 public final class SyncRunnable implements Runnable {
   private final Context context;
@@ -58,26 +55,6 @@ public final class SyncRunnable implements Runnable {
   private SQLiteDatabase db;
 
   private String tag;
-
-  private final ResourceHandler HANDLER_DELETE = new ResourceHandler() {
-    @Override void asset(CDAResource resource, Object... objects) {
-      deleteAsset(resource);
-    }
-
-    @Override void entry(CDAResource resource, Object... objects) {
-      deleteEntry(resource);
-    }
-  };
-
-  private final ResourceHandler HANDLER_SAVE = new ResourceHandler() {
-    @Override void asset(CDAResource resource, Object... objects) {
-      saveAsset((CDAAsset) resource);
-    }
-
-    @Override void entry(CDAResource resource, Object... objects) {
-      saveEntry((CDAEntry) resource, objects);
-    }
-  };
 
   private SyncRunnable(Builder builder) {
     this.context = builder.context;
@@ -102,21 +79,20 @@ public final class SyncRunnable implements Runnable {
         token = fetchSyncToken();
       }
 
-      CDASyncedSpace syncedSpace;
+      SynchronizedSpace syncedSpace;
       if (token == null) {
-        syncedSpace = config.client().synchronization().performInitial();
+        syncedSpace = config.client().sync().fetch();
       } else {
         checkLocale();
-        syncedSpace = config.client().synchronization().performWithToken(token);
+        syncedSpace = config.client().sync(token).fetch();
       }
 
       db.beginTransaction();
       try {
-        for (CDAResource resource : syncedSpace.getItems()) {
-          processResource(resource);
-        }
+        processDeleted(syncedSpace);
+        processResources(syncedSpace);
 
-        saveSyncInfo(syncedSpace.getSyncToken());
+        saveSyncInfo(HttpUrl.parse(syncedSpace.nextSyncUrl()).queryParameter("sync_token"));
         db.setTransactionSuccessful();
       } finally {
         db.endTransaction();
@@ -130,6 +106,24 @@ public final class SyncRunnable implements Runnable {
           .putExtra(Vault.EXTRA_SUCCESS, success));
 
       Vault.executeCallback(tag, error);
+    }
+  }
+
+  private void processResources(SynchronizedSpace syncedSpace) {
+    for (CDAAsset asset : syncedSpace.assets().values()) {
+      processResource(asset);
+    }
+    for (CDAEntry entry : syncedSpace.entries().values()) {
+      processResource(entry);
+    }
+  }
+
+  private void processDeleted(SynchronizedSpace syncedSpace) {
+    for (String id : syncedSpace.deletedAssets()) {
+      deleteAsset(id);
+    }
+    for (String id : syncedSpace.deletedEntries()) {
+      deleteEntry(id);
     }
   }
 
@@ -155,26 +149,21 @@ public final class SyncRunnable implements Runnable {
   }
 
   private void processResource(CDAResource resource) {
-    if (wasDeleted(resource)) {
-      HANDLER_DELETE.invoke(resource);
-    } else {
-      if (StringUtils.isNotBlank(config.locale())) {
-        resource.setLocale(config.locale());
-      }
+    CDAType type = resource.type();
+    LocalizedResource localized = (LocalizedResource) resource;
+    if (StringUtils.isNotBlank(config.locale())) {
+      localized.setLocale(config.locale());
+    }
 
-      List<FieldMeta> fields = null;
-      String tableName = null;
-      if (isOfType(resource, Entry)) {
-        Class<?> modelClass = spaceHelper.getTypes().get(extractContentTypeId(resource));
-        if (modelClass == null) {
-          return;
-        }
-
-        ModelHelper<?> modelHelper = spaceHelper.getModels().get(modelClass);
-        tableName = modelHelper.getTableName();
-        fields = modelHelper.getFields();
+    if (type == ASSET) {
+      saveAsset((CDAAsset) resource);
+    } else if (type == ENTRY) {
+      Class<?> modelClass = spaceHelper.getTypes().get(((CDAEntry) localized).contentType().id());
+      if (modelClass == null) {
+        return;
       }
-      HANDLER_SAVE.invoke(resource, tableName, fields);
+      ModelHelper<?> modelHelper = spaceHelper.getModels().get(modelClass);
+      saveEntry((CDAEntry) resource, modelHelper.getTableName(), modelHelper.getFields());
     }
   }
 
@@ -192,18 +181,17 @@ public final class SyncRunnable implements Runnable {
     }
   }
 
-  private void deleteAsset(CDAResource resource) {
-    deleteResource(extractResourceId(resource), SpaceHelper.TABLE_ASSETS);
+  private void deleteAsset(String id) {
+    deleteResource(id, SpaceHelper.TABLE_ASSETS);
   }
 
-  private void deleteEntry(CDAResource resource) {
-    String remoteId = extractResourceId(resource);
-    String contentTypeId = LinkResolver.fetchEntryType(db, remoteId);
+  private void deleteEntry(String id) {
+    String contentTypeId = LinkResolver.fetchEntryType(db, id);
     if (contentTypeId != null) {
       Class<?> clazz = spaceHelper.getTypes().get(contentTypeId);
       if (clazz != null) {
-        deleteResource(remoteId, spaceHelper.getModels().get(clazz).getTableName());
-        deleteEntryType(remoteId);
+        deleteResource(id, spaceHelper.getModels().get(clazz).getTableName());
+        deleteEntryType(id);
       }
     }
   }
@@ -233,25 +221,22 @@ public final class SyncRunnable implements Runnable {
   private void saveAsset(CDAAsset asset) {
     ContentValues values = new ContentValues();
     putResourceFields(asset, values);
-    values.put("url", asset.getUrl());
-    values.put("mime_type", asset.getMimeType());
+    values.put("url", "http:" + asset.url());
+    values.put("mime_type", asset.mimeType());
     db.insertWithOnConflict(SpaceHelper.TABLE_ASSETS, null, values, CONFLICT_REPLACE);
   }
 
   private <T> T extractRawFieldValue(CDAEntry entry, String fieldId) {
-    Map value = (Map) entry.getRawFields().get(fieldId);
+    Map value = (Map) entry.rawFields().get(fieldId);
     if (value != null) {
       //noinspection unchecked
-      return (T) value.get(entry.getLocale());
+      return (T) value.get(entry.locale());
     }
     return null;
   }
 
   @SuppressWarnings("unchecked")
-  private void saveEntry(CDAEntry entry, Object... objects) {
-    String tableName = (String) objects[0];
-    List<FieldMeta> fields = (List<FieldMeta>) objects[1];
-
+  private void saveEntry(CDAEntry entry, String tableName, List<FieldMeta> fields) {
     ContentValues values = new ContentValues();
     putResourceFields(entry, values);
     for (FieldMeta field : fields) {
@@ -275,8 +260,8 @@ public final class SyncRunnable implements Runnable {
     db.insertWithOnConflict(tableName, null, values, CONFLICT_REPLACE);
 
     values.clear();
-    values.put("remote_id", extractResourceId(entry));
-    values.put("type_id", extractContentTypeId(entry));
+    values.put("remote_id", entry.id());
+    values.put("type_id", entry.contentType().id());
     db.insertWithOnConflict(SpaceHelper.TABLE_ENTRY_TYPES, null, values, CONFLICT_REPLACE);
   }
 
@@ -294,15 +279,14 @@ public final class SyncRunnable implements Runnable {
 
   private void processArray(CDAEntry entry, ContentValues values, FieldMeta field) {
     if (field.isArrayOfSymbols()) {
-      List list = (List) entry.getFields().get(field.id());
+      List list = (List) entry.getField(field.id());
       if (list == null) {
         list = Collections.emptyList();
       }
       saveBlob(entry, values, field, (Serializable) list);
     } else {
       // Array of resources
-      String entryId = extractResourceId(entry);
-      deleteResourceLinks(entryId, field.id());
+      deleteResourceLinks(entry.id(), field.id());
 
       List links = extractRawFieldValue(entry, field.id());
       if (links != null) {
@@ -314,7 +298,7 @@ public final class SyncRunnable implements Runnable {
   }
 
   private void processLink(CDAEntry entry, String fieldId, Map value) {
-    String parentId = extractResourceId(entry);
+    String parentId = entry.id();
     if (value != null) {
       Map linkInfo = (Map) value.get("sys");
       if (linkInfo != null) {
@@ -335,8 +319,8 @@ public final class SyncRunnable implements Runnable {
       values.put(escape(field.name()), BlobUtils.toBlob(value));
     } catch (IOException e) {
       throw new RuntimeException(
-          String.format("Failed converting value to BLOB for entry id %s field %s.",
-              extractResourceId(entry), field.name()));
+          String.format("Failed converting value to BLOB for entry id %s field %s.", entry.id(),
+              field.name()));
     }
   }
 
@@ -345,7 +329,7 @@ public final class SyncRunnable implements Runnable {
     values.put("parent", parentId);
     values.put("field", fieldId);
     values.put("child", targetId);
-    values.put("is_asset", CDAResourceType.valueOf(linkType).equals(Asset));
+    values.put("is_asset", CDAType.valueOf(linkType.toUpperCase(Vault.LOCALE)) == ASSET);
     db.insertWithOnConflict(SpaceHelper.TABLE_LINKS, null, values, CONFLICT_REPLACE);
   }
 
@@ -356,9 +340,9 @@ public final class SyncRunnable implements Runnable {
   }
 
   private static void putResourceFields(CDAResource resource, ContentValues values) {
-    values.put("remote_id", extractResourceId(resource));
-    values.put("created_at", (String) resource.getSys().get("createdAt"));
-    values.put("updated_at", (String) resource.getSys().get("updatedAt"));
+    values.put("remote_id", resource.id());
+    values.put("created_at", (String) resource.getAttribute("createdAt"));
+    values.put("updated_at", (String) resource.getAttribute("updatedAt"));
   }
 
   static abstract class ResourceHandler {
@@ -366,10 +350,10 @@ public final class SyncRunnable implements Runnable {
     abstract void entry(CDAResource resource, Object... objects);
 
     void invoke(CDAResource resource, Object... objects) {
-      CDAResourceType resourceType = CDAResourceType.valueOf(extractResourceType(resource));
-      if (Asset.equals(resourceType) || DeletedAsset.equals(resourceType)) {
+      CDAType type = resource.type();
+      if (type == ASSET || type == DELETEDASSET) {
         asset(resource, objects);
-      } else if (Entry.equals(resourceType) || DeletedEntry.equals(resourceType)) {
+      } else if (type == ENTRY || type == DELETEDENTRY) {
         entry(resource, objects);
       }
     }

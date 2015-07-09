@@ -1,0 +1,252 @@
+{
+  "sys": {
+    "type": "Array"
+  },
+  "total": 5,
+  "skip": 0,
+  "limit": 100,
+  "items": [
+    {
+      "fields": [
+        {
+          "name": "Name",
+          "id": "name",
+          "type": "Text",
+          "required": true
+        },
+        {
+          "name": "Center",
+          "id": "center",
+          "type": "Location",
+          "required": true
+        }
+      ],
+      "name": "City",
+      "sys": {
+        "space": {
+          "sys": {
+            "type": "Link",
+            "linkType": "Space",
+            "id": "cfexampleapi"
+          }
+        },
+        "type": "ContentType",
+        "id": "1t9IbcfdCk6m04uISSsaIK",
+        "revision": 1,
+        "createdAt": "2014-02-21T13:42:33.009Z",
+        "updatedAt": "2014-02-21T13:42:33.009Z"
+      },
+      "displayField": "name"
+    },
+    {
+      "fields": [
+        {
+          "id": "name",
+          "name": "Name",
+          "type": "Text",
+          "required": true,
+          "localized": false
+        }
+      ],
+      "name": "Cat",
+      "sys": {
+        "space": {
+          "sys": {
+            "type": "Link",
+            "linkType": "Space",
+            "id": "cfexampleapi"
+          }
+        },
+        "type": "ContentType",
+        "id": "63k4qdEi9aI8IQUGaYGg4O",
+        "revision": 1,
+        "createdAt": "2013-06-23T19:06:29.976Z",
+        "updatedAt": "2013-06-23T19:06:29.976Z"
+      },
+      "description": "Meow!",
+      "displayField": "name"
+    },
+    {
+      "fields": [
+        {
+          "id": "name",
+          "name": "Name",
+          "type": "Text",
+          "required": true,
+          "localized": false
+        },
+        {
+          "id": "description",
+          "name": "Description",
+          "type": "Text",
+          "required": false,
+          "localized": false
+        },
+        {
+          "id": "image",
+          "name": "Image",
+          "required": false,
+          "localized": false,
+          "type": "Link",
+          "linkType": "Asset"
+        }
+      ],
+      "name": "Dog",
+      "description": "Bark!",
+      "displayField": "name",
+      "sys": {
+        "space": {
+          "sys": {
+            "type": "Link",
+            "linkType": "Space",
+            "id": "cfexampleapi"
+          }
+        },
+        "type": "ContentType",
+        "id": "dog",
+        "revision": 2,
+        "createdAt": "2013-06-27T22:46:13.498Z",
+        "updatedAt": "2013-09-02T14:32:11.837Z"
+      }
+    },
+    {
+      "fields": [
+        {
+          "id": "name",
+          "name": "Name",
+          "type": "Text",
+          "required": true,
+          "localized": true
+        },
+        {
+          "id": "likes",
+          "name": "Likes",
+          "type": "Array",
+          "required": false,
+          "localized": false,
+          "items": {
+            "type": "Symbol"
+          }
+        },
+        {
+          "id": "color",
+          "name": "Color",
+          "type": "Symbol",
+          "required": false,
+          "localized": false
+        },
+        {
+          "id": "bestFriend",
+          "name": "Best Friend",
+          "type": "Link",
+          "required": false,
+          "localized": false,
+          "linkType": "Entry"
+        },
+        {
+          "id": "birthday",
+          "name": "Birthday",
+          "type": "Date",
+          "required": false,
+          "localized": false
+        },
+        {
+          "id": "lifes",
+          "name": "Lifes left",
+          "type": "Integer",
+          "required": false,
+          "localized": false,
+          "disabled": true
+        },
+        {
+          "id": "lives",
+          "name": "Lives left",
+          "type": "Integer",
+          "required": false,
+          "localized": false
+        },
+        {
+          "id": "image",
+          "name": "Image",
+          "required": false,
+          "localized": false,
+          "type": "Link",
+          "linkType": "Asset"
+        }
+      ],
+      "name": "Cat",
+      "displayField": "name",
+      "description": "Meow.",
+      "sys": {
+        "space": {
+          "sys": {
+            "type": "Link",
+            "linkType": "Space",
+            "id": "cfexampleapi"
+          }
+        },
+        "type": "ContentType",
+        "id": "cat",
+        "revision": 2,
+        "createdAt": "2013-06-27T22:46:12.852Z",
+        "updatedAt": "2013-09-02T13:14:47.863Z"
+      }
+    },
+    {
+      "fields": [
+        {
+          "id": "name",
+          "name": "Name",
+          "type": "Text",
+          "required": true,
+          "localized": false
+        },
+        {
+          "id": "description",
+          "name": "Description",
+          "type": "Text",
+          "required": false,
+          "localized": false
+        },
+        {
+          "id": "likes",
+          "name": "Likes",
+          "type": "Array",
+          "required": false,
+          "localized": false,
+          "items": {
+            "type": "Symbol"
+          }
+        },
+        {
+          "id": "image",
+          "name": "Image",
+          "required": false,
+          "localized": false,
+          "type": "Array",
+          "items": {
+            "type": "Link",
+            "linkType": "Asset"
+          },
+          "disabled": true
+        }
+      ],
+      "name": "Human",
+      "displayField": "name",
+      "sys": {
+        "space": {
+          "sys": {
+            "type": "Link",
+            "linkType": "Space",
+            "id": "cfexampleapi"
+          }
+        },
+        "type": "ContentType",
+        "id": "human",
+        "revision": 3,
+        "createdAt": "2013-06-27T22:46:14.133Z",
+        "updatedAt": "2013-09-02T15:10:26.818Z"
+      }
+    }
+  ]
+}

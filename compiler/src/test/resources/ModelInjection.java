@@ -16,8 +16,8 @@ public final class Test$AwesomeModel$$ModelHelper extends ModelHelper<Test.Aweso
     fields.add(FieldMeta.builder().setId("integerField").setName("integerField").setSqliteType("INT").build());
     fields.add(FieldMeta.builder().setId("doubleField").setName("doubleField").setSqliteType("DOUBLE").build());
     fields.add(FieldMeta.builder().setId("mapField").setName("mapField").setSqliteType("BLOB").build());
-    fields.add(FieldMeta.builder().setId("assetLink").setName("assetLink").setLinkType("Asset").build());
-    fields.add(FieldMeta.builder().setId("entryLink").setName("entryLink").setLinkType("Entry").build());
+    fields.add(FieldMeta.builder().setId("assetLink").setName("assetLink").setLinkType("ASSET").build());
+    fields.add(FieldMeta.builder().setId("entryLink").setName("entryLink").setLinkType("ENTRY").build());
     fields.add(FieldMeta.builder().setId("arrayOfAssets").setName("arrayOfAssets").setArrayType(
         "com.contentful.vault.Asset").build());
     fields.add(FieldMeta.builder().setId("arrayOfModels").setName("arrayOfModels").setArrayType("Test.AwesomeModel").build());
