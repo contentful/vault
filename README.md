@@ -22,9 +22,11 @@ Grab via Maven:
 ```
 or Gradle:
 ```groovy
-compile 'com.contentful.vault:compiler:0.9.5'
+apt 'com.contentful.vault:compiler:0.9.5'
 compile 'com.contentful.vault:core:0.9.5'
 ```
+
+Note for Gradle users, make sure to use the [android-apt][apt] Gradle plugin, which lets you configure compile-time only dependencies.
 
 Snapshots of the development version are available in [Sonatype's `snapshots` repository][snap].
 
@@ -161,6 +163,10 @@ public class DemoSpace { }
 
 Note: this will delete any previously persisted data.
 
+### ProGuard
+
+Grab the [ProGuard configuration file][proguard] and apply to your project. 
+
 
 License
 -------
@@ -184,3 +190,5 @@ License
 
 
  [snap]: https://oss.sonatype.org/content/repositories/snapshots/
+ [apt]: https://bitbucket.org/hvisser/android-apt
+ [proguard]: proguard-vault.cfg
