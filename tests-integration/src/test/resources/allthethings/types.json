@@ -1,0 +1,110 @@
+{
+  "sys": {
+    "type": "Array"
+  },
+  "total": 1,
+  "skip": 0,
+  "limit": 100,
+  "items": [
+    {
+      "name": "All The Things",
+      "fields": [
+        {
+          "name": "text",
+          "id": "text",
+          "type": "Text"
+        },
+        {
+          "name": "number",
+          "id": "number",
+          "type": "Integer"
+        },
+        {
+          "name": "decimal",
+          "id": "decimal",
+          "type": "Number"
+        },
+        {
+          "name": "yesno",
+          "id": "yesno",
+          "type": "Boolean"
+        },
+        {
+          "name": "dateTime",
+          "id": "dateTime",
+          "type": "Date"
+        },
+        {
+          "name": "location",
+          "id": "location",
+          "type": "Location"
+        },
+        {
+          "name": "entry",
+          "id": "entry",
+          "type": "Link",
+          "linkType": "Entry"
+        },
+        {
+          "name": "asset",
+          "id": "asset",
+          "type": "Link",
+          "linkType": "Asset"
+        },
+        {
+          "name": "object",
+          "id": "object",
+          "type": "Object"
+        },
+        {
+          "name": "entries",
+          "id": "entries",
+          "type": "Array",
+          "items": {
+            "type": "Link",
+            "linkType": "Entry",
+            "validations": [
+              {
+                "linkContentType": [
+                  "2585ClSxW8OeuMEoIiKW4i"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "assets",
+          "id": "assets",
+          "type": "Array",
+          "items": {
+            "type": "Link",
+            "linkType": "Asset"
+          }
+        },
+        {
+          "name": "symbols",
+          "id": "symbols",
+          "type": "Array",
+          "items": {
+            "type": "Symbol"
+          }
+        }
+      ],
+      "displayField": "text",
+      "sys": {
+        "space": {
+          "sys": {
+            "type": "Link",
+            "linkType": "Space",
+            "id": "hwp8ctxa24x7"
+          }
+        },
+        "type": "ContentType",
+        "id": "2585ClSxW8OeuMEoIiKW4i",
+        "revision": 2,
+        "createdAt": "2015-07-07T08:26:47.081Z",
+        "updatedAt": "2015-07-07T08:27:21.639Z"
+      }
+    }
+  ]
+}

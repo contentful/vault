@@ -4,7 +4,7 @@ import com.contentful.vault.ContentType;
 import com.contentful.vault.Field;
 import com.contentful.vault.Resource;
 
-@ContentType("66bnqqjZCg4wkCaEUSKsGa")
+@ContentType("foo")
 public class SqliteEscapeModel extends Resource {
   @Field public String order;
 }

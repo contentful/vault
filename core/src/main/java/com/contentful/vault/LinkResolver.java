@@ -2,11 +2,12 @@ package com.contentful.vault;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import com.contentful.java.cda.Constants.CDAResourceType;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import static com.contentful.java.cda.CDAType.ASSET;
 
 final class LinkResolver {
   private static final String LINKS_WHERE_CLAUSE =
@@ -99,8 +100,7 @@ final class LinkResolver {
   private List<Link> fetchLinks(String parentId, FieldMeta field) {
     List<Link> result;
 
-    boolean linksToAssets = CDAResourceType.Asset.toString().equals(field.linkType()) ||
-        Asset.class.getName().equals(field.arrayType());
+    boolean linksToAssets = isLinkForAssets(field);
 
     String query = linksToAssets ? QUERY_ASSET_LINKS : QUERY_ENTRY_LINKS;
 
@@ -125,6 +125,14 @@ final class LinkResolver {
       cursor.close();
     }
     return result;
+  }
+
+  private boolean isLinkForAssets(FieldMeta field) {
+    String linkType = field.linkType();
+    if (linkType != null) {
+      linkType = linkType.toUpperCase(Vault.LOCALE);
+    }
+    return ASSET.toString().equals(linkType) || Asset.class.getName().equals(field.arrayType());
   }
 
   public static String fetchEntryType(SQLiteDatabase db, String remoteId) {

@@ -1,0 +1,138 @@
+{
+  "sys": {
+    "type": "Array"
+  },
+  "total": 4,
+  "skip": 0,
+  "limit": 100,
+  "items": [
+    {
+      "name": "Blob",
+      "fields": [
+        {
+          "name": "object",
+          "id": "object",
+          "type": "Object"
+        }
+      ],
+      "description": "",
+      "sys": {
+        "space": {
+          "sys": {
+            "type": "Link",
+            "linkType": "Space",
+            "id": "y005y7p7nrqo"
+          }
+        },
+        "type": "ContentType",
+        "id": "1HRG7uai2g8YMswwqoAaC8",
+        "revision": 1,
+        "createdAt": "2015-04-27T14:54:45.139Z",
+        "updatedAt": "2015-04-27T14:54:45.139Z"
+      }
+    },
+    {
+      "name": "Arrays",
+      "fields": [
+        {
+          "name": "symbols",
+          "id": "symbols",
+          "type": "Array",
+          "items": {
+            "type": "Symbol"
+          }
+        },
+        {
+          "name": "assets",
+          "id": "assets",
+          "type": "Array",
+          "items": {
+            "type": "Link",
+            "linkType": "Asset"
+          }
+        },
+        {
+          "name": "blobs",
+          "id": "blobs",
+          "type": "Array",
+          "items": {
+            "type": "Link",
+            "linkType": "Entry",
+            "validations": [
+              {
+                "linkContentType": [
+                  "1HRG7uai2g8YMswwqoAaC8"
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "displayField": null,
+      "sys": {
+        "space": {
+          "sys": {
+            "type": "Link",
+            "linkType": "Space",
+            "id": "y005y7p7nrqo"
+          }
+        },
+        "type": "ContentType",
+        "id": "4rD4z2Ex0kEOgeWCWG4Se2",
+        "revision": 6,
+        "createdAt": "2015-04-29T13:24:31.565Z",
+        "updatedAt": "2015-04-30T09:20:08.674Z"
+      }
+    },
+    {
+      "name": "Text",
+      "fields": [
+        {
+          "name": "text",
+          "id": "text",
+          "type": "Text",
+          "localized": true
+        }
+      ],
+      "displayField": "text",
+      "sys": {
+        "space": {
+          "sys": {
+            "type": "Link",
+            "linkType": "Space",
+            "id": "y005y7p7nrqo"
+          }
+        },
+        "type": "ContentType",
+        "id": "6yhJBtk1nUYq0iumy6gMY4",
+        "revision": 1,
+        "createdAt": "2015-05-11T13:23:02.564Z",
+        "updatedAt": "2015-05-11T13:23:02.564Z"
+      }
+    },
+    {
+      "name": "Bool",
+      "fields": [
+        {
+          "name": "value",
+          "id": "value",
+          "type": "Boolean"
+        }
+      ],
+      "sys": {
+        "space": {
+          "sys": {
+            "type": "Link",
+            "linkType": "Space",
+            "id": "y005y7p7nrqo"
+          }
+        },
+        "type": "ContentType",
+        "id": "3o5klpTg9W6mssoMgeGMME",
+        "revision": 1,
+        "createdAt": "2015-07-06T15:10:18.572Z",
+        "updatedAt": "2015-07-06T15:10:18.572Z"
+      }
+    }
+  ]
+}

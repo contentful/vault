@@ -1,0 +1,34 @@
+{
+  "sys": {
+    "type": "Array"
+  },
+  "total": 1,
+  "skip": 0,
+  "limit": 100,
+  "items": [
+    {
+      "name": "SqliteEscapeModel",
+      "fields": [
+        {
+          "name": "order",
+          "id": "order",
+          "type": "Text"
+        }
+      ],
+      "sys": {
+        "space": {
+          "sys": {
+            "type": "Link",
+            "linkType": "Space",
+            "id": "fp9iccz5ot6h"
+          }
+        },
+        "type": "ContentType",
+        "id": "foo",
+        "revision": 1,
+        "createdAt": "2015-05-21T08:58:17.595Z",
+        "updatedAt": "2015-05-21T08:58:17.595Z"
+      }
+    }
+  ]
+}

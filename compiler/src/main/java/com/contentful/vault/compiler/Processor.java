@@ -16,7 +16,6 @@
 
 package com.contentful.vault.compiler;
 
-import com.contentful.java.cda.Constants.CDAResourceType;
 import com.contentful.vault.ContentType;
 import com.contentful.vault.Field;
 import com.contentful.vault.FieldMeta;
@@ -50,6 +49,8 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 
+import static com.contentful.java.cda.CDAType.ASSET;
+import static com.contentful.java.cda.CDAType.ENTRY;
 import static com.contentful.vault.Constants.SUFFIX_MODEL;
 import static com.contentful.vault.Constants.SUFFIX_SPACE;
 import static javax.tools.Diagnostic.Kind.ERROR;
@@ -308,21 +309,14 @@ public class Processor extends AbstractProcessor {
   }
 
   private String getLinkType(TypeMirror typeMirror) {
-    CDAResourceType resourceType = null;
-
     if (isSubtypeOfType(typeMirror, Resource.class.getName())) {
       if (isSubtypeOfType(typeMirror, FQ_ASSET)) {
-        resourceType = CDAResourceType.Asset;
+        return ASSET.toString();
       } else {
-        resourceType = CDAResourceType.Entry;
+        return ENTRY.toString();
       }
     }
-
-    if (resourceType == null) {
-      return null;
-    }
-
-    return resourceType.toString();
+    return null;
   }
 
   private void parsingError(Element element, Class<? extends Annotation> annotation, Exception e) {

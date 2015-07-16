@@ -32,11 +32,8 @@ public class AllTheThingsTest extends BaseTest {
   }
 
   @Test public void testAllTheThings() throws Exception {
-    enqueue("allthethings/space.json");
-    enqueue("allthethings/initial.json");
-
+    enqueueSync("allthethings");
     sync();
-
     checkEntryFoo();
     checkEntryBar();
   }

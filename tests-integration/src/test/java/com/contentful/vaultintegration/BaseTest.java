@@ -34,8 +34,6 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
-import static com.google.common.truth.Truth.assertThat;
-
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest = "src/main/AndroidManifest.xml")
 public abstract class BaseTest {
@@ -59,16 +57,15 @@ public abstract class BaseTest {
 
   protected void setupClient() {
     client = CDAClient.builder()
-        .setSpaceKey("space")
-        .setAccessToken("token")
+        .setSpace("space")
+        .setToken("token")
         .setEndpoint(getServerUrl())
-        .noSSL()
         .build();
   }
 
   protected String getServerUrl() {
     URL url = server.getUrl("/");
-    return url.getHost() + ":" + url.getPort();
+    return "http://" + url.getHost() + ":" + url.getPort();
   }
 
   protected void enqueue(String fileName) throws IOException {
@@ -78,6 +75,20 @@ public abstract class BaseTest {
     }
     server.enqueue(new MockResponse().setResponseCode(200)
         .setBody(FileUtils.readFileToString(new File(resource.getFile()))));
+  }
+
+  protected void enqueueSync(String space) throws IOException {
+    enqueueSync(space, false);
+  }
+
+  protected void enqueueSync(String space, boolean update) throws IOException {
+    enqueue(space + "/space.json");
+    enqueue(space + "/types.json");
+    if (update) {
+      enqueue(space + "/update.json");
+    } else {
+      enqueue(space + "/initial.json");
+    }
   }
 
   protected void sync() throws InterruptedException {
@@ -113,6 +124,8 @@ public abstract class BaseTest {
     vault.requestSync(config, callback, executor);
     latch.await();
 
-    assertThat(error[0]).isNull();
+    if (error[0] != null) {
+      throw new RuntimeException(error[0]);
+    }
   }
 }

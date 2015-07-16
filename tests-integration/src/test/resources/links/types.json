@@ -1,0 +1,39 @@
+{
+  "sys": {
+    "type": "Array"
+  },
+  "total": 1,
+  "skip": 0,
+  "limit": 100,
+  "items": [
+    {
+      "name": "AssetsContainer",
+      "fields": [
+        {
+          "name": "assets",
+          "id": "assets",
+          "type": "Array",
+          "items": {
+            "type": "Link",
+            "linkType": "Asset"
+          },
+          "localized": true
+        }
+      ],
+      "sys": {
+        "space": {
+          "sys": {
+            "type": "Link",
+            "linkType": "Space",
+            "id": "fp9iccz5ot6h"
+          }
+        },
+        "type": "ContentType",
+        "id": "5QVPSeE41yo28mA4sU6gIo",
+        "revision": 1,
+        "createdAt": "2015-05-21T08:58:17.595Z",
+        "updatedAt": "2015-05-21T08:58:17.595Z"
+      }
+    }
+  ]
+}

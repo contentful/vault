@@ -37,9 +37,9 @@ public class LocaleTest extends BaseTest {
 
   private void checkCustomLocale() throws Exception {
     // Klingon
-    enqueue("demo/space.json");
-    enqueue("demo/initial.json");
+    enqueueSync("demo");
     sync(SyncConfig.builder().setClient(client).setLocale("tlh").build());
+
     Cat cat = vault.fetch(Cat.class)
         .where("remote_id = ?", "happycat")
         .first();
@@ -50,8 +50,7 @@ public class LocaleTest extends BaseTest {
 
   private void checkDefaultLocale() throws Exception {
     // Default locale
-    enqueue("demo/space.json");
-    enqueue("demo/initial.json");
+    enqueueSync("demo");
     sync();
 
     Cat cat = vault.fetch(Cat.class)

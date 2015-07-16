@@ -37,8 +37,7 @@ public class ArrayTest extends BaseTest {
   }
 
   @Test public void testArray() throws Exception {
-    enqueue("vault/space.json");
-    enqueue("vault/initial.json");
+    enqueueSync("vault");
     sync();
 
     ArraysResource resource = vault.fetch(ArraysResource.class)
@@ -61,8 +60,7 @@ public class ArrayTest extends BaseTest {
   }
 
   @Test public void testEmptyFields() throws Exception {
-    enqueue("vault/space.json");
-    enqueue("vault/initial.json");
+    enqueueSync("vault");
     sync();
 
     ArraysResource resource = vault.fetch(ArraysResource.class)

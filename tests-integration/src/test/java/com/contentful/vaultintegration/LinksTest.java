@@ -19,8 +19,7 @@ public class LinksTest extends BaseTest {
     final String CONTAINER_ID = "34ljO1zKukgIYmcQ64IgOo";
 
     // Initial
-    enqueue("links/space.json");
-    enqueue("links/initial.json");
+    enqueueSync("links");
     sync();
 
     AssetsContainer container = vault.fetch(AssetsContainer.class)
@@ -33,8 +32,7 @@ public class LinksTest extends BaseTest {
     assertThat(container.assets().get(0).remoteId()).isEqualTo("4eHZNAfWq4UaiYIywMiSAy");
 
     // Update
-    enqueue("links/space.json");
-    enqueue("links/update.json");
+    enqueueSync("links", true);
     sync();
 
     container = vault.fetch(AssetsContainer.class)
