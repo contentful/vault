@@ -22,15 +22,10 @@ import com.contentful.vaultintegration.lib.vault.VaultSpace;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
-import org.robolectric.annotation.Config;
 
 import static com.google.common.truth.Truth.assertThat;
 
-@RunWith(RobolectricTestRunner.class)
-@Config(manifest = "src/main/AndroidManifest.xml")
 public class ArrayTest extends BaseTest {
   @Override protected void setupVault() {
     vault = Vault.with(RuntimeEnvironment.application, VaultSpace.class);
