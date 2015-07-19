@@ -94,5 +94,5 @@ public abstract class SpaceHelper {
 
   public abstract Map<Class<?>, ModelHelper<?>> getModels();
 
-  public abstract Map<String, Class<?>> getTypes();
+  public abstract Map<String, Class<? extends Resource>> getTypes();
 }

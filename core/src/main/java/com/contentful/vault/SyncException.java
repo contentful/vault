@@ -17,6 +17,7 @@
 package com.contentful.vault;
 
 public class SyncException extends RuntimeException {
+
   public SyncException(String message) {
     super(message);
   }

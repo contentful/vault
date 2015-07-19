@@ -137,6 +137,8 @@ final class ModelInjection extends Injection {
     MethodSpec.Builder method = MethodSpec.methodBuilder("fromCursor")
         .returns(modelClassName)
         .addAnnotation(Override.class)
+        .addAnnotation(
+            AnnotationSpec.builder(SuppressWarnings.class).addMember("value", "$S", "unchecked").build())
         .addModifiers(Modifier.PUBLIC)
         .addParameter(
             ParameterSpec.builder(ClassName.get("android.database", "Cursor"), "cursor").build());

@@ -38,6 +38,7 @@ public class AllTheThingsTest extends BaseTest {
     checkEntryBar();
   }
 
+  @SuppressWarnings("unchecked")
   private void checkEntryBar() {
     AllTheThingsResource bar = vault.fetch(AllTheThingsResource.class)
         .where("remote_id = ?", "4EYJjgMg0oG084iuACY6Ue")
@@ -64,6 +65,7 @@ public class AllTheThingsTest extends BaseTest {
     assertThat(bar.symbols()).isEmpty();
   }
 
+  @SuppressWarnings("unchecked")
   private void checkEntryFoo() {
     AllTheThingsResource foo = vault.fetch(AllTheThingsResource.class)
         .where("remote_id = ?", "6K1Md1qADuOsoom2UIEKkq")
