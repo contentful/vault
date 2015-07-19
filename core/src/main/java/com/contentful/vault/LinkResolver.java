@@ -86,15 +86,16 @@ final class LinkResolver {
       result = targets.get(0);
     }
     if  (result != null) {
-      ModelHelper modelHelper = getHelperForEntry(resource);
+      ModelHelper<Resource> modelHelper = getHelperForEntry(resource);
       modelHelper.setField(resource, field.name(), result);
     }
   }
 
-  private ModelHelper<?> getHelperForEntry(Resource resource) {
+  @SuppressWarnings("unchecked")
+  private ModelHelper<Resource> getHelperForEntry(Resource resource) {
     SpaceHelper spaceHelper = sqliteHelper.getSpaceHelper();
     Class<?> modelType = spaceHelper.getTypes().get(resource.contentType());
-    return spaceHelper.getModels().get(modelType);
+    return (ModelHelper<Resource>) spaceHelper.getModels().get(modelType);
   }
 
   private List<Link> fetchLinks(String parentId, FieldMeta field) {

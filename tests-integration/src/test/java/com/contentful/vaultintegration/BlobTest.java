@@ -31,6 +31,7 @@ public class BlobTest extends BaseTest {
     vault = Vault.with(RuntimeEnvironment.application, VaultSpace.class);
   }
 
+  @SuppressWarnings("unchecked")
   @Test public void testBlob() throws Exception {
     enqueueSync("vault");
     sync();

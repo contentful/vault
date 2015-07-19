@@ -226,10 +226,10 @@ public final class SyncRunnable implements Runnable {
     db.insertWithOnConflict(SpaceHelper.TABLE_ASSETS, null, values, CONFLICT_REPLACE);
   }
 
+  @SuppressWarnings("unchecked")
   private <T> T extractRawFieldValue(CDAEntry entry, String fieldId) {
-    Map value = (Map) entry.rawFields().get(fieldId);
+    Map<?, ?> value = (Map<?, ?>) entry.rawFields().get(fieldId);
     if (value != null) {
-      //noinspection unchecked
       return (T) value.get(entry.locale());
     }
     return null;
@@ -242,7 +242,7 @@ public final class SyncRunnable implements Runnable {
     for (FieldMeta field : fields) {
       Object value = extractRawFieldValue(entry, field.id());
       if (field.isLink()) {
-        processLink(entry, field.id(), (Map) value);
+        processLink(entry, field.id(), (Map<?, ?>) value);
       } else if (field.isArray()) {
         processArray(entry, values, field);
       } else if ("BLOB".equals(field.sqliteType())) {
@@ -279,7 +279,7 @@ public final class SyncRunnable implements Runnable {
 
   private void processArray(CDAEntry entry, ContentValues values, FieldMeta field) {
     if (field.isArrayOfSymbols()) {
-      List list = (List) entry.getField(field.id());
+      List<?> list = entry.getField(field.id());
       if (list == null) {
         list = Collections.emptyList();
       }
@@ -288,7 +288,7 @@ public final class SyncRunnable implements Runnable {
       // Array of resources
       deleteResourceLinks(entry.id(), field.id());
 
-      List links = extractRawFieldValue(entry, field.id());
+      List<?> links = extractRawFieldValue(entry, field.id());
       if (links != null) {
         for (Object link : links) {
           processLink(entry, field.id(), (Map) link);
@@ -297,10 +297,11 @@ public final class SyncRunnable implements Runnable {
     }
   }
 
-  private void processLink(CDAEntry entry, String fieldId, Map value) {
+  @SuppressWarnings("unchecked")
+  private void processLink(CDAEntry entry, String fieldId, Map<?, ?> value) {
     String parentId = entry.id();
     if (value != null) {
-      Map linkInfo = (Map) value.get("sys");
+      Map<String, ?> linkInfo = (Map<String, ?>) value.get("sys");
       if (linkInfo != null) {
         String linkType = (String) linkInfo.get("linkType");
         String targetId = (String) linkInfo.get("id");

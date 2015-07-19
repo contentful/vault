@@ -116,15 +116,14 @@ public final class Query<T extends Resource> {
 
   Resource fetchResource(Link link) {
     Resource resource = null;
-    Class<?> clazz;
+    Class<? extends Resource> clazz;
     if (link.isAsset()) {
       clazz = Asset.class;
     } else {
       clazz = sqliteHelper.getSpaceHelper().getTypes().get(link.childContentType());
     }
     if (clazz != null) {
-      //noinspection unchecked
-      resource = vault.fetch((Class<? extends Resource>) clazz)
+      resource = vault.fetch(clazz)
           .where("remote_id = ?", link.child())
           .first(false);
     }

@@ -17,6 +17,7 @@
 package com.contentful.vault.compiler;
 
 import com.contentful.vault.ModelHelper;
+import com.contentful.vault.Resource;
 import com.contentful.vault.SpaceHelper;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;
@@ -82,7 +83,7 @@ final class SpaceInjection extends Injection {
   private void appendTypes(TypeSpec.Builder builder) {
     // Field
     TypeName classTypeName = ParameterizedTypeName.get(ClassName.get(Class.class),
-        WildcardTypeName.subtypeOf(Object.class));
+        WildcardTypeName.subtypeOf(Resource.class));
 
     specTypes =
         createMapWithInitializer("types", LinkedHashMap.class, ClassName.get(String.class),

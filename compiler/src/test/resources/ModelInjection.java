@@ -43,6 +43,7 @@ public final class Test$AwesomeModel$$ModelHelper extends ModelHelper<Test.Aweso
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public Test.AwesomeModel fromCursor(Cursor cursor) {
     Test.AwesomeModel result = new Test.AwesomeModel();
     setContentType(result, "cid");
