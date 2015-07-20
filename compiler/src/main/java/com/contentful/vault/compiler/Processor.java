@@ -84,31 +84,28 @@ public class Processor extends AbstractProcessor {
 
   @Override
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-    Map<TypeElement, Injection> targets = findAndParseTargets(roundEnv);
-    for (Map.Entry<TypeElement, Injection> entry : targets.entrySet()) {
-      TypeElement typeElement = entry.getKey();
+    Set<Injection> targets = findAndParseTargets(roundEnv);
+    for (Injection injection : targets) {
       try {
-        Injection injection = entry.getValue();
         injection.brewJava().writeTo(filer);
       } catch (Exception e) {
-        error(typeElement, "Failed writing injection for \"%s\", message: %s",
-            typeElement.getQualifiedName(), e.getMessage());
+        TypeElement element = injection.originatingElement;
+        error(element, "Failed writing injection for \"%s\", message: %s",
+            element.getQualifiedName(), e.getMessage());
       }
     }
     return true;
   }
 
-  private Map<TypeElement, Injection> findAndParseTargets(RoundEnvironment env) {
-    Map<TypeElement, ModelInjection> modelTargets =
-        new LinkedHashMap<TypeElement, ModelInjection>();
-
-    Map<TypeElement, SpaceInjection> spaceTargets =
-        new LinkedHashMap<TypeElement, SpaceInjection>();
+  private Set<Injection> findAndParseTargets(RoundEnvironment env) {
+    Map<TypeElement, ModelInjection> models = new LinkedHashMap<TypeElement, ModelInjection>();
+    Map<TypeElement, FieldInjection> fields = new LinkedHashMap<TypeElement, FieldInjection>();
+    Map<TypeElement, SpaceInjection> spaces = new LinkedHashMap<TypeElement, SpaceInjection>();
 
     // Parse ContentType bindings
     for (Element element : env.getElementsAnnotatedWith(ContentType.class)) {
       try {
-        parseContentType((TypeElement) element, modelTargets);
+        parseContentType((TypeElement) element, models);
       } catch (Exception e) {
         parsingError(element, ContentType.class, e);
       }
@@ -117,21 +114,22 @@ public class Processor extends AbstractProcessor {
     // Parse Space bindings
     for (Element element : env.getElementsAnnotatedWith(Space.class)) {
       try {
-        parseSpace((TypeElement) element, spaceTargets, modelTargets);
+        parseSpace((TypeElement) element, spaces, models);
       } catch (Exception e) {
         parsingError(element, Space.class, e);
       }
     }
 
-    Map<TypeElement, Injection> result = new LinkedHashMap<TypeElement, Injection>();
-    result.putAll(modelTargets);
-    result.putAll(spaceTargets);
+    Set<Injection> result = new LinkedHashSet<Injection>();
+    result.addAll(models.values());
+    // TODO
+    //result.addAll(fields.values());
+    result.addAll(spaces.values());
     return result;
   }
 
-  private void parseSpace(TypeElement element, Map<TypeElement, SpaceInjection> spaceTargets,
-      Map<TypeElement, ModelInjection> modelTargets) {
-
+  private void parseSpace(TypeElement element, Map<TypeElement, SpaceInjection> spaces,
+      Map<TypeElement, ModelInjection> models) {
     Space annotation = element.getAnnotation(Space.class);
     String id = annotation.value();
     if (id.isEmpty()) {
@@ -160,9 +158,8 @@ public class Processor extends AbstractProcessor {
 
             Set<String> modelIds = new LinkedHashSet<String>();
             for (Object model : l) {
-              Element e = ((Type) ((Attribute) model).getValue()).asElement();
-              //noinspection SuspiciousMethodCalls
-              ModelInjection modelInjection = modelTargets.get(e);
+              TypeElement e = (TypeElement) ((Type) ((Attribute) model).getValue()).asElement();
+              ModelInjection modelInjection = models.get(e);
               if (modelInjection == null) {
                 return;
               } else {
@@ -182,13 +179,11 @@ public class Processor extends AbstractProcessor {
 
     ClassName injectionClassName = getInjectionClassName(element, SUFFIX_SPACE);
     String dbName = "space_" + SqliteUtils.hashForId(id);
-    int dbVersion = annotation.dbVersion();
-    SpaceInjection injection =
-        new SpaceInjection(id, injectionClassName, element, includedModels, dbName, dbVersion);
-    spaceTargets.put(element, injection);
+    spaces.put(element, new SpaceInjection(id, injectionClassName, element, includedModels, dbName,
+        annotation.dbVersion()));
   }
 
-  private void parseContentType(TypeElement element, Map<TypeElement, ModelInjection> targets) {
+  private void parseContentType(TypeElement element, Map<TypeElement, ModelInjection> models) {
     String id = element.getAnnotation(ContentType.class).value();
     if (id.isEmpty()) {
       error(element, "@%s id may not be empty. (%s)",
@@ -281,11 +276,7 @@ public class Processor extends AbstractProcessor {
 
     ClassName injectionClassName = getInjectionClassName(element, SUFFIX_MODEL);
     String tableName = "entry_" + SqliteUtils.hashForId(id);
-
-    ModelInjection injection =
-        new ModelInjection(id, injectionClassName, element, tableName, fields);
-
-    targets.put(element, injection);
+    models.put(element, new ModelInjection(id, injectionClassName, element, tableName, fields));
   }
 
   private boolean isValidListType(TypeMirror typeMirror) {
