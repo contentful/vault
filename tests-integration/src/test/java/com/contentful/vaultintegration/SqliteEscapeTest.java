@@ -2,6 +2,7 @@ package com.contentful.vaultintegration;
 
 import com.contentful.vault.Vault;
 import com.contentful.vaultintegration.lib.escape.SqliteEscapeModel;
+import com.contentful.vaultintegration.lib.escape.SqliteEscapeModel$Fields;
 import com.contentful.vaultintegration.lib.escape.SqliteEscapeSpace;
 import org.junit.Test;
 import org.robolectric.RuntimeEnvironment;
@@ -20,7 +21,10 @@ public class SqliteEscapeTest extends BaseTest {
     SqliteEscapeModel item = vault.fetch(SqliteEscapeModel.class).first();
     assertItem(item);
 
-    item = vault.fetch(SqliteEscapeModel.class).where("`order` = ?", "foo").first();
+    item = vault.fetch(SqliteEscapeModel.class)
+        .where("`" + SqliteEscapeModel$Fields.ORDER + "` = ?", "foo")
+        .first();
+
     assertItem(item);
   }
 

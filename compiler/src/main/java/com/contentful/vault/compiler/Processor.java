@@ -51,6 +51,7 @@ import javax.lang.model.util.Types;
 
 import static com.contentful.java.cda.CDAType.ASSET;
 import static com.contentful.java.cda.CDAType.ENTRY;
+import static com.contentful.vault.Constants.SUFFIX_FIELDS;
 import static com.contentful.vault.Constants.SUFFIX_MODEL;
 import static com.contentful.vault.Constants.SUFFIX_SPACE;
 import static javax.tools.Diagnostic.Kind.ERROR;
@@ -99,7 +100,7 @@ public class Processor extends AbstractProcessor {
 
   private Set<Injection> findAndParseTargets(RoundEnvironment env) {
     Map<TypeElement, ModelInjection> models = new LinkedHashMap<TypeElement, ModelInjection>();
-    Map<TypeElement, FieldInjection> fields = new LinkedHashMap<TypeElement, FieldInjection>();
+    Map<TypeElement, FieldsInjection> fields = new LinkedHashMap<TypeElement, FieldsInjection>();
     Map<TypeElement, SpaceInjection> spaces = new LinkedHashMap<TypeElement, SpaceInjection>();
 
     // Parse ContentType bindings
@@ -120,12 +121,22 @@ public class Processor extends AbstractProcessor {
       }
     }
 
+    // Prepare FieldsInjection targets
+    for (ModelInjection modelInjection : models.values()) {
+      fields.put(modelInjection.originatingElement, createFieldsInjection(modelInjection));
+    }
+
     Set<Injection> result = new LinkedHashSet<Injection>();
     result.addAll(models.values());
-    // TODO
-    //result.addAll(fields.values());
+    result.addAll(fields.values());
     result.addAll(spaces.values());
     return result;
+  }
+
+  private FieldsInjection createFieldsInjection(ModelInjection injection) {
+    ClassName name = getInjectionClassName(injection.originatingElement, SUFFIX_FIELDS);
+    return new FieldsInjection(injection.remoteId, name, injection.originatingElement,
+        injection.fields);
   }
 
   private void parseSpace(TypeElement element, Map<TypeElement, SpaceInjection> spaces,

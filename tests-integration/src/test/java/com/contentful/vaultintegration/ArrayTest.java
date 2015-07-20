@@ -24,6 +24,7 @@ import java.util.List;
 import org.junit.Test;
 import org.robolectric.RuntimeEnvironment;
 
+import static com.contentful.vault.BaseFields.REMOTE_ID;
 import static com.google.common.truth.Truth.assertThat;
 
 public class ArrayTest extends BaseTest {
@@ -36,7 +37,7 @@ public class ArrayTest extends BaseTest {
     sync();
 
     ArraysResource resource = vault.fetch(ArraysResource.class)
-        .where("remote_id = ?", "u2L1goyi3eA4W0AKcqEou")
+        .where(REMOTE_ID + " = ?", "u2L1goyi3eA4W0AKcqEou")
         .first();
 
     assertThat(resource).isNotNull();
@@ -59,7 +60,7 @@ public class ArrayTest extends BaseTest {
     sync();
 
     ArraysResource resource = vault.fetch(ArraysResource.class)
-        .where("remote_id = ?", "FyFV7zVpMQUG6IIEekeI0")
+        .where(REMOTE_ID + " = ?", "FyFV7zVpMQUG6IIEekeI0")
         .first();
 
     assertThat(resource).isNotNull();

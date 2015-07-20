@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.contentful.java.cda.CDAType.ASSET;
+import static com.contentful.vault.BaseFields.REMOTE_ID;
 
 final class LinkResolver {
   private static final String LINKS_WHERE_CLAUSE =
@@ -17,11 +18,11 @@ final class LinkResolver {
       "SELECT l.child, null FROM %s l WHERE %s", SpaceHelper.TABLE_LINKS, LINKS_WHERE_CLAUSE);
 
   private static final String QUERY_ENTRY_LINKS = String.format(
-      "SELECT l.child, t.type_id FROM %s l INNER JOIN %s t ON l.child = t.remote_id WHERE %s",
-      SpaceHelper.TABLE_LINKS, SpaceHelper.TABLE_ENTRY_TYPES, LINKS_WHERE_CLAUSE);
+      "SELECT l.child, t.type_id FROM %s l INNER JOIN %s t ON l.child = t.%s WHERE %s",
+      SpaceHelper.TABLE_LINKS, SpaceHelper.TABLE_ENTRY_TYPES, REMOTE_ID, LINKS_WHERE_CLAUSE);
 
   private static final String QUERY_ENTRY_TYPE = String.format(
-      "SELECT `type_id` FROM %s WHERE remote_id = ?", SpaceHelper.TABLE_ENTRY_TYPES);
+      "SELECT `type_id` FROM %s WHERE %s = ?", SpaceHelper.TABLE_ENTRY_TYPES, REMOTE_ID);
 
   private final SqliteHelper sqliteHelper;
 

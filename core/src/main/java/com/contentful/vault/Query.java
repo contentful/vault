@@ -8,6 +8,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.contentful.vault.BaseFields.REMOTE_ID;
+
 public final class Query<T extends Resource> {
   private final Vault vault;
 
@@ -124,7 +126,7 @@ public final class Query<T extends Resource> {
     }
     if (clazz != null) {
       resource = vault.fetch(clazz)
-          .where("remote_id = ?", link.child())
+          .where(REMOTE_ID + " = ?", link.child())
           .first(false);
     }
     return resource;

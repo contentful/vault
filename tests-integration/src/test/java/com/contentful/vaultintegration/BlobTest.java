@@ -23,6 +23,7 @@ import java.util.Map;
 import org.junit.Test;
 import org.robolectric.RuntimeEnvironment;
 
+import static com.contentful.vault.BaseFields.REMOTE_ID;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertEquals;
 
@@ -37,7 +38,7 @@ public class BlobTest extends BaseTest {
     sync();
 
     BlobResource blobResource = vault.fetch(BlobResource.class)
-        .where("remote_id = ?", "6tOdhkd6Ewekq8M6MQe4GY")
+        .where(REMOTE_ID + " = ?", "6tOdhkd6Ewekq8M6MQe4GY")
         .first();
 
     assertThat(blobResource).isNotNull();
