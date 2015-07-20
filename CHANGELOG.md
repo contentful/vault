@@ -3,7 +3,9 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Version [0.9.7][unreleased] - (in development)
-- TBD.
+- New: Compiler now injects static `$Fields` class to every model, reflecting the model's column names.
+- New: Add `BaseFields` class with common resource column names.
+- Changed: Use contentful.java v4.0.0.
 
 ## Version [0.9.6] - 2015-07-16
 - NOTE: This release introduces backwards incompatible changes to any existing database schemas, when updating make sure to bump the `dbVersion` attribute on your `Space`, in order to apply a migration. 

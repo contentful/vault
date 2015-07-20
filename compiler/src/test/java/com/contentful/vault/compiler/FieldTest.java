@@ -115,4 +115,36 @@ public class FieldTest {
         .withErrorContaining(
             "Invalid list type \"java.lang.Integer\" specified. (Test.list)");
   }
+
+  @Test public void testFieldsInjection() throws Exception {
+    JavaFileObject source = JavaFileObjects.forSourceString("Test", Joiner.on('\n').join(
+        "import com.contentful.vault.Asset;",
+        "import com.contentful.vault.ContentType;",
+        "import com.contentful.vault.Field;",
+        "import com.contentful.vault.Resource;",
+        "import com.contentful.vault.SpaceHelper;",
+        "import java.util.List;",
+        "import java.util.Map;",
+        "class Test {",
+        "  @ContentType(\"cid\")",
+        "  static class Model extends Resource {",
+        "    @Field String foo;",
+        "    @Field String bar;",
+        "    @Field String baz;",
+        "    @Field String baz2;",
+        "    @Field String b_a_z_123;",
+        "  }",
+        "}"
+    ));
+
+    JavaFileObject expectedSource = JavaFileObjects.forSourceString(
+        "Test$Model$Fields",
+        readTestResource("FieldsInjection.java"));
+
+    ASSERT.about(javaSource()).that(source)
+        .processedWith(processors())
+        .compilesWithoutError()
+        .and()
+        .generatesSources(expectedSource);
+  }
 }

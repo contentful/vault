@@ -23,6 +23,7 @@ import com.contentful.vaultintegration.lib.demo.DemoSpace;
 import org.junit.Test;
 import org.robolectric.RuntimeEnvironment;
 
+import static com.contentful.vault.BaseFields.REMOTE_ID;
 import static com.google.common.truth.Truth.assertThat;
 
 public class LocaleTest extends BaseTest {
@@ -41,7 +42,7 @@ public class LocaleTest extends BaseTest {
     sync(SyncConfig.builder().setClient(client).setLocale("tlh").build());
 
     Cat cat = vault.fetch(Cat.class)
-        .where("remote_id = ?", "happycat")
+        .where(REMOTE_ID + " = ?", "happycat")
         .first();
 
     assertThat(cat).isNotNull();
@@ -54,7 +55,7 @@ public class LocaleTest extends BaseTest {
     sync();
 
     Cat cat = vault.fetch(Cat.class)
-        .where("remote_id = ?", "happycat")
+        .where(REMOTE_ID + " = ?", "happycat")
         .first();
 
     assertThat(cat).isNotNull();

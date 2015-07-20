@@ -8,6 +8,7 @@ import java.util.List;
 import org.junit.Test;
 import org.robolectric.RuntimeEnvironment;
 
+import static com.contentful.vault.BaseFields.REMOTE_ID;
 import static com.google.common.truth.Truth.assertThat;
 
 public class LinksTest extends BaseTest {
@@ -23,7 +24,7 @@ public class LinksTest extends BaseTest {
     sync();
 
     AssetsContainer container = vault.fetch(AssetsContainer.class)
-        .where("remote_id = ?", CONTAINER_ID)
+        .where(REMOTE_ID + " = ?", CONTAINER_ID)
         .first();
 
     assertThat(container).isNotNull();
@@ -36,7 +37,7 @@ public class LinksTest extends BaseTest {
     sync();
 
     container = vault.fetch(AssetsContainer.class)
-        .where("remote_id = ?", CONTAINER_ID)
+        .where(REMOTE_ID + " = ?", CONTAINER_ID)
         .first();
 
     assertThat(container).isNotNull();

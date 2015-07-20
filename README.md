@@ -61,7 +61,7 @@ public class Foo extends Resource {
 Since *order* is a reserved SQLite keyword, in order to make a query which references that field here is how to escape it:
 ```java
 vault.fetch(Foo.class)
-    .where("`order` = ?", "bar")
+    .where("`" + Foo$Fields.ORDER "` = ?", "bar")
     .first();
 ```
 
@@ -137,17 +137,17 @@ vault.fetch(Cat.class)
     
 // Fetch the most recently updated Cat
 vault.fetch(Cat.class)
-    .order("updated_at DESC")
+    .order(Cat$Fields.UPDATED_AT + " DESC")
     .first();
 
 // Fetch a Cat with a specific name
 vault.fetch(Cat.class)
-    .where("name = ?", "Nyan Cat")
+    .where(Cat$Fields.NAME + " = ?", "Nyan Cat")
     .first();
     
 // Fetch all Cats, oredered by creation date:
 vault.fetch(Cat.class)
-    .order("created_at")
+    .order(Cat$Fields.CREATED_AT)
     .all();
 ```
 

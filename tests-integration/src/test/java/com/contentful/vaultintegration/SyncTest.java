@@ -27,6 +27,8 @@ import java.util.List;
 import org.junit.Test;
 import org.robolectric.RuntimeEnvironment;
 
+import static com.contentful.vault.BaseFields.CREATED_AT;
+import static com.contentful.vault.BaseFields.REMOTE_ID;
 import static com.google.common.truth.Truth.assertThat;
 
 public class SyncTest extends BaseTest {
@@ -99,7 +101,7 @@ public class SyncTest extends BaseTest {
 
   private void assertSingleLink() {
     Cat nyanCat = vault.fetch(Cat.class)
-        .where("remote_id = ?", "nyancat")
+        .where(REMOTE_ID + " = ?", "nyancat")
         .first();
 
     assertThat(nyanCat).isNotNull();
@@ -112,7 +114,7 @@ public class SyncTest extends BaseTest {
 
   private void assertInitialAssets() {
     List<Asset> assets = vault.fetch(Asset.class)
-        .order("created_at")
+        .order(CREATED_AT)
         .all();
 
     assertThat(assets).isNotNull();
@@ -134,7 +136,7 @@ public class SyncTest extends BaseTest {
 
   private void assertUpdateAssets() {
     List<Asset> assets = vault.fetch(Asset.class)
-        .order("created_at")
+        .order(CREATED_AT)
         .all();
 
     assertThat(assets).isNotNull();
@@ -154,7 +156,7 @@ public class SyncTest extends BaseTest {
 
   private void assertInitialEntries() {
     List<Cat> cats = vault.fetch(Cat.class)
-        .order("created_at")
+        .order(CREATED_AT)
         .all();
 
     assertThat(cats).isNotNull();
@@ -183,7 +185,7 @@ public class SyncTest extends BaseTest {
 
   private void assertUpdateEntries() {
     List<Cat> cats = vault.fetch(Cat.class)
-        .order("created_at")
+        .order(CREATED_AT)
         .all();
 
     assertThat(cats).isNotNull();

@@ -23,6 +23,7 @@ import com.contentful.vaultintegration.lib.allthethings.AllTheThingsSpace;
 import org.junit.Test;
 import org.robolectric.RuntimeEnvironment;
 
+import static com.contentful.vault.BaseFields.REMOTE_ID;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
@@ -41,7 +42,7 @@ public class AllTheThingsTest extends BaseTest {
   @SuppressWarnings("unchecked")
   private void checkEntryBar() {
     AllTheThingsResource bar = vault.fetch(AllTheThingsResource.class)
-        .where("remote_id = ?", "4EYJjgMg0oG084iuACY6Ue")
+        .where(REMOTE_ID + " = ?", "4EYJjgMg0oG084iuACY6Ue")
         .first();
 
     assertThat(bar).isNotNull();
@@ -68,7 +69,7 @@ public class AllTheThingsTest extends BaseTest {
   @SuppressWarnings("unchecked")
   private void checkEntryFoo() {
     AllTheThingsResource foo = vault.fetch(AllTheThingsResource.class)
-        .where("remote_id = ?", "6K1Md1qADuOsoom2UIEKkq")
+        .where(REMOTE_ID + " = ?", "6K1Md1qADuOsoom2UIEKkq")
         .first();
 
     assertThat(foo).isNotNull();

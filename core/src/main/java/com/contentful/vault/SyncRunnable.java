@@ -42,6 +42,9 @@ import static com.contentful.java.cda.CDAType.ASSET;
 import static com.contentful.java.cda.CDAType.DELETEDASSET;
 import static com.contentful.java.cda.CDAType.DELETEDENTRY;
 import static com.contentful.java.cda.CDAType.ENTRY;
+import static com.contentful.vault.BaseFields.CREATED_AT;
+import static com.contentful.vault.BaseFields.REMOTE_ID;
+import static com.contentful.vault.BaseFields.UPDATED_AT;
 
 public final class SyncRunnable implements Runnable {
   private final Context context;
@@ -197,14 +200,14 @@ public final class SyncRunnable implements Runnable {
   }
 
   private void deleteEntryType(String remoteId) {
-    String whereClause = "remote_id = ?";
+    String whereClause = REMOTE_ID + " = ?";
     String[] whereArgs = new String[]{ remoteId };
     db.delete(SpaceHelper.TABLE_ENTRY_TYPES, whereClause, whereArgs);
   }
 
   private void deleteResource(String remoteId, String tableName) {
     // resource
-    String whereClause = "remote_id = ?";
+    String whereClause = REMOTE_ID + " = ?";
     String whereArgs[] = new String[]{ remoteId };
     db.delete(tableName, whereClause, whereArgs);
 
@@ -260,7 +263,7 @@ public final class SyncRunnable implements Runnable {
     db.insertWithOnConflict(tableName, null, values, CONFLICT_REPLACE);
 
     values.clear();
-    values.put("remote_id", entry.id());
+    values.put(REMOTE_ID, entry.id());
     values.put("type_id", entry.contentType().id());
     db.insertWithOnConflict(SpaceHelper.TABLE_ENTRY_TYPES, null, values, CONFLICT_REPLACE);
   }
@@ -341,9 +344,9 @@ public final class SyncRunnable implements Runnable {
   }
 
   private static void putResourceFields(CDAResource resource, ContentValues values) {
-    values.put("remote_id", resource.id());
-    values.put("created_at", (String) resource.getAttribute("createdAt"));
-    values.put("updated_at", (String) resource.getAttribute("updatedAt"));
+    values.put(REMOTE_ID, resource.id());
+    values.put(CREATED_AT, (String) resource.getAttribute("createdAt"));
+    values.put(UPDATED_AT, (String) resource.getAttribute("updatedAt"));
   }
 
   static abstract class ResourceHandler {

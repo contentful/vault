@@ -101,4 +101,10 @@ public final class Asset extends Resource implements Parcelable {
     this.url = in.readString();
     this.mimeType = in.readString();
   }
+
+  public static final class Fields extends BaseFields {
+    public static final String URL = "url";
+
+    public static final String MIME_TYPE = "mime_type";
+  }
 }

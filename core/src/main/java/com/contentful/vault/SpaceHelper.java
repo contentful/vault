@@ -21,11 +21,15 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 
+import static com.contentful.vault.BaseFields.CREATED_AT;
+import static com.contentful.vault.BaseFields.REMOTE_ID;
+import static com.contentful.vault.BaseFields.UPDATED_AT;
+
 public abstract class SpaceHelper {
   public static final String[] RESOURCE_COLUMNS = new String[] {
-      "`remote_id` STRING NOT NULL UNIQUE",
-      "`created_at` STRING NOT NULL",
-      "`updated_at` STRING"
+      "`" + REMOTE_ID + "` STRING NOT NULL UNIQUE",
+      "`" + CREATED_AT + "` STRING NOT NULL",
+      "`" + UPDATED_AT + "` STRING"
   };
 
   static final String TABLE_ASSETS = "assets";
@@ -59,7 +63,7 @@ public abstract class SpaceHelper {
   static final String CREATE_ENTRY_TYPES = "CREATE TABLE `"
       + TABLE_ENTRY_TYPES
       + "` ("
-      + "`remote_id` STRING NOT NULL,"
+      + "`" + REMOTE_ID + "` STRING NOT NULL,"
       + "`type_id` STRING NOT NULL,"
       + "UNIQUE(`remote_id`)"
       + ");";
