@@ -37,8 +37,8 @@ final class FieldsInjection extends Injection {
         .convert(field.name());
     if (name == null) {
       throw new IllegalArgumentException(
-          "Invalid with ID '" + field.id() + "' for generated class '" +
-              className.simpleName() + "'.");
+          "Invalid field with ID '" + field.id() + "' for generated class '" +
+              className.simpleName() + "', has no name.");
     }
     return FieldSpec.builder(String.class, name, Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
         .initializer("$S", field.name())

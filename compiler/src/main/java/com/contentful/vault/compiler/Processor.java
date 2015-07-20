@@ -85,8 +85,7 @@ public class Processor extends AbstractProcessor {
 
   @Override
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-    Set<Injection> targets = findAndParseTargets(roundEnv);
-    for (Injection injection : targets) {
+    for (Injection injection : findAndParseTargets(roundEnv)) {
       try {
         injection.brewJava().writeTo(filer);
       } catch (Exception e) {
