@@ -20,29 +20,22 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.io.FileUtils;
 
 final class SqliteHelper extends SQLiteOpenHelper {
+  private final Context context;
+
   private final SpaceHelper spaceHelper;
 
   public SqliteHelper(Context context, SpaceHelper spaceHelper) {
     super(context, spaceHelper.getDatabaseName(), null, spaceHelper.getDatabaseVersion());
+    this.context = context.getApplicationContext();
     this.spaceHelper = spaceHelper;
-  }
-
-  @Override public SQLiteDatabase getReadableDatabase() {
-    synchronized (this) {
-      copyStaticDatabase();
-    }
-    return super.getReadableDatabase();
-  }
-
-  @Override public SQLiteDatabase getWritableDatabase() {
-    synchronized (this) {
-      copyStaticDatabase();
-    }
-    return super.getWritableDatabase();
+    copyDatabase();
   }
 
   @Override public void onCreate(SQLiteDatabase db) {
@@ -56,8 +49,10 @@ final class SqliteHelper extends SQLiteOpenHelper {
   }
 
   @Override public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-    deleteTables(db);
-    onCreate(db);
+    if (spaceHelper.getCopyPath() == null) {
+      deleteTables(db);
+      onCreate(db);
+    }
   }
 
   static void execCreate(SpaceHelper helper, SQLiteDatabase db) {
@@ -149,7 +144,45 @@ final class SqliteHelper extends SQLiteOpenHelper {
     return spaceHelper;
   }
 
-  private void copyStaticDatabase() {
+  private void copyDatabase() {
+    String copyPath = spaceHelper.getCopyPath();
+    if (copyPath == null) {
+      return;
+    }
 
+    final File dbPath = context.getDatabasePath(spaceHelper.getDatabaseName());
+    if (!isPendingCopy(dbPath)) {
+      return;
+    }
+
+    if (dbPath.exists()) {
+      dbPath.delete();
+    } else {
+      dbPath.getParentFile().mkdirs();
+    }
+
+    try {
+      FileUtils.copyInputStreamToFile(context.getAssets().open(copyPath), dbPath);
+    } catch (IOException e) {
+      throw new RuntimeException("Failure while attempting to copy '" + copyPath + "'.", e);
+    }
+  }
+
+  private boolean isPendingCopy(File dbPath) {
+    boolean result = false;
+    if (dbPath.exists()) {
+      SQLiteDatabase db =
+          context.openOrCreateDatabase(spaceHelper.getDatabaseName(), Context.MODE_PRIVATE, null);
+      try {
+        if (spaceHelper.getDatabaseVersion() > db.getVersion()) {
+          result = true;
+        }
+      } finally {
+        db.close();
+      }
+    } else {
+      result = true;
+    }
+    return result;
   }
 }
