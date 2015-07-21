@@ -31,6 +31,20 @@ final class SqliteHelper extends SQLiteOpenHelper {
     this.spaceHelper = spaceHelper;
   }
 
+  @Override public SQLiteDatabase getReadableDatabase() {
+    synchronized (this) {
+      copyStaticDatabase();
+    }
+    return super.getReadableDatabase();
+  }
+
+  @Override public SQLiteDatabase getWritableDatabase() {
+    synchronized (this) {
+      copyStaticDatabase();
+    }
+    return super.getWritableDatabase();
+  }
+
   @Override public void onCreate(SQLiteDatabase db) {
     db.beginTransaction();
     try {
@@ -133,5 +147,9 @@ final class SqliteHelper extends SQLiteOpenHelper {
 
   public SpaceHelper getSpaceHelper() {
     return spaceHelper;
+  }
+
+  private void copyStaticDatabase() {
+
   }
 }

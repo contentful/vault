@@ -30,4 +30,6 @@ public @interface Space {
   Class<?>[] models();
 
   int dbVersion() default 1;
+
+  String copyPath() default "";
 }

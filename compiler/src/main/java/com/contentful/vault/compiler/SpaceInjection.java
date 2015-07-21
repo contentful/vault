@@ -38,16 +38,19 @@ final class SpaceInjection extends Injection {
 
   private final int dbVersion;
 
+  private final String copyPath;
+
   private FieldSpec specModels;
 
   private FieldSpec specTypes;
 
   public SpaceInjection(String remoteId, ClassName className, TypeElement originatingElement,
-      List<ModelInjection> models, String dbName, int dbVersion) {
+      List<ModelInjection> models, String dbName, int dbVersion, String copyPath) {
     super(remoteId, className, originatingElement);
     this.models = models;
     this.dbName = dbName;
     this.dbVersion = dbVersion;
+    this.copyPath = copyPath;
   }
 
   @Override TypeSpec.Builder getTypeSpecBuilder() {
@@ -59,6 +62,7 @@ final class SpaceInjection extends Injection {
     appendDbVersion(builder);
     appendModels(builder);
     appendTypes(builder);
+    appendCopyPath(builder);
     appendConstructor(builder);
 
     return builder;
@@ -128,6 +132,15 @@ final class SpaceInjection extends Injection {
         .addAnnotation(Override.class)
         .addModifiers(Modifier.PUBLIC)
         .addStatement("return $S", dbName)
+        .build());
+  }
+
+  private void appendCopyPath(TypeSpec.Builder builder) {
+    builder.addMethod(MethodSpec.methodBuilder("getCopyPath")
+        .returns(String.class)
+        .addAnnotation(Override.class)
+        .addModifiers(Modifier.PUBLIC)
+        .addStatement("return $S", copyPath)
         .build());
   }
 }
