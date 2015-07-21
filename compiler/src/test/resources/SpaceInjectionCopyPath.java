@@ -21,7 +21,7 @@ public final class Test$AwesomeSpace$$SpaceHelper extends SpaceHelper {
 
   @Override
   public int getDatabaseVersion() {
-    return 9;
+    return 1;
   }
 
   @Override
@@ -36,6 +36,6 @@ public final class Test$AwesomeSpace$$SpaceHelper extends SpaceHelper {
 
   @Override
   public String getCopyPath() {
-    return null;
+    return "foo.db";
   }
 }

@@ -48,6 +48,7 @@ import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
+import org.apache.commons.lang3.StringUtils;
 
 import static com.contentful.java.cda.CDAType.ASSET;
 import static com.contentful.java.cda.CDAType.ENTRY;
@@ -189,8 +190,9 @@ public class Processor extends AbstractProcessor {
 
     ClassName injectionClassName = getInjectionClassName(element, SUFFIX_SPACE);
     String dbName = "space_" + SqliteUtils.hashForId(id);
+    String copyPath = StringUtils.defaultIfBlank(annotation.copyPath(), null);
     spaces.put(element, new SpaceInjection(id, injectionClassName, element, includedModels, dbName,
-        annotation.dbVersion()));
+        annotation.dbVersion(), copyPath));
   }
 
   private void parseContentType(TypeElement element, Map<TypeElement, ModelInjection> models) {

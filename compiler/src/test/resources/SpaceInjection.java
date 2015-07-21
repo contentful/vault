@@ -33,4 +33,9 @@ public final class Test$AwesomeSpace$$SpaceHelper extends SpaceHelper {
   public Map<String, Class<? extends Resource>> getTypes() {
     return types;
   }
+
+  @Override
+  public String getCopyPath() {
+    return null;
+  }
 }

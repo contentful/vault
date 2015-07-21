@@ -9,5 +9,6 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
 @Target(TYPE)
 @Retention(CLASS)
 public @interface ContentType {
+  /** Remote ID */
   String value();
 }

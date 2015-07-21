@@ -92,6 +92,35 @@ public class SpaceTest {
         .generatesSources(expectedSource);
   }
 
+  @Test public void testCopyPath() throws Exception {
+    JavaFileObject source = JavaFileObjects.forSourceString("Test", Joiner.on('\n').join(
+        "import com.contentful.vault.ContentType;",
+        "import com.contentful.vault.Field;",
+        "import com.contentful.vault.Resource;",
+        "import com.contentful.vault.Space;",
+        "import java.util.Map;",
+        "class Test {",
+        "  @ContentType(\"cid\")",
+        "  static class Model extends Resource {",
+        "    @Field String f;",
+        "  }",
+        "",
+        "  @Space(value = \"sid\", models = { Model.class }, copyPath = \"foo.db\")",
+        "  static class AwesomeSpace {",
+        "  }",
+        "}"));
+
+    JavaFileObject expectedSource = JavaFileObjects.forSourceString(
+        "Test$AwesomeSpace$$SpaceHelper",
+        readTestResource("SpaceInjectionCopyPath.java"));
+
+    ASSERT.about(javaSource()).that(source)
+        .processedWith(processors())
+        .compilesWithoutError()
+        .and()
+        .generatesSources(expectedSource);
+  }
+
   @Test public void failsEmptyId() throws Exception {
     JavaFileObject source = JavaFileObjects.forSourceString("Test", Joiner.on('\n').join(
         "import com.contentful.vault.Space;",

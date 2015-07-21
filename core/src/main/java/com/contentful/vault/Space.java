@@ -25,9 +25,26 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
 @Target(TYPE)
 @Retention(CLASS)
 public @interface Space {
+  /** Remote ID */
   String value();
 
+  /** Supported {@link Resource} models. */
   Class<?>[] models();
 
+  /**
+   * Version of the database. Increasing this value will trigger a migration.
+   * WARNING: Migrations invalidate any pre-existing data.
+   */
   int dbVersion() default 1;
+
+  /**
+   * File path under the application's 'assets' folder pointing to an existing Vault database file.
+   * This is used for pre-populating the database with static content prior to initial sync.
+   * The first time the database file is created if this property is not blank Vault will attempt
+   * and copy the contents to it's database.
+   *
+   * If you wish to apply a {@code copyPath} to an shipped app make sure to increase
+   * the {@code dbVersion} property.
+   */
+  String copyPath() default "";
 }
