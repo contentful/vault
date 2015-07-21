@@ -192,3 +192,4 @@ License
  [snap]: https://oss.sonatype.org/content/repositories/snapshots/
  [apt]: https://bitbucket.org/hvisser/android-apt
  [proguard]: proguard-vault.cfg
+
