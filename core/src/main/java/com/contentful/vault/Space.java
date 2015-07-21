@@ -41,7 +41,7 @@ public @interface Space {
    * File path under the application's 'assets' folder pointing to an existing Vault database file.
    * This is used for pre-populating the database with static content prior to initial sync.
    * The first time the database file is created if this property is not blank Vault will attempt
-   * and copy the contents to it's database.
+   * and copy the contents to its database.
    *
    * If you wish to apply a {@code copyPath} to an shipped app make sure to increase
    * the {@code dbVersion} property.
