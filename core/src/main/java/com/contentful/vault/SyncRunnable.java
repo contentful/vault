@@ -17,7 +17,6 @@
 package com.contentful.vault;
 
 import android.annotation.TargetApi;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -144,11 +143,11 @@ public final class SyncRunnable implements Runnable {
   }
 
   private void saveSyncInfo(String syncToken) {
-    ContentValues values = new ContentValues();
+    AutoEscapeValues values = new AutoEscapeValues();
     values.put("token", syncToken);
     values.put("locale", config.locale());
     db.delete(SpaceHelper.TABLE_SYNC_INFO, null, null);
-    db.insert(SpaceHelper.TABLE_SYNC_INFO, null, values);
+    db.insert(SpaceHelper.TABLE_SYNC_INFO, null, values.get());
   }
 
   private void processResource(CDAResource resource) {
@@ -222,11 +221,26 @@ public final class SyncRunnable implements Runnable {
 
   @TargetApi(Build.VERSION_CODES.FROYO)
   private void saveAsset(CDAAsset asset) {
-    ContentValues values = new ContentValues();
+    AutoEscapeValues values = new AutoEscapeValues();
     putResourceFields(asset, values);
-    values.put("url", "http:" + asset.url());
-    values.put("mime_type", asset.mimeType());
-    db.insertWithOnConflict(SpaceHelper.TABLE_ASSETS, null, values, CONFLICT_REPLACE);
+    values.put(Asset.Fields.URL, "http:" + asset.url());
+    values.put(Asset.Fields.MIME_TYPE, asset.mimeType());
+    values.put(Asset.Fields.TITLE, asset.title());
+    values.put(Asset.Fields.DESCRIPTION, asset.<String>getField("description"));
+
+    byte[] value = null;
+    Serializable fileMap = asset.getField("file");
+    if (fileMap != null) {
+      try {
+        value = BlobUtils.toBlob(fileMap);
+      } catch (IOException e) {
+        throw new RuntimeException(
+            String.format("Failed converting field map for asset with id '%s'.", asset.id()));
+      }
+    }
+    values.put(Asset.Fields.FILE, value);
+
+    db.insertWithOnConflict(SpaceHelper.TABLE_ASSETS, null, values.get(), CONFLICT_REPLACE);
   }
 
   @SuppressWarnings("unchecked")
@@ -240,7 +254,7 @@ public final class SyncRunnable implements Runnable {
 
   @SuppressWarnings("unchecked")
   private void saveEntry(CDAEntry entry, String tableName, List<FieldMeta> fields) {
-    ContentValues values = new ContentValues();
+    AutoEscapeValues values = new AutoEscapeValues();
     putResourceFields(entry, values);
     for (FieldMeta field : fields) {
       Object value = extractRawFieldValue(entry, field.id());
@@ -257,30 +271,26 @@ public final class SyncRunnable implements Runnable {
         if (value != null) {
           stringValue = value.toString();
         }
-        values.put(escape(field.name()), stringValue);
+        values.put(field.name(), stringValue);
       }
     }
-    db.insertWithOnConflict(tableName, null, values, CONFLICT_REPLACE);
+    db.insertWithOnConflict(tableName, null, values.get(), CONFLICT_REPLACE);
 
     values.clear();
     values.put(REMOTE_ID, entry.id());
     values.put("type_id", entry.contentType().id());
-    db.insertWithOnConflict(SpaceHelper.TABLE_ENTRY_TYPES, null, values, CONFLICT_REPLACE);
+    db.insertWithOnConflict(SpaceHelper.TABLE_ENTRY_TYPES, null, values.get(), CONFLICT_REPLACE);
   }
 
-  private void saveBoolean(ContentValues values, FieldMeta field, Boolean value) {
+  private void saveBoolean(AutoEscapeValues values, FieldMeta field, Boolean value) {
     String write = "0";
     if (value != null && value) {
       write = "1";
     }
-    values.put(escape(field.name()), write);
+    values.put(field.name(), write);
   }
 
-  private static String escape(String value) {
-    return "`" + value + "`";
-  }
-
-  private void processArray(CDAEntry entry, ContentValues values, FieldMeta field) {
+  private void processArray(CDAEntry entry, AutoEscapeValues values, FieldMeta field) {
     if (field.isArrayOfSymbols()) {
       List<?> list = entry.getField(field.id());
       if (list == null) {
@@ -318,9 +328,10 @@ public final class SyncRunnable implements Runnable {
     }
   }
 
-  private void saveBlob(CDAEntry entry, ContentValues values, FieldMeta field, Serializable value) {
+  private void saveBlob(CDAEntry entry, AutoEscapeValues values, FieldMeta field,
+      Serializable value) {
     try {
-      values.put(escape(field.name()), BlobUtils.toBlob(value));
+      values.put(field.name(), BlobUtils.toBlob(value));
     } catch (IOException e) {
       throw new RuntimeException(
           String.format("Failed converting value to BLOB for entry id %s field %s.", entry.id(),
@@ -329,12 +340,12 @@ public final class SyncRunnable implements Runnable {
   }
 
   private void saveLink(String parentId, String fieldId, String linkType, String targetId) {
-    ContentValues values = new ContentValues();
+    AutoEscapeValues values = new AutoEscapeValues();
     values.put("parent", parentId);
     values.put("field", fieldId);
     values.put("child", targetId);
     values.put("is_asset", CDAType.valueOf(linkType.toUpperCase(Vault.LOCALE)) == ASSET);
-    db.insertWithOnConflict(SpaceHelper.TABLE_LINKS, null, values, CONFLICT_REPLACE);
+    db.insertWithOnConflict(SpaceHelper.TABLE_LINKS, null, values.get(), CONFLICT_REPLACE);
   }
 
   private void deleteResourceLinks(String parentId, String field) {
@@ -343,7 +354,7 @@ public final class SyncRunnable implements Runnable {
     db.delete(SpaceHelper.TABLE_LINKS, where, args);
   }
 
-  private static void putResourceFields(CDAResource resource, ContentValues values) {
+  private static void putResourceFields(CDAResource resource, AutoEscapeValues values) {
     values.put(REMOTE_ID, resource.id());
     values.put(CREATED_AT, (String) resource.getAttribute("createdAt"));
     values.put(UPDATED_AT, (String) resource.getAttribute("updatedAt"));
