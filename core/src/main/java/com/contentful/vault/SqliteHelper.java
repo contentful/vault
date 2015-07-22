@@ -27,7 +27,9 @@ import java.util.HashMap;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
 
+import static com.contentful.vault.BaseFields.CREATED_AT;
 import static com.contentful.vault.BaseFields.REMOTE_ID;
+import static com.contentful.vault.BaseFields.UPDATED_AT;
 import static com.contentful.vault.SpaceHelper.assetColumnIndex;
 import static com.contentful.vault.SpaceHelper.resourceColumnIndex;
 
@@ -127,9 +129,9 @@ final class SqliteHelper extends SQLiteOpenHelper {
       }
     }
     if (resource != null) {
-      resource.setRemoteId(cursor.getString(SpaceHelper.IDX_REMOTE_ID));
-      resource.setCreatedAt(cursor.getString(SpaceHelper.IDX_CREATED_AT));
-      resource.setUpdatedAt(cursor.getString(SpaceHelper.IDX_UPDATED_AT));
+      resource.setRemoteId(cursor.getString(resourceColumnIndex(REMOTE_ID)));
+      resource.setCreatedAt(cursor.getString(resourceColumnIndex(CREATED_AT)));
+      resource.setUpdatedAt(cursor.getString(resourceColumnIndex(UPDATED_AT)));
     }
 
     return resource;
@@ -149,7 +151,6 @@ final class SqliteHelper extends SQLiteOpenHelper {
       try {
         fileMap = BlobUtils.fromBlob(HashMap.class, fileBlob);
       } catch (IOException e) {
-        cursor.getString(resourceColumnIndex(REMOTE_ID));
         throw new RuntimeException("Failed while deserializing file map for asset '" +
             remoteId + "'.");
       } catch (ClassNotFoundException e) {

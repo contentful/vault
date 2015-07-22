@@ -42,13 +42,6 @@ public abstract class SpaceHelper {
 
   static final String TABLE_SYNC_INFO = "sync_info";
 
-  // Static resources column indexes
-  static final int IDX_REMOTE_ID = 0;
-
-  static final int IDX_CREATED_AT = 1;
-
-  static final int IDX_UPDATED_AT = 2;
-
   static final List<String> RESOURCE_COLUMN_INDEXES = Arrays.asList(
       REMOTE_ID,
       CREATED_AT,
