@@ -23,8 +23,13 @@ import android.database.sqlite.SQLiteOpenHelper;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
+
+import static com.contentful.vault.BaseFields.REMOTE_ID;
+import static com.contentful.vault.SpaceHelper.assetColumnIndex;
+import static com.contentful.vault.SpaceHelper.resourceColumnIndex;
 
 final class SqliteHelper extends SQLiteOpenHelper {
   private final Context context;
@@ -122,21 +127,42 @@ final class SqliteHelper extends SQLiteOpenHelper {
       }
     }
     if (resource != null) {
-      resource.setRemoteId(cursor.getString(SpaceHelper.COLUMN_REMOTE_ID));
-      resource.setCreatedAt(cursor.getString(SpaceHelper.COLUMN_CREATED_AT));
-      resource.setUpdatedAt(cursor.getString(SpaceHelper.COLUMN_UPDATED_AT));
+      resource.setRemoteId(cursor.getString(SpaceHelper.IDX_REMOTE_ID));
+      resource.setCreatedAt(cursor.getString(SpaceHelper.IDX_CREATED_AT));
+      resource.setUpdatedAt(cursor.getString(SpaceHelper.IDX_UPDATED_AT));
     }
 
     return resource;
   }
 
+  @SuppressWarnings("unchecked")
   private static Asset assetFromCursor(Cursor cursor) {
-    String url = cursor.getString(SpaceHelper.COLUMN_ASSET_URL);
-    String mimeType = cursor.getString(SpaceHelper.COLUMN_ASSET_MIME_TYPE);
+    String remoteId = cursor.getString(resourceColumnIndex(REMOTE_ID));
+    String url = cursor.getString(assetColumnIndex(Asset.Fields.URL));
+    String mimeType = cursor.getString(assetColumnIndex(Asset.Fields.MIME_TYPE));
+    String title = cursor.getString(assetColumnIndex(Asset.Fields.TITLE));
+    String description = cursor.getString(assetColumnIndex(Asset.Fields.DESCRIPTION));
+    HashMap<String, Object> fileMap = null;
+    byte[] fileBlob = cursor.getBlob(assetColumnIndex(Asset.Fields.FILE));
+
+    if (fileBlob != null && fileBlob.length > 0) {
+      try {
+        fileMap = BlobUtils.fromBlob(HashMap.class, fileBlob);
+      } catch (IOException e) {
+        cursor.getString(resourceColumnIndex(REMOTE_ID));
+        throw new RuntimeException("Failed while deserializing file map for asset '" +
+            remoteId + "'.");
+      } catch (ClassNotFoundException e) {
+        throw new RuntimeException(e);
+      }
+    }
 
     return Asset.builder()
         .setUrl(url)
         .setMimeType(mimeType)
+        .setTitle(title)
+        .setDescription(description)
+        .setFile(fileMap)
         .build();
   }
 

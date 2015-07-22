@@ -195,4 +195,32 @@ public class SyncTest extends BaseTest {
     assertThat(cats.get(1).remoteId()).isEqualTo("garfield");
     assertThat(cats.get(2).remoteId()).isEqualTo("supercat");
   }
+
+  @Test public void testAssetMetadata() throws Exception {
+    enqueueInitial();
+    sync();
+
+    List<Asset> assets = vault.fetch(Asset.class)
+        .order(CREATED_AT)
+        .all();
+
+    assertThat(assets).isNotNull();
+    assertThat(assets).hasSize(4);
+
+    assertThat(assets.get(0).title()).isEqualTo("Nyan Cat");
+    assertThat(assets.get(0).description()).isNull();
+    assertThat(assets.get(0).file()).hasSize(4);
+
+    assertThat(assets.get(1).title()).isEqualTo("Jake");
+    assertThat(assets.get(1).description()).isNull();
+    assertThat(assets.get(1).file()).hasSize(4);
+
+    assertThat(assets.get(2).title()).isEqualTo("Happy Cat");
+    assertThat(assets.get(2).description()).isNull();
+    assertThat(assets.get(2).file()).hasSize(4);
+
+    assertThat(assets.get(3).title()).isEqualTo("Doge");
+    assertThat(assets.get(3).description()).isEqualTo("nice picture");
+    assertThat(assets.get(3).file()).hasSize(4);
+  }
 }
