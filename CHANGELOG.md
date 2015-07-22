@@ -2,7 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Version [0.9.7][unreleased] - (in development)
+## Version [0.9.8][unreleased] - (in development)
+- TBA.
+
+## Version [0.9.7] - 2015-07-22
 - Changed: Use contentful.java v4.0.1 (fixes NPE for entires with null links).
 
 ## Version [0.9.6] - 2015-07-22
@@ -44,7 +47,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## Version 0.9.0 - 2015-05-18
 Initial release.
  
-[unreleased]: https://github.com/contentful/vault/compare/vault-parent-0.9.6...HEAD
+[unreleased]: https://github.com/contentful/vault/compare/vault-parent-0.9.7...HEAD
+[0.9.7]: https://github.com/contentful/vault/compare/vault-parent-0.9.6...vault-parent-0.9.7
 [0.9.6]: https://github.com/contentful/vault/compare/vault-parent-0.9.5...vault-parent-0.9.6
 [0.9.5]: https://github.com/contentful/vault/compare/vault-parent-0.9.4...vault-parent-0.9.5
 [0.9.4]: https://github.com/contentful/vault/compare/vault-parent-0.9.3...vault-parent-0.9.4
