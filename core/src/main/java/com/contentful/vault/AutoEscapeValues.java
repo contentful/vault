@@ -7,7 +7,7 @@ import java.util.Set;
 import static com.contentful.vault.Utils.escape;
 
 final class AutoEscapeValues {
-  ContentValues values = new ContentValues();
+  private final ContentValues values = new ContentValues();
 
   public void put(String key, String value) {
     values.put(escape(key), value);
@@ -66,43 +66,43 @@ final class AutoEscapeValues {
   }
 
   public Object get(String key) {
-    return values.get(key);
+    return values.get(escape(key));
   }
 
   public String getAsString(String key) {
-    return values.getAsString(key);
+    return values.getAsString(escape(key));
   }
 
   public Long getAsLong(String key) {
-    return values.getAsLong(key);
+    return values.getAsLong(escape(key));
   }
 
   public Integer getAsInteger(String key) {
-    return values.getAsInteger(key);
+    return values.getAsInteger(escape(key));
   }
 
   public Short getAsShort(String key) {
-    return values.getAsShort(key);
+    return values.getAsShort(escape(key));
   }
 
   public Byte getAsByte(String key) {
-    return values.getAsByte(key);
+    return values.getAsByte(escape(key));
   }
 
   public Double getAsDouble(String key) {
-    return values.getAsDouble(key);
+    return values.getAsDouble(escape(key));
   }
 
   public Float getAsFloat(String key) {
-    return values.getAsFloat(key);
+    return values.getAsFloat(escape(key));
   }
 
   public Boolean getAsBoolean(String key) {
-    return values.getAsBoolean(key);
+    return values.getAsBoolean(escape(key));
   }
 
   public byte[] getAsByteArray(String key) {
-    return values.getAsByteArray(key);
+    return values.getAsByteArray(escape(key));
   }
 
   public Set<Map.Entry<String, Object>> valueSet() {
