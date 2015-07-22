@@ -167,6 +167,9 @@ Note: this will delete any previously persisted data.
 
 Grab the [ProGuard configuration file][proguard] and apply to your project. 
 
+### Documentation
+
+Javadoc is available [here][javadoc].
 
 License
 -------
@@ -192,3 +195,4 @@ License
  [snap]: https://oss.sonatype.org/content/repositories/snapshots/
  [apt]: https://bitbucket.org/hvisser/android-apt
  [proguard]: proguard-vault.cfg
+ [javadoc]: https://contentful.github.io/vault
