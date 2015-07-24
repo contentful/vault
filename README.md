@@ -163,6 +163,17 @@ public class DemoSpace { }
 
 Note: this will delete any previously persisted data.
 
+### Database pre-seeding
+
+Depending on the amount of content in a given space, initial synchronization might take some time. For that we've added support to pre-seed the database with static content. In order to do that one has to add an existing Vault database file into the **assets** folder of the project, and then reference this file through the **copyPath** attribute, for example:
+
+```java
+@Space(value = "foo", models = { Bar.class }, copyPath = "vault_file_name.db")
+public class FooSpace { }
+```
+
+Note that in order to add this functionality to an already shipped app, the **dbVersion** value has to be increased, as it causes invalidation of any pre-existing content.
+
 ### ProGuard
 
 Grab the [ProGuard configuration file][proguard] and apply to your project. 
