@@ -20,7 +20,6 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -103,16 +102,42 @@ public class Vault {
         .build());
   }
 
-  static SqliteHelper getOrCreateSqliteHelper(Context context, Class<?> space) {
-    synchronized (SQLITE_HELPERS) {
-      SqliteHelper sqliteHelper = SQLITE_HELPERS.get(space);
-      if (sqliteHelper == null) {
-        SpaceHelper spaceHelper = createSpaceHelper(space);
-        sqliteHelper = createSqliteHelper(context, spaceHelper);
-        SQLITE_HELPERS.put(space, sqliteHelper);
-      }
-      return sqliteHelper;
+  public <T extends Resource> Query<T> fetch(Class<T> type) {
+    return new Query<T>(type, this);
+  }
+
+  public SQLiteDatabase getReadableDatabase() {
+    return getOrCreateSqliteHelper(context, space).getReadableDatabase();
+  }
+
+  public static void cancel(SyncCallback callback) {
+    if (callback == null) {
+      throw new IllegalArgumentException("callback argument must not be null.");
     }
+
+    String tag = callback.getTag();
+    if (tag != null) {
+      clearBundle(tag);
+    }
+  }
+
+  public void releaseAll() {
+    synchronized (SQLITE_HELPERS) {
+      for (SqliteHelper spaceHelper : SQLITE_HELPERS.values()) {
+        spaceHelper.close();
+      }
+      SQLITE_HELPERS.clear();
+    }
+  }
+
+  private <T extends Resource> ModelHelper<?> getModelHelperOrThrow(SpaceHelper spaceHelper,
+      Class<T> clazz) {
+    ModelHelper<?> modelHelper = spaceHelper.getModels().get(clazz);
+    if (modelHelper == null) {
+      throw new IllegalArgumentException(
+          "Unable to find table mapping for class \"" + clazz.getName() + "\".");
+    }
+    return modelHelper;
   }
 
   private static SqliteHelper createSqliteHelper(Context context, SpaceHelper spaceHelper) {
@@ -132,34 +157,20 @@ public class Vault {
     }
   }
 
-  public <T extends Resource> Query<T> fetch(Class<T> resource) {
-    SqliteHelper sqliteHelper = getOrCreateSqliteHelper(context, space);
-    SpaceHelper spaceHelper = sqliteHelper.getSpaceHelper();
-
-    String tableName;
-    List<FieldMeta> fields = null;
-    if (Asset.class.equals(resource)) {
-      tableName = SpaceHelper.TABLE_ASSETS;
-    } else {
-      ModelHelper<?> modelHelper = getModelHelperOrThrow(spaceHelper, resource);
-      tableName = modelHelper.getTableName();
-      fields = modelHelper.getFields();
-    }
-    return new Query<T>(this, sqliteHelper, resource, tableName, fields);
+  SqliteHelper getOrCreateSqliteHelper() {
+    return getOrCreateSqliteHelper(context, space);
   }
 
-  public SQLiteDatabase getReadableDatabase() {
-    return getOrCreateSqliteHelper(context, space).getReadableDatabase();
-  }
-
-  private <T extends Resource> ModelHelper<?> getModelHelperOrThrow(SpaceHelper spaceHelper,
-      Class<T> clazz) {
-    ModelHelper<?> modelHelper = spaceHelper.getModels().get(clazz);
-    if (modelHelper == null) {
-      throw new IllegalArgumentException(
-          "Unable to find table mapping for class \"" + clazz.getName() + "\".");
+  static SqliteHelper getOrCreateSqliteHelper(Context context, Class<?> space) {
+    synchronized (SQLITE_HELPERS) {
+      SqliteHelper sqliteHelper = SQLITE_HELPERS.get(space);
+      if (sqliteHelper == null) {
+        SpaceHelper spaceHelper = createSpaceHelper(space);
+        sqliteHelper = createSqliteHelper(context, spaceHelper);
+        SQLITE_HELPERS.put(space, sqliteHelper);
+      }
+      return sqliteHelper;
     }
-    return modelHelper;
   }
 
   static void executeCallback(String tag, final Throwable error) {
@@ -180,26 +191,6 @@ public class Vault {
   static CallbackBundle clearBundle(String tag) {
     synchronized (CALLBACKS) {
       return CALLBACKS.remove(tag);
-    }
-  }
-
-  public static void cancel(SyncCallback callback) {
-    if (callback == null) {
-      throw new IllegalArgumentException("callback argument must not be null.");
-    }
-
-    String tag = callback.getTag();
-    if (tag != null) {
-      clearBundle(tag);
-    }
-  }
-
-  public void releaseAll() {
-    synchronized (SQLITE_HELPERS) {
-      for (SqliteHelper spaceHelper : SQLITE_HELPERS.values()) {
-        spaceHelper.close();
-      }
-      SQLITE_HELPERS.clear();
     }
   }
 

@@ -60,6 +60,10 @@ public final class FieldMeta {
     return isArray() && String.class.getName().equals(arrayType);
   }
 
+  public boolean isArrayOfLinks() {
+    return isArray() && !isArrayOfSymbols();
+  }
+
   @Override public boolean equals(Object o) {
     if (this == o) return true;
     if (!(o instanceof FieldMeta)) return false;
