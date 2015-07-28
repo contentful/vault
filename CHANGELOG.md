@@ -3,10 +3,11 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Version [0.9.8][unreleased] - (in development)
-- TBA.
+- New: RxJava support with `Vault.observe()`.
+- Changed: RxJava v1.0.13.
 
 ## Version [0.9.7] - 2015-07-22
-- Changed: Use contentful.java v4.0.1 (fixes NPE for entires with null links).
+- Changed: Use contentful.java v4.0.1 (fixes NPE for entries with null links).
 
 ## Version [0.9.6] - 2015-07-22
 - NOTE: This release introduces backwards incompatible changes to any existing database schemas, when updating make sure to bump the `dbVersion` attribute on your `Space`, in order to apply a migration.

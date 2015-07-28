@@ -40,13 +40,13 @@ final class LinkResolver {
   private static final String QUERY_ENTRY_TYPE = String.format(
       "SELECT `type_id` FROM %s WHERE %s = ?", SpaceHelper.TABLE_ENTRY_TYPES, REMOTE_ID);
 
-  private final Query<?> query;
+  private final AbsQuery<?, ?> query;
 
   private final Map<String, Resource> assets;
 
   private final Map<String, Resource> entries;
 
-  LinkResolver(Query<?> query, Map<String, Resource> assets, Map<String, Resource> entries) {
+  LinkResolver(AbsQuery<?, ?> query, Map<String, Resource> assets, Map<String, Resource> entries) {
     this.query = query;
     this.assets = assets;
     this.entries = entries;

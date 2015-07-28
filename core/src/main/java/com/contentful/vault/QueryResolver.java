@@ -26,7 +26,7 @@ import static android.text.TextUtils.join;
 import static com.contentful.vault.SpaceHelper.TABLE_ASSETS;
 
 final class QueryResolver<T extends Resource> {
-  private final Query<T> query;
+  private final AbsQuery<T, ?> query;
 
   private final Vault vault;
 
@@ -36,7 +36,7 @@ final class QueryResolver<T extends Resource> {
 
   private final Map<String, Resource> entries = new HashMap<String, Resource>();
 
-  QueryResolver(Query<T> query) {
+  QueryResolver(AbsQuery<T, ?> query) {
     this.query = query;
     this.vault = query.vault();
     this.sqliteHelper = vault.getOrCreateSqliteHelper();
@@ -88,7 +88,7 @@ final class QueryResolver<T extends Resource> {
     return spaceHelper.getModels().get(modelType);
   }
 
-  private static Cursor cursorFromQuery(Query<?> query) {
+  private Cursor cursorFromQuery(AbsQuery<T, ?> query) {
     String[] orderArray = query.order();
     String order = null;
     if (orderArray != null && orderArray.length > 0) {
