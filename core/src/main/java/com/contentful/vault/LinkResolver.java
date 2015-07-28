@@ -24,20 +24,19 @@ final class LinkResolver {
   private static final String QUERY_ENTRY_TYPE = String.format(
       "SELECT `type_id` FROM %s WHERE %s = ?", SpaceHelper.TABLE_ENTRY_TYPES, REMOTE_ID);
 
-  private final SqliteHelper sqliteHelper;
-
   private final Query<?> query;
+  private final Map<String, Resource> assets;
+  private final Map<String, Resource> entries;
 
-  LinkResolver(SqliteHelper sqliteHelper, Query<?> query) {
-    this.sqliteHelper = sqliteHelper;
+  LinkResolver(Query<?> query, Map<String, Resource> assets, Map<String, Resource> entries) {
     this.query = query;
+    this.assets = assets;
+    this.entries = entries;
   }
 
   void resolveLinks(Resource resource, List<FieldMeta> links) {
     for (FieldMeta field : links) {
-      if (field.isLink()) {
-        resolveLinksForField(resource, field);
-      } else if (field.isArray() && !field.isArrayOfSymbols()) {
+      if (field.isLink() || field.isArrayOfLinks()) {
         resolveLinksForField(resource, field);
       }
     }
@@ -50,26 +49,7 @@ final class LinkResolver {
     if (links.size() > 0) {
       targets = new ArrayList<Resource>();
       for (Link link : links) {
-        boolean linksToAsset = link.isAsset();
-
-        Map<String, Resource> cache =
-            linksToAsset ? query.getAssetsCache() : query.getEntriesCache();
-
-        Resource child = cache.get(link.child());
-
-        if (child == null) {
-          // Link target not found in cache, fetch from DB
-          child = query.fetchResource(link);
-          if (child != null) {
-            if (!linksToAsset) {
-              // Resolve links for linked target
-              resolveLinks(child, getHelperForEntry(child).getFields());
-            }
-
-            // Put into cache
-            cache.put(child.remoteId(), child);
-          }
-        }
+        Resource child = getCachedResourceOrFetch(link);
         if (child != null) {
           targets.add(child);
         }
@@ -86,15 +66,35 @@ final class LinkResolver {
     } else if (targets != null && targets.size() > 0) {
       result = targets.get(0);
     }
-    if  (result != null) {
+    if (result != null) {
       ModelHelper<Resource> modelHelper = getHelperForEntry(resource);
       modelHelper.setField(resource, field.name(), result);
     }
   }
 
+  private Resource getCachedResourceOrFetch(Link link) {
+    boolean linksToAsset = link.isAsset();
+    Map<String, Resource> cache = linksToAsset ? assets : entries;
+    Resource child = cache.get(link.child());
+    if (child == null) {
+      // Link target not found in cache, fetch from DB
+      child = resourceForLink(link);
+      if (child != null) {
+        if (!linksToAsset) {
+          // Resolve links for linked target
+          resolveLinks(child, getHelperForEntry(child).getFields());
+        }
+
+        // Put into cache
+        cache.put(child.remoteId(), child);
+      }
+    }
+    return child;
+  }
+
   @SuppressWarnings("unchecked")
   private ModelHelper<Resource> getHelperForEntry(Resource resource) {
-    SpaceHelper spaceHelper = sqliteHelper.getSpaceHelper();
+    SpaceHelper spaceHelper = query.vault().getOrCreateSqliteHelper().getSpaceHelper();
     Class<?> modelType = spaceHelper.getTypes().get(resource.contentType());
     return (ModelHelper<Resource>) spaceHelper.getModels().get(modelType);
   }
@@ -104,7 +104,7 @@ final class LinkResolver {
 
     boolean linksToAssets = isLinkForAssets(field);
 
-    String query = linksToAssets ? QUERY_ASSET_LINKS : QUERY_ENTRY_LINKS;
+    String sql = linksToAssets ? QUERY_ASSET_LINKS : QUERY_ENTRY_LINKS;
 
     String[] args = new String[] {
         parentId,
@@ -112,8 +112,7 @@ final class LinkResolver {
         field.id()
     };
 
-    SQLiteDatabase db = sqliteHelper.getReadableDatabase();
-    Cursor cursor = db.rawQuery(query, args);
+    Cursor cursor = query.vault().getReadableDatabase().rawQuery(sql, args);
     try {
       result = new ArrayList<Link>();
       if (cursor.moveToFirst()) {
@@ -149,5 +148,25 @@ final class LinkResolver {
       cursor.close();
     }
     return result;
+  }
+
+  private Resource resourceForLink(Link link) {
+    Resource resource = null;
+    Class<? extends Resource> clazz;
+    if (link.isAsset()) {
+      clazz = Asset.class;
+    } else {
+      clazz = query.vault()
+          .getOrCreateSqliteHelper()
+          .getSpaceHelper()
+          .getTypes()
+          .get(link.childContentType());
+    }
+    if (clazz != null) {
+      resource = query.vault().fetch(clazz)
+          .where(REMOTE_ID + " = ?", link.child())
+          .first(false);
+    }
+    return resource;
   }
 }

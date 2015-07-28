@@ -244,12 +244,8 @@ final class ModelInjection extends Injection {
   List<FieldMeta> extractNonLinkFields() {
     List<FieldMeta> result = new ArrayList<FieldMeta>();
     for (FieldMeta f : fields) {
-      // Skip links
-      if (f.isLink()) {
-        continue;
-      }
-      // Skip arrays of links
-      if (f.isArray() && !f.isArrayOfSymbols()) {
+      // Skip links / arrays of links
+      if (f.isLink() || f.isArrayOfLinks()) {
         continue;
       }
       result.add(f);

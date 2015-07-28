@@ -133,7 +133,6 @@ final class SqliteHelper extends SQLiteOpenHelper {
       resource.setCreatedAt(cursor.getString(resourceColumnIndex(CREATED_AT)));
       resource.setUpdatedAt(cursor.getString(resourceColumnIndex(UPDATED_AT)));
     }
-
     return resource;
   }
 
