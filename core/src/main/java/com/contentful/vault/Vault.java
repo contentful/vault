@@ -106,6 +106,10 @@ public class Vault {
     return new FetchQuery<T>(type, this);
   }
 
+  public <T extends Resource> ObserveQuery<T> observe(Class<T> type) {
+    return new ObserveQuery<T>(type, this);
+  }
+
   public SQLiteDatabase getReadableDatabase() {
     return getOrCreateSqliteHelper(context, space).getReadableDatabase();
   }
@@ -128,16 +132,6 @@ public class Vault {
       }
       SQLITE_HELPERS.clear();
     }
-  }
-
-  private <T extends Resource> ModelHelper<?> getModelHelperOrThrow(SpaceHelper spaceHelper,
-      Class<T> clazz) {
-    ModelHelper<?> modelHelper = spaceHelper.getModels().get(clazz);
-    if (modelHelper == null) {
-      throw new IllegalArgumentException(
-          "Unable to find table mapping for class \"" + clazz.getName() + "\".");
-    }
-    return modelHelper;
   }
 
   private static SqliteHelper createSqliteHelper(Context context, SpaceHelper spaceHelper) {

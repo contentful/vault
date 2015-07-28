@@ -19,7 +19,7 @@ package com.contentful.vault;
 import java.util.List;
 
 public final class FetchQuery<T extends Resource> extends AbsQuery<T, FetchQuery<T>> {
-  public FetchQuery(Class<T> type, Vault vault) {
+  FetchQuery(Class<T> type, Vault vault) {
     super(type, vault);
   }
 
