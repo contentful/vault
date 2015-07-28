@@ -102,8 +102,8 @@ public class Vault {
         .build());
   }
 
-  public <T extends Resource> Query<T> fetch(Class<T> type) {
-    return new Query<T>(type, this);
+  public <T extends Resource> FetchQuery<T> fetch(Class<T> type) {
+    return new FetchQuery<T>(type, this);
   }
 
   public SQLiteDatabase getReadableDatabase() {
