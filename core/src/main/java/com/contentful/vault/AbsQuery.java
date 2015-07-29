@@ -1,17 +1,11 @@
 package com.contentful.vault;
 
 abstract class AbsQuery<T extends Resource, E extends AbsQuery<T, E>> {
-  protected final Class<T> type;
+  private final Class<T> type;
 
-  protected final Vault vault;
+  private final Vault vault;
 
-  protected String selection;
-
-  protected String[] selectionArgs;
-
-  protected String limit;
-
-  protected String[] order;
+  private Params params = new Params();
 
   AbsQuery(Class<T> type, Vault vault) {
     this.type = type;
@@ -20,8 +14,8 @@ abstract class AbsQuery<T extends Resource, E extends AbsQuery<T, E>> {
 
   @SuppressWarnings("unchecked")
   public E where(String selection, String... args) {
-    this.selection = selection;
-    this.selectionArgs = args;
+    params.setSelection(selection);
+    params.setSelectionArgs(args);
     return (E) this;
   }
 
@@ -31,13 +25,13 @@ abstract class AbsQuery<T extends Resource, E extends AbsQuery<T, E>> {
     if (limit != null) {
       value = limit.toString();
     }
-    this.limit = value;
+    params.setLimit(value);
     return (E) this;
   }
 
   @SuppressWarnings("unchecked")
   public E order(String... order) {
-    this.order = order;
+    params.setOrder(order);
     return (E) this;
   }
 
@@ -49,19 +43,50 @@ abstract class AbsQuery<T extends Resource, E extends AbsQuery<T, E>> {
     return vault;
   }
 
-  String selection() {
-    return selection;
+  Params params() {
+    return params;
   }
 
-  String[] selectionArgs() {
-    return selectionArgs;
+  void setParams(Params params) {
+    this.params = params;
   }
 
-  String limit() {
-    return limit;
-  }
+  static final class Params {
+    private String selection;
+    private String[] selectionArgs;
+    private String limit;
+    private String[] order;
 
-  String[] order() {
-    return order;
+    public String selection() {
+      return selection;
+    }
+
+    public void setSelection(String selection) {
+      this.selection = selection;
+    }
+
+    public String[] selectionArgs() {
+      return selectionArgs;
+    }
+
+    public void setSelectionArgs(String[] selectionArgs) {
+      this.selectionArgs = selectionArgs;
+    }
+
+    public String limit() {
+      return limit;
+    }
+
+    public void setLimit(String limit) {
+      this.limit = limit;
+    }
+
+    public String[] order() {
+      return order;
+    }
+
+    public void setOrder(String[] order) {
+      this.order = order;
+    }
   }
 }

@@ -16,12 +16,17 @@
 
 package com.contentful.vaultintegration;
 
+import com.contentful.vault.BaseFields;
 import com.contentful.vault.Vault;
 import com.contentful.vaultintegration.lib.demo.Cat;
+import com.contentful.vaultintegration.lib.demo.Cat$Fields;
 import com.contentful.vaultintegration.lib.demo.DemoSpace;
+import java.util.List;
 import org.junit.Test;
 import org.robolectric.RuntimeEnvironment;
 import rx.observers.TestSubscriber;
+
+import static com.google.common.truth.Truth.assertThat;
 
 public class ObserveTest extends BaseTest {
   @Override protected void setupVault() {
@@ -35,10 +40,19 @@ public class ObserveTest extends BaseTest {
     sync();
 
     TestSubscriber<Cat> subscriber = new TestSubscriber<Cat>();
-    vault.observe(Cat.class).all().subscribe(subscriber);
+    vault.observe(Cat.class)
+        .where(BaseFields.REMOTE_ID + " IN(?, ?, ?)", "happycat", "nyancat", "garfield")
+        .limit(2)
+        .order(Cat$Fields.UPDATED_AT + " DESC")
+        .all()
+        .subscribe(subscriber);
 
     subscriber.assertNoErrors();
     subscriber.assertCompleted();
-    subscriber.assertValueCount(3);
+
+    List<Cat> cats = subscriber.getOnNextEvents();
+    assertThat(cats).hasSize(2);
+    assertThat(cats.get(0).updatedAt()).isEqualTo("2013-11-18T15:58:02.018Z");
+    assertThat(cats.get(1).updatedAt()).isEqualTo("2013-09-04T09:19:39.027Z");
   }
 }

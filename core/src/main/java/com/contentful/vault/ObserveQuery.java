@@ -38,7 +38,9 @@ public final class ObserveQuery<T extends Resource> extends AbsQuery<T, ObserveQ
 
     @Override public void call(Subscriber<? super T> subscriber) {
       try {
-        List<T> items = query.vault().fetch(query.type()).all();
+        FetchQuery<T> fetchQuery = query.vault().fetch(query.type());
+        fetchQuery.setParams(query.params());
+        List<T> items = fetchQuery.all();
         for (T item : items) {
           if (subscriber.isUnsubscribed()) {
             return;
