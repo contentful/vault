@@ -3,7 +3,9 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Version [0.9.8][unreleased] - (in development)
-- New: RxJava support with `Vault.observe()`.
+- New: RxJava support with `Vault.observe()` and `Vault.observeSyncResults()`.
+- New: `SyncResult` class to represent a result of sync operation.
+- Changed: `SyncCallback` replaced `onSuccess()` and `onFailure()` with `onResult(SyncResult)`.
 - Changed: RxJava v1.0.13.
 
 ## Version [0.9.7] - 2015-07-22

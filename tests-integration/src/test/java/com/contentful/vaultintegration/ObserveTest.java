@@ -17,6 +17,7 @@
 package com.contentful.vaultintegration;
 
 import com.contentful.vault.BaseFields;
+import com.contentful.vault.SyncResult;
 import com.contentful.vault.Vault;
 import com.contentful.vaultintegration.lib.demo.Cat;
 import com.contentful.vaultintegration.lib.demo.Cat$Fields;
@@ -33,7 +34,7 @@ public class ObserveTest extends BaseTest {
     vault = Vault.with(RuntimeEnvironment.application, DemoSpace.class);
   }
 
-  @Test public void observe() throws Exception {
+  @Test public void observeQuery() throws Exception {
     enqueue("demo/space.json");
     enqueue("demo/types.json");
     enqueue("demo/initial.json");
@@ -54,5 +55,22 @@ public class ObserveTest extends BaseTest {
     assertThat(cats).hasSize(2);
     assertThat(cats.get(0).updatedAt()).isEqualTo("2013-11-18T15:58:02.018Z");
     assertThat(cats.get(1).updatedAt()).isEqualTo("2013-09-04T09:19:39.027Z");
+  }
+
+  @Test public void observeSyncResults() throws Exception {
+    enqueue("demo/space.json");
+    enqueue("demo/types.json");
+    enqueue("demo/initial.json");
+
+    TestSubscriber<SyncResult> subscriber = new TestSubscriber<SyncResult>();
+    vault.observeSyncResults().subscribe(subscriber);
+
+    subscriber.assertNoValues();
+    sync();
+    subscriber.assertNoTerminalEvent();
+
+    List<SyncResult> events = subscriber.getOnNextEvents();
+    assertThat(events).hasSize(1);
+    assertThat(events.get(0).isSuccessful()).isTrue();
   }
 }

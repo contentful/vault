@@ -16,16 +16,18 @@
 
 package com.contentful.vault;
 
-public abstract class SyncCallback {
-  private String tag;
+public final class SyncResult {
+  private final Throwable error;
 
-  public abstract void onResult(SyncResult result);
-
-  final void setTag(String tag) {
-    this.tag = tag;
+  SyncResult(Throwable error) {
+    this.error = error;
   }
 
-  final String getTag() {
-    return tag;
+  public boolean isSuccessful() {
+    return error == null;
+  }
+
+  public Throwable error() {
+    return error;
   }
 }

@@ -26,6 +26,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import retrofit.android.MainThreadExecutor;
+import rx.Observable;
+import rx.subjects.PublishSubject;
 
 public class Vault {
   public static final String ACTION_SYNC_COMPLETE = "com.contentful.vault.ACTION_SYNC_COMPLETE";
@@ -43,6 +45,8 @@ public class Vault {
   static final Executor EXECUTOR_CALLBACK = new MainThreadExecutor();
 
   static final Map<String, CallbackBundle> CALLBACKS = new HashMap<String, CallbackBundle>();
+
+  private final PublishSubject<SyncResult> syncSubject = PublishSubject.create();
 
   private final Context context;
 
@@ -99,6 +103,7 @@ public class Vault {
         .setContext(context)
         .setSqliteHelper(getOrCreateSqliteHelper(context, space))
         .setSyncConfig(config)
+        .setSyncSubject(syncSubject)
         .build());
   }
 
@@ -134,6 +139,10 @@ public class Vault {
     }
   }
 
+  public Observable<SyncResult> observeSyncResults() {
+    return syncSubject.asObservable();
+  }
+
   private static SqliteHelper createSqliteHelper(Context context, SpaceHelper spaceHelper) {
     return new SqliteHelper(context, spaceHelper);
   }
@@ -167,16 +176,12 @@ public class Vault {
     }
   }
 
-  static void executeCallback(String tag, final Throwable error) {
+  static void executeCallback(String tag, final SyncResult result) {
     final CallbackBundle bundle = clearBundle(tag);
     if (bundle != null) {
       bundle.executor.execute(new Runnable() {
         @Override public void run() {
-          if (error == null) {
-            bundle.callback.onSuccess();
-          } else {
-            bundle.callback.onError(error);
-          }
+          bundle.callback.onResult(result);
         }
       });
     }
