@@ -89,7 +89,7 @@ final class QueryResolver<T extends Resource> {
   }
 
   private Cursor cursorFromQuery(AbsQuery<T, ?> query) {
-    String[] orderArray = query.order();
+    String[] orderArray = query.params().order();
     String order = null;
     if (orderArray != null && orderArray.length > 0) {
       order = join(", ", orderArray);
@@ -106,12 +106,12 @@ final class QueryResolver<T extends Resource> {
           .getTableName();
     }
     return query.vault().getReadableDatabase().query(tableName,
-        null,                       // columns
-        query.selection(),          // selection
-        query.selectionArgs(),      // selectionArgs
-        null,                       // groupBy
-        null,                       // having
-        order,                      // order
-        query.limit());             // limit
+        null,                           // columns
+        query.params().selection(),     // selection
+        query.params().selectionArgs(), // selectionArgs
+        null,                           // groupBy
+        null,                           // having
+        order,                          // order
+        query.params().limit());        // limit
   }
 }
