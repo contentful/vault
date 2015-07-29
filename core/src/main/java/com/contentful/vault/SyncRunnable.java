@@ -35,6 +35,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
+import rx.subjects.PublishSubject;
 
 import static android.database.sqlite.SQLiteDatabase.CONFLICT_REPLACE;
 import static com.contentful.java.cda.CDAType.ASSET;
@@ -50,6 +51,8 @@ public final class SyncRunnable implements Runnable {
 
   private final SyncConfig config;
 
+  private final PublishSubject<SyncResult> syncSubject;
+
   private SqliteHelper sqliteHelper;
 
   private SpaceHelper spaceHelper;
@@ -62,6 +65,7 @@ public final class SyncRunnable implements Runnable {
     this.context = builder.context;
     this.config = builder.config;
     this.tag = builder.tag;
+    this.syncSubject = builder.syncSubject;
     this.sqliteHelper = builder.sqliteHelper;
     this.spaceHelper = sqliteHelper.getSpaceHelper();
   }
@@ -102,12 +106,17 @@ public final class SyncRunnable implements Runnable {
     } catch (Exception e) {
       error = new SyncException(e);
     } finally {
-      boolean success = error == null;
-
+      // Notify via broadcast
       context.sendBroadcast(new Intent(Vault.ACTION_SYNC_COMPLETE)
-          .putExtra(Vault.EXTRA_SUCCESS, success));
+          .putExtra(Vault.EXTRA_SUCCESS, error == null));
 
-      Vault.executeCallback(tag, error);
+      SyncResult syncResult = new SyncResult(error);
+
+      // RxJava Subject
+      syncSubject.onNext(syncResult);
+
+      // Callback
+      Vault.executeCallback(tag, syncResult);
     }
   }
 
@@ -379,6 +388,7 @@ public final class SyncRunnable implements Runnable {
     private SqliteHelper sqliteHelper;
     private SyncConfig config;
     private String tag;
+    private PublishSubject<SyncResult> syncSubject;
 
     private Builder() {
     }
@@ -405,6 +415,11 @@ public final class SyncRunnable implements Runnable {
 
     public SyncRunnable build() {
       return new SyncRunnable(this);
+    }
+
+    public Builder setSyncSubject(PublishSubject<SyncResult> syncSubject) {
+      this.syncSubject = syncSubject;
+      return this;
     }
   }
 }

@@ -19,6 +19,7 @@ package com.contentful.vaultintegration;
 import com.contentful.java.cda.CDAClient;
 import com.contentful.vault.SyncCallback;
 import com.contentful.vault.SyncConfig;
+import com.contentful.vault.SyncResult;
 import com.contentful.vault.Vault;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 import com.squareup.okhttp.mockwebserver.MockWebServer;
@@ -33,6 +34,8 @@ import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
+
+import static com.google.common.truth.Truth.assertThat;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest = "src/main/AndroidManifest.xml")
@@ -108,15 +111,10 @@ public abstract class BaseTest {
       }
     };
 
-    final Throwable[] error = { null };
-
+    final SyncResult[] result = { null };
     SyncCallback callback = new SyncCallback() {
-      @Override public void onSuccess() {
-        latch.countDown();
-      }
-
-      @Override public void onError(Throwable cause) {
-        error[0] = cause;
+      @Override public void onResult(SyncResult r) {
+        result[0] = r;
         latch.countDown();
       }
     };
@@ -124,8 +122,7 @@ public abstract class BaseTest {
     vault.requestSync(config, callback, executor);
     latch.await();
 
-    if (error[0] != null) {
-      throw new RuntimeException(error[0]);
-    }
+    assertThat(result[0]).isNotNull();
+    assertThat(result[0].isSuccessful()).isTrue();
   }
 }
