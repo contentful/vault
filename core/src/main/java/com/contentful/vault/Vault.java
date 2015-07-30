@@ -28,6 +28,8 @@ import java.util.concurrent.Executors;
 import retrofit.android.MainThreadExecutor;
 import rx.Observable;
 import rx.subjects.PublishSubject;
+import rx.subjects.SerializedSubject;
+import rx.subjects.Subject;
 
 public class Vault {
   public static final String ACTION_SYNC_COMPLETE = "com.contentful.vault.ACTION_SYNC_COMPLETE";
@@ -46,7 +48,8 @@ public class Vault {
 
   static final Map<String, CallbackBundle> CALLBACKS = new HashMap<String, CallbackBundle>();
 
-  private final PublishSubject<SyncResult> syncSubject = PublishSubject.create();
+  private final Subject<SyncResult, SyncResult> syncSubject =
+      new SerializedSubject<SyncResult, SyncResult>(PublishSubject.<SyncResult>create());
 
   private final Context context;
 
