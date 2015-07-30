@@ -63,7 +63,7 @@ public class ObserveTest extends BaseTest {
     enqueue("demo/initial.json");
 
     TestSubscriber<SyncResult> subscriber = new TestSubscriber<SyncResult>();
-    vault.observeSyncResults().subscribe(subscriber);
+    Vault.observeSyncResults().subscribe(subscriber);
 
     subscriber.assertNoValues();
     sync();
@@ -72,5 +72,6 @@ public class ObserveTest extends BaseTest {
     List<SyncResult> events = subscriber.getOnNextEvents();
     assertThat(events).hasSize(1);
     assertThat(events.get(0).isSuccessful()).isTrue();
+    assertThat(events.get(0).spaceId()).isEqualTo("cfexampleapi");
   }
 }

@@ -17,10 +17,17 @@
 package com.contentful.vault;
 
 public final class SyncResult {
+  private final String spaceId;
+
   private final Throwable error;
 
-  SyncResult(Throwable error) {
+  SyncResult(String spaceId, Throwable error) {
+    this.spaceId = spaceId;
     this.error = error;
+  }
+
+  public String spaceId() {
+    return spaceId;
   }
 
   public boolean isSuccessful() {
