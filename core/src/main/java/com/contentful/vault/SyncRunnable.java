@@ -35,12 +35,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
-import rx.subjects.Subject;
 
 import static android.database.sqlite.SQLiteDatabase.CONFLICT_REPLACE;
 import static com.contentful.java.cda.CDAType.ASSET;
-import static com.contentful.java.cda.CDAType.DELETEDASSET;
-import static com.contentful.java.cda.CDAType.DELETEDENTRY;
 import static com.contentful.java.cda.CDAType.ENTRY;
 import static com.contentful.vault.BaseFields.CREATED_AT;
 import static com.contentful.vault.BaseFields.REMOTE_ID;
@@ -50,8 +47,6 @@ public final class SyncRunnable implements Runnable {
   private final Context context;
 
   private final SyncConfig config;
-
-  private final Subject<SyncResult, SyncResult> syncSubject;
 
   private SqliteHelper sqliteHelper;
 
@@ -65,7 +60,6 @@ public final class SyncRunnable implements Runnable {
     this.context = builder.context;
     this.config = builder.config;
     this.tag = builder.tag;
-    this.syncSubject = builder.syncSubject;
     this.sqliteHelper = builder.sqliteHelper;
     this.spaceHelper = sqliteHelper.getSpaceHelper();
   }
@@ -110,10 +104,10 @@ public final class SyncRunnable implements Runnable {
       context.sendBroadcast(new Intent(Vault.ACTION_SYNC_COMPLETE)
           .putExtra(Vault.EXTRA_SUCCESS, error == null));
 
-      SyncResult syncResult = new SyncResult(error);
+      SyncResult syncResult = new SyncResult(spaceHelper.getSpaceId(), error);
 
       // RxJava Subject
-      syncSubject.onNext(syncResult);
+      Vault.SYNC_SUBJECT.onNext(syncResult);
 
       // Callback
       Vault.executeCallback(tag, syncResult);
@@ -369,26 +363,11 @@ public final class SyncRunnable implements Runnable {
     values.put(UPDATED_AT, (String) resource.getAttribute("updatedAt"));
   }
 
-  static abstract class ResourceHandler {
-    abstract void asset(CDAResource resource, Object... objects);
-    abstract void entry(CDAResource resource, Object... objects);
-
-    void invoke(CDAResource resource, Object... objects) {
-      CDAType type = resource.type();
-      if (type == ASSET || type == DELETEDASSET) {
-        asset(resource, objects);
-      } else if (type == ENTRY || type == DELETEDENTRY) {
-        entry(resource, objects);
-      }
-    }
-  }
-
   static class Builder {
     private Context context;
     private SqliteHelper sqliteHelper;
     private SyncConfig config;
     private String tag;
-    private Subject<SyncResult, SyncResult> syncSubject;
 
     private Builder() {
     }
@@ -415,11 +394,6 @@ public final class SyncRunnable implements Runnable {
 
     public SyncRunnable build() {
       return new SyncRunnable(this);
-    }
-
-    public Builder setSyncSubject(Subject<SyncResult, SyncResult> syncSubject) {
-      this.syncSubject = syncSubject;
-      return this;
     }
   }
 }

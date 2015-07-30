@@ -48,7 +48,7 @@ public class Vault {
 
   static final Map<String, CallbackBundle> CALLBACKS = new HashMap<String, CallbackBundle>();
 
-  private final Subject<SyncResult, SyncResult> syncSubject =
+  static final Subject<SyncResult, SyncResult> SYNC_SUBJECT =
       new SerializedSubject<SyncResult, SyncResult>(PublishSubject.<SyncResult>create());
 
   private final Context context;
@@ -106,7 +106,6 @@ public class Vault {
         .setContext(context)
         .setSqliteHelper(getOrCreateSqliteHelper(context, space))
         .setSyncConfig(config)
-        .setSyncSubject(syncSubject)
         .build());
   }
 
@@ -142,8 +141,8 @@ public class Vault {
     }
   }
 
-  public Observable<SyncResult> observeSyncResults() {
-    return syncSubject.asObservable();
+  public static Observable<SyncResult> observeSyncResults() {
+    return SYNC_SUBJECT.asObservable();
   }
 
   private static SqliteHelper createSqliteHelper(Context context, SpaceHelper spaceHelper) {
