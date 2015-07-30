@@ -63,6 +63,7 @@ final class SpaceInjection extends Injection {
     appendModels(builder);
     appendTypes(builder);
     appendCopyPath(builder);
+    appendSpaceId(builder);
     appendConstructor(builder);
 
     return builder;
@@ -141,6 +142,15 @@ final class SpaceInjection extends Injection {
         .addAnnotation(Override.class)
         .addModifiers(Modifier.PUBLIC)
         .addStatement("return $S", copyPath)
+        .build());
+  }
+
+  private void appendSpaceId(TypeSpec.Builder builder) {
+    builder.addMethod(MethodSpec.methodBuilder("getSpaceId")
+        .returns(String.class)
+        .addAnnotation(Override.class)
+        .addModifiers(Modifier.PUBLIC)
+        .addStatement("return $S", remoteId)
         .build());
   }
 }

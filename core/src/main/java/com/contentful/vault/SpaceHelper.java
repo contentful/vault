@@ -108,6 +108,8 @@ public abstract class SpaceHelper {
 
   public abstract String getCopyPath();
 
+  public abstract String getSpaceId();
+
   static int resourceColumnIndex(String name) {
     int i = RESOURCE_COLUMN_INDEXES.indexOf(name);
     if (i == -1) {

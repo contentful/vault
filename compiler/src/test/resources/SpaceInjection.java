@@ -38,4 +38,9 @@ public final class Test$AwesomeSpace$$SpaceHelper extends SpaceHelper {
   public String getCopyPath() {
     return null;
   }
+
+  @Override
+  public String getSpaceId() {
+    return "sid";
+  }
 }
