@@ -35,7 +35,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
-import rx.subjects.PublishSubject;
+import rx.subjects.Subject;
 
 import static android.database.sqlite.SQLiteDatabase.CONFLICT_REPLACE;
 import static com.contentful.java.cda.CDAType.ASSET;
@@ -51,7 +51,7 @@ public final class SyncRunnable implements Runnable {
 
   private final SyncConfig config;
 
-  private final PublishSubject<SyncResult> syncSubject;
+  private final Subject<SyncResult, SyncResult> syncSubject;
 
   private SqliteHelper sqliteHelper;
 
@@ -388,7 +388,7 @@ public final class SyncRunnable implements Runnable {
     private SqliteHelper sqliteHelper;
     private SyncConfig config;
     private String tag;
-    private PublishSubject<SyncResult> syncSubject;
+    private Subject<SyncResult, SyncResult> syncSubject;
 
     private Builder() {
     }
@@ -417,7 +417,7 @@ public final class SyncRunnable implements Runnable {
       return new SyncRunnable(this);
     }
 
-    public Builder setSyncSubject(PublishSubject<SyncResult> syncSubject) {
+    public Builder setSyncSubject(Subject<SyncResult, SyncResult> syncSubject) {
       this.syncSubject = syncSubject;
       return this;
     }
