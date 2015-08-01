@@ -12,18 +12,18 @@ Grab via Maven:
 <dependency>
   <groupId>com.contentful.vault</groupId>
   <artifactId>compiler</artifactId>
-  <version>0.9.7</version>
+  <version>0.9.8</version>
 </dependency>
 <dependency>
   <groupId>com.contentful.vault</groupId>
   <artifactId>core</artifactId>
-  <version>0.9.7</version>
+  <version>0.9.8</version>
 </dependency>
 ```
 or Gradle:
 ```groovy
-apt 'com.contentful.vault:compiler:0.9.7'
-compile 'com.contentful.vault:core:0.9.7'
+apt 'com.contentful.vault:compiler:0.9.8'
+compile 'com.contentful.vault:core:0.9.8'
 ```
 
 Note for Gradle users, make sure to use the [android-apt][apt] Gradle plugin, which lets you configure compile-time only dependencies.
@@ -107,12 +107,12 @@ class SomeActivity extends Activity {
     super.onCreate(savedInstanceState);
     
     Vault.with(this, DemoSpace.class).requestSync(config, callback = new SyncCallback() {
-      @Override public void onSuccess() {
-        // Sync completed \o/
-      }
-      
-      @Override public void onError(Throwable cause) {
-        // Handle error
+      @Override public void onResult(SyncResult result) {
+        if (result.isSuccessful()) {
+          // Success \o/
+        } else {
+          // Failure
+        }
       }
     });
   }
@@ -122,6 +122,11 @@ class SomeActivity extends Activity {
     super.onDestroy();
   }
 }
+```
+
+Similarly, if you're using RxJava, you can be notified of sync results via an Observable:
+```java
+Vault.observeSyncResults() // returns Observable<SyncResult>
 ```
 
 ### Queries
@@ -151,6 +156,20 @@ vault.fetch(Cat.class)
     .all();
 ```
 
+If you're using RxJava, you can create queries with the `observe()` method, for example:
+```java
+vault.observe(Cat.class)
+    .where(Cat$Fields.NAME + " = ?", "Happy Cat")
+    .all() // returns Observable<Cat>
+```
+
+The above example creates an `Observable` that subscribes and observes on the same thread initiating the query, so make sure to change that according to your requirements. A typical use-case would be:
+```java
+vault.observe(Cat.class)
+    .all()
+    .subscribeOn(Schedulers.io())
+    .observeOn(AndroidSchedulers.mainThread())
+```
 
 ### Migrations
 

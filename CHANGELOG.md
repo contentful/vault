@@ -2,7 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Version [0.9.8][unreleased] - (in development)
+## Version [0.9.9][unreleased] - (in development)
+- TBA.
+
+## Version [0.9.8] - 2015-08-01
 - New: RxJava support with `Vault.observe()` and `Vault.observeSyncResults()`.
 - New: `SyncResult` class to represent a result of sync operation.
 - Changed: `SyncCallback` replaced `onSuccess()` and `onFailure()` with `onResult(SyncResult)`.
@@ -50,7 +53,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## Version 0.9.0 - 2015-05-18
 Initial release.
  
-[unreleased]: https://github.com/contentful/vault/compare/vault-parent-0.9.7...HEAD
+[unreleased]: https://github.com/contentful/vault/compare/vault-parent-0.9.8...HEAD
+[0.9.8]: https://github.com/contentful/vault/compare/vault-parent-0.9.7...vault-parent-0.9.8
 [0.9.7]: https://github.com/contentful/vault/compare/vault-parent-0.9.6...vault-parent-0.9.7
 [0.9.6]: https://github.com/contentful/vault/compare/vault-parent-0.9.5...vault-parent-0.9.6
 [0.9.5]: https://github.com/contentful/vault/compare/vault-parent-0.9.4...vault-parent-0.9.5
