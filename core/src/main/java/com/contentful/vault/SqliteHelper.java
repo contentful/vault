@@ -30,8 +30,10 @@ import org.apache.commons.io.FileUtils;
 import static com.contentful.vault.BaseFields.CREATED_AT;
 import static com.contentful.vault.BaseFields.REMOTE_ID;
 import static com.contentful.vault.BaseFields.UPDATED_AT;
-import static com.contentful.vault.SpaceHelper.assetColumnIndex;
-import static com.contentful.vault.SpaceHelper.resourceColumnIndex;
+import static com.contentful.vault.Sql.DEFAULT_CREATE;
+import static com.contentful.vault.Sql.DEFAULT_TABLES;
+import static com.contentful.vault.Sql.assetColumnIndex;
+import static com.contentful.vault.Sql.resourceColumnIndex;
 
 final class SqliteHelper extends SQLiteOpenHelper {
   private final Context context;
@@ -63,7 +65,7 @@ final class SqliteHelper extends SQLiteOpenHelper {
   }
 
   static void execCreate(SpaceHelper helper, SQLiteDatabase db) {
-    for (String sql : SpaceHelper.DEFAULT_CREATE) {
+    for (String sql : DEFAULT_CREATE) {
       db.execSQL(sql);
     }
     for (ModelHelper<?> modelHelper : helper.getModels().values()) {
@@ -76,7 +78,7 @@ final class SqliteHelper extends SQLiteOpenHelper {
   static void clearRecords(SpaceHelper helper, SQLiteDatabase db) {
     db.beginTransaction();
     try {
-      for (String name : SpaceHelper.DEFAULT_TABLES) {
+      for (String name : DEFAULT_TABLES) {
         db.delete(name, null, null);
       }
       for (ModelHelper<?> modelHelper : helper.getModels().values()) {

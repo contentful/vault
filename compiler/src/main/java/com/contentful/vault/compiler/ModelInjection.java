@@ -18,7 +18,6 @@ package com.contentful.vault.compiler;
 
 import com.contentful.vault.FieldMeta;
 import com.contentful.vault.ModelHelper;
-import com.contentful.vault.SpaceHelper;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
@@ -34,6 +33,8 @@ import java.util.Map;
 import java.util.Set;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+
+import static com.contentful.vault.Sql.RESOURCE_COLUMNS;
 
 final class ModelInjection extends Injection {
   final String sqlTableName;
@@ -150,7 +151,7 @@ final class ModelInjection extends Injection {
     List<FieldMeta> nonLinkFields = extractNonLinkFields();
     for (int i = 0; i < nonLinkFields.size(); i++) {
       FieldMeta field = nonLinkFields.get(i);
-      int columnIndex = SpaceHelper.RESOURCE_COLUMNS.length + i;
+      int columnIndex = RESOURCE_COLUMNS.length + i;
       String fqClassName = field.type().toString();
       String name = field.name();
 
@@ -221,9 +222,9 @@ final class ModelInjection extends Injection {
         .append(sqlTableName)
         .append("` (");
 
-    for (int i = 0; i < SpaceHelper.RESOURCE_COLUMNS.length; i++) {
-      builder.append(SpaceHelper.RESOURCE_COLUMNS[i]);
-      if (i < SpaceHelper.RESOURCE_COLUMNS.length - 1) {
+    for (int i = 0; i < RESOURCE_COLUMNS.length; i++) {
+      builder.append(RESOURCE_COLUMNS[i]);
+      if (i < RESOURCE_COLUMNS.length - 1) {
         builder.append(", ");
       }
     }

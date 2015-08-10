@@ -20,7 +20,7 @@ import android.content.ContentValues;
 import java.util.Map;
 import java.util.Set;
 
-import static com.contentful.vault.Utils.escape;
+import static com.contentful.vault.Sql.escape;
 
 final class AutoEscapeValues {
   private final ContentValues values = new ContentValues();

@@ -25,20 +25,22 @@ import java.util.Map;
 
 import static com.contentful.java.cda.CDAType.ASSET;
 import static com.contentful.vault.BaseFields.REMOTE_ID;
+import static com.contentful.vault.Sql.TABLE_ENTRY_TYPES;
+import static com.contentful.vault.Sql.TABLE_LINKS;
 
 final class LinkResolver {
   private static final String LINKS_WHERE_CLAUSE =
       "l.parent = ? AND l.is_asset = ? AND l.field = ?";
 
   private static final String QUERY_ASSET_LINKS = String.format(
-      "SELECT l.child, null FROM %s l WHERE %s", SpaceHelper.TABLE_LINKS, LINKS_WHERE_CLAUSE);
+      "SELECT l.child, null FROM %s l WHERE %s", TABLE_LINKS, LINKS_WHERE_CLAUSE);
 
   private static final String QUERY_ENTRY_LINKS = String.format(
       "SELECT l.child, t.type_id FROM %s l INNER JOIN %s t ON l.child = t.%s WHERE %s",
-      SpaceHelper.TABLE_LINKS, SpaceHelper.TABLE_ENTRY_TYPES, REMOTE_ID, LINKS_WHERE_CLAUSE);
+      TABLE_LINKS, TABLE_ENTRY_TYPES, REMOTE_ID, LINKS_WHERE_CLAUSE);
 
   private static final String QUERY_ENTRY_TYPE = String.format(
-      "SELECT `type_id` FROM %s WHERE %s = ?", SpaceHelper.TABLE_ENTRY_TYPES, REMOTE_ID);
+      "SELECT `type_id` FROM %s WHERE %s = ?", TABLE_ENTRY_TYPES, REMOTE_ID);
 
   private final AbsQuery<?, ?> query;
 

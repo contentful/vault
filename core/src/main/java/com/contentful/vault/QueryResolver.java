@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import static android.text.TextUtils.join;
-import static com.contentful.vault.SpaceHelper.TABLE_ASSETS;
+import static com.contentful.vault.Sql.TABLE_ASSETS;
 
 final class QueryResolver<T extends Resource> {
   private final AbsQuery<T, ?> query;

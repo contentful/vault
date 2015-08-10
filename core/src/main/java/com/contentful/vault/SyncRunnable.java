@@ -42,6 +42,10 @@ import static com.contentful.java.cda.CDAType.ENTRY;
 import static com.contentful.vault.BaseFields.CREATED_AT;
 import static com.contentful.vault.BaseFields.REMOTE_ID;
 import static com.contentful.vault.BaseFields.UPDATED_AT;
+import static com.contentful.vault.Sql.TABLE_ASSETS;
+import static com.contentful.vault.Sql.TABLE_ENTRY_TYPES;
+import static com.contentful.vault.Sql.TABLE_LINKS;
+import static com.contentful.vault.Sql.TABLE_SYNC_INFO;
 
 public final class SyncRunnable implements Runnable {
   private final Context context;
@@ -149,8 +153,8 @@ public final class SyncRunnable implements Runnable {
     AutoEscapeValues values = new AutoEscapeValues();
     values.put("token", syncToken);
     values.put("locale", config.locale());
-    db.delete(SpaceHelper.TABLE_SYNC_INFO, null, null);
-    db.insert(SpaceHelper.TABLE_SYNC_INFO, null, values.get());
+    db.delete(TABLE_SYNC_INFO, null, null);
+    db.insert(TABLE_SYNC_INFO, null, values.get());
   }
 
   private void processResource(CDAResource resource) {
@@ -187,7 +191,7 @@ public final class SyncRunnable implements Runnable {
   }
 
   private void deleteAsset(String id) {
-    deleteResource(id, SpaceHelper.TABLE_ASSETS);
+    deleteResource(id, TABLE_ASSETS);
   }
 
   private void deleteEntry(String id) {
@@ -204,7 +208,7 @@ public final class SyncRunnable implements Runnable {
   private void deleteEntryType(String remoteId) {
     String whereClause = REMOTE_ID + " = ?";
     String[] whereArgs = new String[]{ remoteId };
-    db.delete(SpaceHelper.TABLE_ENTRY_TYPES, whereClause, whereArgs);
+    db.delete(TABLE_ENTRY_TYPES, whereClause, whereArgs);
   }
 
   private void deleteResource(String remoteId, String tableName) {
@@ -219,7 +223,7 @@ public final class SyncRunnable implements Runnable {
         remoteId,
         remoteId
     };
-    db.delete(SpaceHelper.TABLE_LINKS, whereClause, whereArgs);
+    db.delete(TABLE_LINKS, whereClause, whereArgs);
   }
 
   @TargetApi(Build.VERSION_CODES.FROYO)
@@ -243,7 +247,7 @@ public final class SyncRunnable implements Runnable {
     }
     values.put(Asset.Fields.FILE, value);
 
-    db.insertWithOnConflict(SpaceHelper.TABLE_ASSETS, null, values.get(), CONFLICT_REPLACE);
+    db.insertWithOnConflict(TABLE_ASSETS, null, values.get(), CONFLICT_REPLACE);
   }
 
   @SuppressWarnings("unchecked")
@@ -282,7 +286,7 @@ public final class SyncRunnable implements Runnable {
     values.clear();
     values.put(REMOTE_ID, entry.id());
     values.put("type_id", entry.contentType().id());
-    db.insertWithOnConflict(SpaceHelper.TABLE_ENTRY_TYPES, null, values.get(), CONFLICT_REPLACE);
+    db.insertWithOnConflict(TABLE_ENTRY_TYPES, null, values.get(), CONFLICT_REPLACE);
   }
 
   private void saveBoolean(AutoEscapeValues values, FieldMeta field, Boolean value) {
@@ -348,13 +352,13 @@ public final class SyncRunnable implements Runnable {
     values.put("field", fieldId);
     values.put("child", targetId);
     values.put("is_asset", CDAType.valueOf(linkType.toUpperCase(Vault.LOCALE)) == ASSET);
-    db.insertWithOnConflict(SpaceHelper.TABLE_LINKS, null, values.get(), CONFLICT_REPLACE);
+    db.insertWithOnConflict(TABLE_LINKS, null, values.get(), CONFLICT_REPLACE);
   }
 
   private void deleteResourceLinks(String parentId, String field) {
     String where = "parent = ? AND field = ?";
     String[] args = new String[]{ parentId, field };
-    db.delete(SpaceHelper.TABLE_LINKS, where, args);
+    db.delete(TABLE_LINKS, where, args);
   }
 
   private static void putResourceFields(CDAResource resource, AutoEscapeValues values) {

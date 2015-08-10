@@ -21,7 +21,8 @@ import com.google.testing.compile.JavaFileObjects;
 import javax.tools.JavaFileObject;
 import org.junit.Test;
 
-import static com.contentful.vault.compiler.lib.TestUtils.*;
+import static com.contentful.vault.compiler.lib.TestUtils.processors;
+import static com.contentful.vault.compiler.lib.TestUtils.readTestResource;
 import static com.google.common.truth.Truth.ASSERT;
 import static com.google.testing.compile.JavaSourceSubjectFactory.javaSource;
 
