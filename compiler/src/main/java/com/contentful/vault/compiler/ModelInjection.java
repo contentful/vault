@@ -18,6 +18,7 @@ package com.contentful.vault.compiler;
 
 import com.contentful.vault.FieldMeta;
 import com.contentful.vault.ModelHelper;
+import com.contentful.vault.SpaceHelper;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
@@ -181,15 +182,19 @@ final class ModelInjection extends Injection {
     MethodSpec.Builder method = MethodSpec.methodBuilder("getCreateStatements")
         .returns(ParameterizedTypeName.get(List.class, String.class))
         .addAnnotation(Override.class)
-        .addModifiers(Modifier.PUBLIC);
+        .addModifiers(Modifier.PUBLIC)
+        .addParameter(SpaceHelper.class, "spaceHelper");
 
     method.addStatement("$T list = new $T()",
         ParameterizedTypeName.get(List.class, String.class),
         ParameterizedTypeName.get(ArrayList.class, String.class));
 
-    for (String sql : getSqlCreateStatements()) {
-      method.addStatement("list.add($S)", sql);
+
+    method.beginControlFlow("for (String code : spaceHelper.getLocales())");
+    for (String sql : getModelCreateStatements()) {
+      method.addStatement("list.add($L)", sql);
     }
+    method.endControlFlow();
 
     method.addStatement("return list");
     builder.addMethod(method.build());
@@ -215,11 +220,12 @@ final class ModelInjection extends Injection {
     builder.addMethod(createGetterImpl(specFields, "getFields").build());
   }
 
-  List<String> getSqlCreateStatements() {
+  List<String> getModelCreateStatements() {
     List<String> statements = new ArrayList<String>();
     StringBuilder builder = new StringBuilder();
-    builder.append("CREATE TABLE `")
+    builder.append("\"CREATE TABLE `")
         .append(sqlTableName)
+        .append("$\" + code + \"")
         .append("` (");
 
     for (int i = 0; i < RESOURCE_COLUMNS.length; i++) {
@@ -237,7 +243,7 @@ final class ModelInjection extends Injection {
           .append("` ")
           .append(f.sqliteType());
     }
-    builder.append(");");
+    builder.append(");\"");
     statements.add(builder.toString());
     return statements;
   }

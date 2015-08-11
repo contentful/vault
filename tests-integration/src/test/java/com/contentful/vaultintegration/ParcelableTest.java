@@ -45,6 +45,7 @@ public class ParcelableTest extends BaseTest {
     }
   }
 
+  @SuppressWarnings("unchecked")
   private void checkParcelable(Asset source) {
     Parcel parcel = Parcel.obtain();
     source.writeToParcel(parcel, 0);

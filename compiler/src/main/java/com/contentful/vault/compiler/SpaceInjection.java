@@ -20,12 +20,14 @@ import com.contentful.vault.ModelHelper;
 import com.contentful.vault.Resource;
 import com.contentful.vault.SpaceHelper;
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.WildcardTypeName;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import javax.lang.model.element.Modifier;
@@ -40,17 +42,21 @@ final class SpaceInjection extends Injection {
 
   private final String copyPath;
 
+  private final List<String> locales;
+
   private FieldSpec specModels;
 
   private FieldSpec specTypes;
 
   public SpaceInjection(String remoteId, ClassName className, TypeElement originatingElement,
-      List<ModelInjection> models, String dbName, int dbVersion, String copyPath) {
+      List<ModelInjection> models, String dbName, int dbVersion, String copyPath,
+      List<String> locales) {
     super(remoteId, className, originatingElement);
     this.models = models;
     this.dbName = dbName;
     this.dbVersion = dbVersion;
     this.copyPath = copyPath;
+    this.locales = locales;
   }
 
   @Override TypeSpec.Builder getTypeSpecBuilder() {
@@ -64,6 +70,7 @@ final class SpaceInjection extends Injection {
     appendTypes(builder);
     appendCopyPath(builder);
     appendSpaceId(builder);
+    appendLocales(builder);
     appendConstructor(builder);
 
     return builder;
@@ -151,6 +158,35 @@ final class SpaceInjection extends Injection {
         .addAnnotation(Override.class)
         .addModifiers(Modifier.PUBLIC)
         .addStatement("return $S", remoteId)
+        .build());
+  }
+
+  private void appendLocales(TypeSpec.Builder builder) {
+    CodeBlock.Builder block = CodeBlock.builder().add("$T.asList(", Arrays.class);
+
+    String[] array = locales.toArray(new String[locales.size()]);
+    for (int i = 0; i < array.length; i++) {
+      if (i > 0) {
+        block.add(", ");
+      }
+
+      block.add("$S", array[i]);
+    }
+    block.add(")");
+
+    FieldSpec field =
+        FieldSpec.builder(ParameterizedTypeName.get(List.class, String.class), "locales",
+            Modifier.FINAL)
+            .initializer(block.build())
+            .build();
+
+    builder.addField(field);
+
+    builder.addMethod(MethodSpec.methodBuilder("getLocales")
+        .addAnnotation(Override.class)
+        .addModifiers(Modifier.PUBLIC)
+        .returns(ParameterizedTypeName.get(List.class, String.class))
+        .addStatement("return $N", field.name)
         .build());
   }
 }

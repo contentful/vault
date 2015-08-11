@@ -23,12 +23,18 @@ public final class FetchQuery<T extends Resource> extends AbsQuery<T, FetchQuery
     super(type, vault);
   }
 
-  List<T> all(boolean resolveLinks) {
-    return new QueryResolver<T>(this).all(resolveLinks);
+  List<T> resolveAll(boolean resolveLinks, String locale) {
+    if (locale == null) {
+      locale = vault().getSqliteHelper().getSpaceHelper().getDefaultLocale();
+    }
+    return new QueryResolver<T>(this).all(resolveLinks, locale);
   }
 
-  T first(boolean resolveLinks) {
-    List<T> all = limit(1).all(resolveLinks);
+  T resolveFirst(boolean resolveLinks, String locale) {
+    if (locale == null) {
+      locale = vault().getSqliteHelper().getSpaceHelper().getDefaultLocale();
+    }
+    List<T> all = limit(1).resolveAll(resolveLinks, locale);
     if (all.isEmpty()) {
       return null;
     }
@@ -36,10 +42,18 @@ public final class FetchQuery<T extends Resource> extends AbsQuery<T, FetchQuery
   }
 
   public List<T> all() {
-    return all(true);
+    return all(null);
+  }
+
+  public List<T> all(String locale) {
+    return resolveAll(true, locale);
   }
 
   public T first() {
-    return first(true);
+    return first(null);
+  }
+
+  public T first(String locale) {
+    return resolveFirst(true, locale);
   }
 }

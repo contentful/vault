@@ -26,21 +26,27 @@ public final class ObserveQuery<T extends Resource> extends AbsQuery<T, ObserveQ
   }
 
   public Observable<T> all() {
-    return Observable.create(new AllOnSubscribe<T>(this));
+    return all(null);
+  }
+
+  public Observable<T> all(String locale) {
+    return Observable.create(new AllOnSubscribe<T>(this, locale));
   }
 
   static class AllOnSubscribe<T extends Resource> implements Observable.OnSubscribe<T> {
     private final ObserveQuery<T> query;
+    private final String locale;
 
-    public AllOnSubscribe(ObserveQuery<T> query) {
+    public AllOnSubscribe(ObserveQuery<T> query, String locale) {
       this.query = query;
+      this.locale = locale;
     }
 
     @Override public void call(Subscriber<? super T> subscriber) {
       try {
         FetchQuery<T> fetchQuery = query.vault().fetch(query.type());
         fetchQuery.setParams(query.params());
-        List<T> items = fetchQuery.all();
+        List<T> items = fetchQuery.all(locale);
         for (T item : items) {
           if (subscriber.isUnsubscribed()) {
             return;

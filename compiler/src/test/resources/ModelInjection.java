@@ -2,6 +2,7 @@ import android.database.Cursor;
 import com.contentful.vault.Asset;
 import com.contentful.vault.FieldMeta;
 import com.contentful.vault.ModelHelper;
+import com.contentful.vault.SpaceHelper;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,9 +37,11 @@ public final class Test$AwesomeModel$$ModelHelper extends ModelHelper<Test.Aweso
   }
 
   @Override
-  public List<String> getCreateStatements() {
+  public List<String> getCreateStatements(SpaceHelper spaceHelper) {
     List<String> list = new ArrayList<String>();
-    list.add("CREATE TABLE `entry_y2lk` (`remote_id` STRING NOT NULL UNIQUE, `created_at` STRING NOT NULL, `updated_at` STRING, `textField` STRING, `booleanField` BOOL, `integerField` INT, `doubleField` DOUBLE, `mapField` BLOB, `arrayOfSymbols` BLOB);");
+    for (String code : spaceHelper.getLocales()) {
+      list.add("CREATE TABLE `entry_y2lk$" + code + "` (`remote_id` STRING NOT NULL UNIQUE, `created_at` STRING NOT NULL, `updated_at` STRING, `textField` STRING, `booleanField` BOOL, `integerField` INT, `doubleField` DOUBLE, `mapField` BLOB, `arrayOfSymbols` BLOB);");
+    }
     return list;
   }
 

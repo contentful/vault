@@ -35,20 +35,10 @@ public final class Sql {
       declareField(UPDATED_AT, "STRING", true, null),
   };
 
-  static final String TABLE_ASSETS = "assets";
   static final String TABLE_ENTRY_TYPES = "entry_types";
   static final String TABLE_SYNC_INFO = "sync_info";
+  static final String TABLE_ASSETS = "assets";
   static final String TABLE_LINKS = "links";
-
-  static final String CREATE_ASSETS = "CREATE TABLE "
-      + escape(TABLE_ASSETS) + " ("
-      + StringUtils.join(RESOURCE_COLUMNS, ", ") + ","
-      + declareField(Asset.Fields.URL, "STRING", false, ", ")
-      + declareField(Asset.Fields.MIME_TYPE, "STRING", false, ", ")
-      + declareField(Asset.Fields.TITLE, "STRING", true, ", ")
-      + declareField(Asset.Fields.DESCRIPTION, "STRING", true, ", ")
-      + declareField(Asset.Fields.FILE, "BLOB", true, null)
-      + ");";
 
   static final String CREATE_ENTRY_TYPES = "CREATE TABLE "
       + escape(TABLE_ENTRY_TYPES) + " ("
@@ -60,28 +50,33 @@ public final class Sql {
   static final String CREATE_SYNC_INFO = "CREATE TABLE "
       + escape(TABLE_SYNC_INFO) + " ("
       + declareField("token", "STRING", false, ", ")
-      + declareField("locale", "STRING", true, ", ")
       + declareField("last_sync_ts", "TIMESTAMP", false, " DEFAULT CURRENT_TIMESTAMP")
       + ");";
 
-  static final String CREATE_LINKS = "CREATE TABLE "
-      + escape(TABLE_LINKS) + " ("
-      + declareField("parent", "STRING", false, ", ")
-      + declareField("child", "STRING", false, ", ")
-      + declareField("field", "STRING", false, ", ")
-      + declareField("is_asset", "INT", false, ", ")
-      + "UNIQUE ("
-      + escape("parent") + ", "
-      + escape("child") + ", "
-      + escape("field") + ", "
-      + escape("is_asset") + ")"
-      + ");";
+  static String createLinks(String locale) {
+    return "CREATE TABLE " + escape(localizeName(TABLE_LINKS, locale)) + " ("
+        + declareField("parent", "STRING", false, ", ")
+        + declareField("child", "STRING", false, ", ")
+        + declareField("field", "STRING", false, ", ")
+        + declareField("is_asset", "INT", false, ", ")
+        + "UNIQUE ("
+        + escape("parent") + ", "
+        + escape("child") + ", "
+        + escape("field") + ", "
+        + escape("is_asset") + ")"
+        + ");";
+  }
 
-  static final List<String> DEFAULT_CREATE =
-      Arrays.asList(CREATE_ASSETS, CREATE_ENTRY_TYPES, CREATE_SYNC_INFO, CREATE_LINKS);
-
-  static final List<String> DEFAULT_TABLES =
-      Arrays.asList(TABLE_ASSETS, TABLE_ENTRY_TYPES, TABLE_SYNC_INFO, TABLE_LINKS);
+  static String createAssets(String locale) {
+    return "CREATE TABLE " + escape(localizeName(TABLE_ASSETS, locale)) + " ("
+        + StringUtils.join(RESOURCE_COLUMNS, ", ") + ","
+        + declareField(Asset.Fields.URL, "STRING", false, ", ")
+        + declareField(Asset.Fields.MIME_TYPE, "STRING", false, ", ")
+        + declareField(Asset.Fields.TITLE, "STRING", true, ", ")
+        + declareField(Asset.Fields.DESCRIPTION, "STRING", true, ", ")
+        + declareField(Asset.Fields.FILE, "BLOB", true, null)
+        + ");";
+  }
 
   static final List<String> RESOURCE_COLUMN_INDEXES = Arrays.asList(
       REMOTE_ID,
@@ -128,5 +123,9 @@ public final class Sql {
       builder.append(suffix);
     }
     return builder.toString();
+  }
+
+  static String localizeName(String name, String locale) {
+    return String.format("%s$%s", name, locale);
   }
 }

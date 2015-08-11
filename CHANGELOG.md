@@ -3,7 +3,9 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Version [0.9.9][unreleased] - (in development)
-- TBA.
+- New: Support multiple locales per space. Locales to persist must be explicitly defined with the `@Space` annotation.
+- Changed: Better error handling when initializing vault with an invalid class.
+- Changed: Declaring a model with no fields will fail at compile-time.
 
 ## Version [0.9.8] - 2015-08-01
 - New: RxJava support with `Vault.observe()` and `Vault.observeSyncResults()`.

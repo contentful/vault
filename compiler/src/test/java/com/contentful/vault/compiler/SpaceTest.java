@@ -47,7 +47,7 @@ public class SpaceTest {
         "    @Field Asset fLinkedAsset;",
         "  }",
         "",
-        "  @Space(value = \"sid\", models = { Model.class })",
+        "  @Space(value = \"sid\", models = Model.class, locales = { \"foo\", \"bar\" })",
         "  static class AwesomeSpace {",
         "  }",
         "}"));
@@ -76,7 +76,7 @@ public class SpaceTest {
         "    @Field String f;",
         "  }",
         "",
-        "  @Space(value = \"sid\", models = { Model.class }, dbVersion = 9)",
+        "  @Space(value = \"sid\", models = Model.class, dbVersion = 9, locales = \"foo\")",
         "  static class AwesomeSpace {",
         "  }",
         "}"));
@@ -105,7 +105,7 @@ public class SpaceTest {
         "    @Field String f;",
         "  }",
         "",
-        "  @Space(value = \"sid\", models = { Model.class }, copyPath = \"foo.db\")",
+        "  @Space(value = \"sid\", models = Model.class, copyPath = \"foo.db\", locales = \"foo\")",
         "  static class AwesomeSpace {",
         "  }",
         "}"));
@@ -124,7 +124,7 @@ public class SpaceTest {
   @Test public void failsEmptyId() throws Exception {
     JavaFileObject source = JavaFileObjects.forSourceString("Test", Joiner.on('\n').join(
         "import com.contentful.vault.Space;",
-        "@Space(value = \"\", models = {})",
+        "@Space(value = \"\", models = { }, locales = \"foo\")",
         "class Test {",
         "}"));
 
@@ -137,7 +137,7 @@ public class SpaceTest {
   @Test public void failsEmptyModels() throws Exception {
     JavaFileObject source = JavaFileObjects.forSourceString("Test", Joiner.on('\n').join(
         "import com.contentful.vault.Space;",
-        "@Space(value = \"sid\", models = { })",
+        "@Space(value = \"sid\", models = { }, locales = \"foo\")",
         "class Test {",
         "}"));
 
@@ -150,14 +150,19 @@ public class SpaceTest {
   @Test public void failsDuplicateId() throws Exception {
     JavaFileObject source = JavaFileObjects.forSourceString("test.Test", Joiner.on('\n').join(
         "import com.contentful.vault.ContentType;",
+        "import com.contentful.vault.Field;",
         "import com.contentful.vault.Resource;",
         "import com.contentful.vault.Space;",
         "class Test {",
         "  @ContentType(\"cid\")",
-        "  static class Test1 extends Resource { }",
+        "  static class Test1 extends Resource {",
+        "    @Field String foo;",
+        "  }",
         "  @ContentType(\"cid\")",
-        "  static class Test2 extends Resource { }",
-        "  @Space(value = \"sid\", models = { Test1.class, Test2.class })",
+        "  static class Test2 extends Resource {",
+        "    @Field String foo;",
+        "  }",
+        "  @Space(value = \"sid\", models = { Test1.class, Test2.class }, locales = \"foo\")",
         "  static class Test3 {}",
         "}"));
 
@@ -166,5 +171,50 @@ public class SpaceTest {
         .failsToCompile()
         .withErrorContaining(
             "@Space includes multiple models with the same id \"cid\". (Test.Test3)");
+  }
+
+  @Test public void failsDuplicateLocale() throws Exception {
+    JavaFileObject source = JavaFileObjects.forSourceString("Test", Joiner.on('\n').join(
+        "import com.contentful.vault.ContentType;",
+        "import com.contentful.vault.Field;",
+        "import com.contentful.vault.Resource;",
+        "import com.contentful.vault.Space;",
+        "class Test {",
+        "  @ContentType(\"cid\")",
+        "  static class TModel extends Resource {",
+        "    @Field String foo;",
+        "  }",
+        "",
+        "  @Space(value = \"sid\", models = TModel.class, locales = { \"foo\", \"foo\" } )",
+        "  static class TSpace { }",
+        "}"));
+
+    ASSERT.about(javaSource()).that(source)
+        .processedWith(processors())
+        .failsToCompile()
+        .withErrorContaining("@Space contains duplicate locale code 'foo'. (Test.TSpace)");
+  }
+
+  @Test public void failsInvalidLocaleCode() throws Exception {
+    JavaFileObject source = JavaFileObjects.forSourceString("Test", Joiner.on('\n').join(
+        "import com.contentful.vault.ContentType;",
+        "import com.contentful.vault.Field;",
+        "import com.contentful.vault.Resource;",
+        "import com.contentful.vault.Space;",
+        "class Test {",
+        "  @ContentType(\"cid\")",
+        "  static class TModel extends Resource {",
+        "    @Field String foo;",
+        "  }",
+        "",
+        "  @Space(value = \"sid\", models = TModel.class, locales = \"\")",
+        "  static class TSpace { }",
+        "}"));
+
+    ASSERT.about(javaSource()).that(source)
+        .processedWith(processors())
+        .failsToCompile()
+        .withErrorContaining(
+            "Invalid locale code '', must not be empty and may not contain spaces. (Test.TSpace)");
   }
 }

@@ -26,7 +26,7 @@ public abstract class ModelHelper<T extends Resource> {
 
   public abstract List<FieldMeta> getFields();
 
-  public abstract List<String> getCreateStatements();
+  public abstract List<String> getCreateStatements(SpaceHelper spaceHelper);
 
   public abstract T fromCursor(Cursor cursor);
 

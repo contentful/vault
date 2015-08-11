@@ -55,9 +55,12 @@ public class Vault {
 
   private final Class<?> space;
 
-  private Vault(Context context, Class<?> space) {
+  private final SqliteHelper sqliteHelper;
+
+  private Vault(Context context, Class<?> space, SqliteHelper sqliteHelper) {
     this.context = context.getApplicationContext();
     this.space = space;
+    this.sqliteHelper = sqliteHelper;
   }
 
   public static Vault with(Context context, Class<?> space) {
@@ -67,7 +70,7 @@ public class Vault {
     if (space == null) {
       throw new IllegalArgumentException("Cannot be invoked with null space.");
     }
-    return new Vault(context, space);
+    return new Vault(context, space, getOrCreateSqliteHelper(context, space));
   }
 
   public void requestSync(SyncConfig config) {
@@ -104,7 +107,7 @@ public class Vault {
     EXECUTOR_SYNC.submit(SyncRunnable.builder()
         .setTag(tag)
         .setContext(context)
-        .setSqliteHelper(getOrCreateSqliteHelper(context, space))
+        .setSqliteHelper(sqliteHelper)
         .setSyncConfig(config)
         .build());
   }
@@ -118,7 +121,7 @@ public class Vault {
   }
 
   public SQLiteDatabase getReadableDatabase() {
-    return getOrCreateSqliteHelper(context, space).getReadableDatabase();
+    return sqliteHelper.getReadableDatabase();
   }
 
   public static void cancel(SyncCallback callback) {
@@ -154,7 +157,7 @@ public class Vault {
       Class<?> clazz = Class.forName(space.getName() + Constants.SUFFIX_SPACE);
       return (SpaceHelper) clazz.newInstance();
     } catch (ClassNotFoundException e) {
-      throw new RuntimeException(e);
+      throw new RuntimeException("Cannot find generated class for space: " + space.getName(), e);
     } catch (IllegalAccessException e) {
       throw new RuntimeException(e);
     } catch (InstantiationException e) {
@@ -162,11 +165,11 @@ public class Vault {
     }
   }
 
-  SqliteHelper getOrCreateSqliteHelper() {
-    return getOrCreateSqliteHelper(context, space);
+  SqliteHelper getSqliteHelper() {
+    return sqliteHelper;
   }
 
-  static SqliteHelper getOrCreateSqliteHelper(Context context, Class<?> space) {
+  private static SqliteHelper getOrCreateSqliteHelper(Context context, Class<?> space) {
     synchronized (SQLITE_HELPERS) {
       SqliteHelper sqliteHelper = SQLITE_HELPERS.get(space);
       if (sqliteHelper == null) {

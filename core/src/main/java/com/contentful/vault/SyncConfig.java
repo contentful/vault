@@ -23,12 +23,9 @@ public final class SyncConfig {
 
   private final boolean invalidate;
 
-  private final String locale;
-
   private SyncConfig(Builder builder) {
     this.client = builder.client;
     this.invalidate = builder.invalidate;
-    this.locale = builder.locale;
   }
 
   public CDAClient client() {
@@ -39,18 +36,12 @@ public final class SyncConfig {
     return invalidate;
   }
 
-  public String locale() {
-    return locale;
-  }
-
   public static Builder builder() {
     return new Builder();
   }
 
   public static class Builder {
     private CDAClient client;
-
-    private String locale;
 
     private boolean invalidate;
 
@@ -59,11 +50,6 @@ public final class SyncConfig {
 
     public Builder setClient(CDAClient client) {
       this.client = client;
-      return this;
-    }
-
-    public Builder setLocale(String locale) {
-      this.locale = locale;
       return this;
     }
 

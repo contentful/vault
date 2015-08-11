@@ -24,13 +24,13 @@ import java.util.Map;
 
 import static android.text.TextUtils.join;
 import static com.contentful.vault.Sql.TABLE_ASSETS;
+import static com.contentful.vault.Sql.escape;
+import static com.contentful.vault.Sql.localizeName;
 
 final class QueryResolver<T extends Resource> {
   private final AbsQuery<T, ?> query;
 
   private final Vault vault;
-
-  private final SqliteHelper sqliteHelper;
 
   private final Map<String, Resource> assets = new HashMap<String, Resource>();
 
@@ -39,17 +39,16 @@ final class QueryResolver<T extends Resource> {
   QueryResolver(AbsQuery<T, ?> query) {
     this.query = query;
     this.vault = query.vault();
-    this.sqliteHelper = vault.getOrCreateSqliteHelper();
   }
 
-  List<T> all(boolean resolveLinks) {
-    Cursor cursor = cursorFromQuery(query);
+  List<T> all(boolean resolveLinks, String locale) {
+    Cursor cursor = cursorFromQuery(query, locale);
     List<T> result = new ArrayList<T>();
     try {
       if (cursor.moveToFirst()) {
         Map<String, Resource> cache = cacheForType(query.type());
         do {
-          T item = sqliteHelper.fromCursor(query.type(), cursor);
+          T item = vault.getSqliteHelper().fromCursor(query.type(), cursor);
           if (item == null) {
             continue;
           }
@@ -62,7 +61,7 @@ final class QueryResolver<T extends Resource> {
     }
 
     if (resolveLinks && query.type() != Asset.class && !result.isEmpty()) {
-      resolveLinks(result);
+      resolveLinks(result, locale);
     }
 
     return result;
@@ -75,20 +74,20 @@ final class QueryResolver<T extends Resource> {
     return entries;
   }
 
-  private void resolveLinks(List<T> resources) {
+  private void resolveLinks(List<T> resources, String locale) {
     LinkResolver resolver = new LinkResolver(query, assets, entries);
     for (T resource : resources) {
-      resolver.resolveLinks(resource, helperForEntry(resource).getFields());
+      resolver.resolveLinks(resource, helperForEntry(resource).getFields(), locale);
     }
   }
 
   private ModelHelper<?> helperForEntry(T resource) {
-    SpaceHelper spaceHelper = sqliteHelper.getSpaceHelper();
+    SpaceHelper spaceHelper = vault.getSqliteHelper().getSpaceHelper();
     Class<?> modelType = spaceHelper.getTypes().get(resource.contentType());
     return spaceHelper.getModels().get(modelType);
   }
 
-  private Cursor cursorFromQuery(AbsQuery<T, ?> query) {
+  private Cursor cursorFromQuery(AbsQuery<T, ?> query, String locale) {
     String[] orderArray = query.params().order();
     String order = null;
     if (orderArray != null && orderArray.length > 0) {
@@ -99,13 +98,14 @@ final class QueryResolver<T extends Resource> {
       tableName = TABLE_ASSETS;
     } else {
       tableName = query.vault()
-          .getOrCreateSqliteHelper()
+          .getSqliteHelper()
           .getSpaceHelper()
           .getModels()
           .get(query.type())
           .getTableName();
     }
-    return query.vault().getReadableDatabase().query(tableName,
+    return query.vault().getReadableDatabase().query(
+        escape(localizeName(tableName, locale)),
         null,                           // columns
         query.params().selection(),     // selection
         query.params().selectionArgs(), // selectionArgs

@@ -47,4 +47,7 @@ public @interface Space {
    * the {@code dbVersion} property.
    */
   String copyPath() default "";
+
+  /** Array of locale codes. */
+  String[] locales();
 }
