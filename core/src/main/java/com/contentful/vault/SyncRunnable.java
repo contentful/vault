@@ -34,7 +34,6 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.lang3.StringUtils;
 
 import static android.database.sqlite.SQLiteDatabase.CONFLICT_REPLACE;
 import static com.contentful.java.cda.CDAType.ASSET;
@@ -46,6 +45,8 @@ import static com.contentful.vault.Sql.TABLE_ASSETS;
 import static com.contentful.vault.Sql.TABLE_ENTRY_TYPES;
 import static com.contentful.vault.Sql.TABLE_LINKS;
 import static com.contentful.vault.Sql.TABLE_SYNC_INFO;
+import static com.contentful.vault.Sql.escape;
+import static com.contentful.vault.Sql.localizeName;
 
 public final class SyncRunnable implements Runnable {
   private final Context context;
@@ -87,7 +88,6 @@ public final class SyncRunnable implements Runnable {
       if (token == null) {
         syncedSpace = config.client().sync().fetch();
       } else {
-        checkLocale();
         syncedSpace = config.client().sync(token).fetch();
       }
 
@@ -152,7 +152,6 @@ public final class SyncRunnable implements Runnable {
   private void saveSyncInfo(String syncToken) {
     AutoEscapeValues values = new AutoEscapeValues();
     values.put("token", syncToken);
-    values.put("locale", config.locale());
     db.delete(TABLE_SYNC_INFO, null, null);
     db.insert(TABLE_SYNC_INFO, null, values.get());
   }
@@ -160,10 +159,6 @@ public final class SyncRunnable implements Runnable {
   private void processResource(CDAResource resource) {
     CDAType type = resource.type();
     LocalizedResource localized = (LocalizedResource) resource;
-    if (StringUtils.isNotBlank(config.locale())) {
-      localized.setLocale(config.locale());
-    }
-
     if (type == ASSET) {
       saveAsset((CDAAsset) resource);
     } else if (type == ENTRY) {
@@ -173,20 +168,6 @@ public final class SyncRunnable implements Runnable {
       }
       ModelHelper<?> modelHelper = spaceHelper.getModels().get(modelClass);
       saveEntry((CDAEntry) resource, modelHelper.getTableName(), modelHelper.getFields());
-    }
-  }
-
-  private void checkLocale() {
-    Cursor cursor = db.rawQuery("SELECT `locale` FROM sync_info", null);
-    try {
-      if (cursor.moveToFirst()) {
-        String previousLocale = cursor.getString(0);
-        if (!StringUtils.equals(config.locale(), previousLocale)) {
-          SqliteHelper.clearRecords(spaceHelper, db);
-        }
-      }
-    } finally {
-      cursor.close();
     }
   }
 
@@ -213,48 +194,61 @@ public final class SyncRunnable implements Runnable {
 
   private void deleteResource(String remoteId, String tableName) {
     // resource
-    String whereClause = REMOTE_ID + " = ?";
-    String whereArgs[] = new String[]{ remoteId };
-    db.delete(tableName, whereClause, whereArgs);
+    String resWhere = REMOTE_ID + " = ?";
+    String resArgs[] = new String[]{ remoteId };
 
     // links
-    whereClause = "`parent` = ? OR `child` = ?";
-    whereArgs = new String[]{
+    String linksWhere = "`parent` = ? OR `child` = ?";
+    String linkArgs[] = new String[]{
         remoteId,
         remoteId
     };
-    db.delete(TABLE_LINKS, whereClause, whereArgs);
+
+    for (String code : spaceHelper.getLocales()) {
+      db.delete(escape(localizeName(tableName, code)), resWhere, resArgs);
+      db.delete(escape(localizeName(TABLE_LINKS, code)), linksWhere, linkArgs);
+    }
   }
 
   @TargetApi(Build.VERSION_CODES.FROYO)
   private void saveAsset(CDAAsset asset) {
     AutoEscapeValues values = new AutoEscapeValues();
-    putResourceFields(asset, values);
-    values.put(Asset.Fields.URL, "http:" + asset.url());
-    values.put(Asset.Fields.MIME_TYPE, asset.mimeType());
-    values.put(Asset.Fields.TITLE, asset.title());
-    values.put(Asset.Fields.DESCRIPTION, asset.<String>getField("description"));
+    for (String code : spaceHelper.getLocales()) {
+      asset.setLocale(code);
+      putResourceFields(asset, values);
+      values.put(Asset.Fields.URL, "http:" + asset.url());
+      values.put(Asset.Fields.MIME_TYPE, asset.mimeType());
+      values.put(Asset.Fields.TITLE, asset.title());
+      values.put(Asset.Fields.DESCRIPTION, asset.<String>getField("description"));
 
-    byte[] value = null;
-    Serializable fileMap = asset.getField("file");
-    if (fileMap != null) {
-      try {
-        value = BlobUtils.toBlob(fileMap);
-      } catch (IOException e) {
-        throw new RuntimeException(
-            String.format("Failed converting field map for asset with id '%s'.", asset.id()));
+      byte[] value = null;
+      Serializable fileMap = asset.getField("file");
+      if (fileMap != null) {
+        try {
+          value = BlobUtils.toBlob(fileMap);
+        } catch (IOException e) {
+          throw new RuntimeException(
+              String.format("Failed converting field map for asset with id '%s'.", asset.id()));
+        }
       }
-    }
-    values.put(Asset.Fields.FILE, value);
+      values.put(Asset.Fields.FILE, value);
 
-    db.insertWithOnConflict(TABLE_ASSETS, null, values.get(), CONFLICT_REPLACE);
+      db.insertWithOnConflict(escape(localizeName(TABLE_ASSETS, code)), null, values.get(),
+          CONFLICT_REPLACE);
+
+      values.clear();
+    }
   }
 
   @SuppressWarnings("unchecked")
   private <T> T extractRawFieldValue(CDAEntry entry, String fieldId) {
     Map<?, ?> value = (Map<?, ?>) entry.rawFields().get(fieldId);
     if (value != null) {
-      return (T) value.get(entry.locale());
+      T result = (T) value.get(entry.locale());
+      if (result == null) {
+        result = (T) value.get(spaceHelper.getDefaultLocale());
+      }
+      return result;
     }
     return null;
   }
@@ -262,31 +256,37 @@ public final class SyncRunnable implements Runnable {
   @SuppressWarnings("unchecked")
   private void saveEntry(CDAEntry entry, String tableName, List<FieldMeta> fields) {
     AutoEscapeValues values = new AutoEscapeValues();
-    putResourceFields(entry, values);
-    for (FieldMeta field : fields) {
-      Object value = extractRawFieldValue(entry, field.id());
-      if (field.isLink()) {
-        processLink(entry, field.id(), (Map<?, ?>) value);
-      } else if (field.isArray()) {
-        processArray(entry, values, field);
-      } else if ("BLOB".equals(field.sqliteType())) {
-        saveBlob(entry, values, field, (Serializable) value);
-      } else if ("BOOL".equals(field.sqliteType())) {
-        saveBoolean(values, field, (Boolean) value);
-      } else {
-        String stringValue = null;
-        if (value != null) {
-          stringValue = value.toString();
+    for (String code : spaceHelper.getLocales()) {
+      entry.setLocale(code);
+      putResourceFields(entry, values);
+      for (FieldMeta field : fields) {
+        Object value = extractRawFieldValue(entry, field.id());
+        if (field.isLink()) {
+          processLink(entry, field.id(), (Map<?, ?>) value);
+        } else if (field.isArray()) {
+          processArray(entry, values, field);
+        } else if ("BLOB".equals(field.sqliteType())) {
+          saveBlob(entry, values, field, (Serializable) value);
+        } else if ("BOOL".equals(field.sqliteType())) {
+          saveBoolean(values, field, (Boolean) value);
+        } else {
+          String stringValue = null;
+          if (value != null) {
+            stringValue = value.toString();
+          }
+          values.put(field.name(), stringValue);
         }
-        values.put(field.name(), stringValue);
       }
-    }
-    db.insertWithOnConflict(tableName, null, values.get(), CONFLICT_REPLACE);
 
-    values.clear();
+      db.insertWithOnConflict(escape(localizeName(tableName, code)), null, values.get(),
+          CONFLICT_REPLACE);
+
+      values.clear();
+    }
+
     values.put(REMOTE_ID, entry.id());
     values.put("type_id", entry.contentType().id());
-    db.insertWithOnConflict(TABLE_ENTRY_TYPES, null, values.get(), CONFLICT_REPLACE);
+    db.insertWithOnConflict(escape(TABLE_ENTRY_TYPES), null, values.get(), CONFLICT_REPLACE);
   }
 
   private void saveBoolean(AutoEscapeValues values, FieldMeta field, Boolean value) {
@@ -348,17 +348,27 @@ public final class SyncRunnable implements Runnable {
 
   private void saveLink(String parentId, String fieldId, String linkType, String targetId) {
     AutoEscapeValues values = new AutoEscapeValues();
-    values.put("parent", parentId);
-    values.put("field", fieldId);
-    values.put("child", targetId);
-    values.put("is_asset", CDAType.valueOf(linkType.toUpperCase(Vault.LOCALE)) == ASSET);
-    db.insertWithOnConflict(TABLE_LINKS, null, values.get(), CONFLICT_REPLACE);
+
+    for (String code : spaceHelper.getLocales()) {
+      values.put("parent", parentId);
+      values.put("field", fieldId);
+      values.put("child", targetId);
+      values.put("is_asset", CDAType.valueOf(linkType.toUpperCase(Vault.LOCALE)) == ASSET);
+
+      db.insertWithOnConflict(escape(localizeName(TABLE_LINKS, code)), null, values.get(),
+          CONFLICT_REPLACE);
+
+      values.clear();
+    }
   }
 
   private void deleteResourceLinks(String parentId, String field) {
     String where = "parent = ? AND field = ?";
     String[] args = new String[]{ parentId, field };
-    db.delete(TABLE_LINKS, where, args);
+
+    for (String code : spaceHelper.getLocales()) {
+      db.delete(escape(localizeName(TABLE_LINKS, code)), where, args);
+    }
   }
 
   private static void putResourceFields(CDAResource resource, AutoEscapeValues values) {
@@ -376,22 +386,22 @@ public final class SyncRunnable implements Runnable {
     private Builder() {
     }
 
-    public Builder setContext(Context context) {
+    Builder setContext(Context context) {
       this.context = context.getApplicationContext();
       return this;
     }
 
-    public Builder setSqliteHelper(SqliteHelper sqliteHelper) {
+    Builder setSqliteHelper(SqliteHelper sqliteHelper) {
       this.sqliteHelper = sqliteHelper;
       return this;
     }
 
-    public Builder setSyncConfig(SyncConfig config) {
+    Builder setSyncConfig(SyncConfig config) {
       this.config = config;
       return this;
     }
 
-    public Builder setTag(String tag) {
+    Builder setTag(String tag) {
       this.tag = tag;
       return this;
     }

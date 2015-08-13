@@ -18,6 +18,10 @@ package com.contentful.vaultintegration.lib.vault;
 
 import com.contentful.vault.Space;
 
-@Space(value = "y005y7p7nrqo", models = { ArraysResource.class, BlobResource.class } )
+@Space(
+    value = "y005y7p7nrqo",
+    models = { ArraysResource.class, BlobResource.class },
+    locales = "en-US"
+)
 public class VaultSpace {
 }

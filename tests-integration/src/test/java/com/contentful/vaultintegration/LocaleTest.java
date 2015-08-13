@@ -16,7 +16,6 @@
 
 package com.contentful.vaultintegration;
 
-import com.contentful.vault.SyncConfig;
 import com.contentful.vault.Vault;
 import com.contentful.vaultintegration.lib.demo.Cat;
 import com.contentful.vaultintegration.lib.demo.DemoSpace;
@@ -32,18 +31,17 @@ public class LocaleTest extends BaseTest {
   }
 
   @Test public void testLocale() throws Exception {
+    enqueueSync("demo");
+    sync();
     checkDefaultLocale();
     checkCustomLocale();
   }
 
   private void checkCustomLocale() throws Exception {
     // Klingon
-    enqueueSync("demo");
-    sync(SyncConfig.builder().setClient(client).setLocale("tlh").build());
-
     Cat cat = vault.fetch(Cat.class)
         .where(REMOTE_ID + " = ?", "happycat")
-        .first();
+        .first("tlh");
 
     assertThat(cat).isNotNull();
     assertThat(cat.name()).isEqualTo("Quch vIghro'");

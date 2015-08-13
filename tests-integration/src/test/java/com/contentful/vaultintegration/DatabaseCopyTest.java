@@ -34,7 +34,12 @@ import static com.google.common.truth.Truth.assertThat;
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest = "src/main/AndroidManifest.xml")
 public class DatabaseCopyTest extends BaseTest {
-  @Space(value = "cfexampleapi", models = { Cat.class }, copyPath = "cfexampleapi.db")
+  @Space(
+      value = "cfexampleapi",
+      models = Cat.class,
+      locales = { "en-US", "tlh" },
+      copyPath = "cfexampleapi.db"
+  )
   static class Sp { }
 
   @ContentType("cat")

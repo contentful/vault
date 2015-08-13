@@ -30,9 +30,17 @@ import org.apache.commons.io.FileUtils;
 import static com.contentful.vault.BaseFields.CREATED_AT;
 import static com.contentful.vault.BaseFields.REMOTE_ID;
 import static com.contentful.vault.BaseFields.UPDATED_AT;
-import static com.contentful.vault.Sql.DEFAULT_CREATE;
-import static com.contentful.vault.Sql.DEFAULT_TABLES;
+import static com.contentful.vault.Sql.CREATE_ENTRY_TYPES;
+import static com.contentful.vault.Sql.CREATE_SYNC_INFO;
+import static com.contentful.vault.Sql.TABLE_ASSETS;
+import static com.contentful.vault.Sql.TABLE_ENTRY_TYPES;
+import static com.contentful.vault.Sql.TABLE_LINKS;
+import static com.contentful.vault.Sql.TABLE_SYNC_INFO;
 import static com.contentful.vault.Sql.assetColumnIndex;
+import static com.contentful.vault.Sql.createAssets;
+import static com.contentful.vault.Sql.createLinks;
+import static com.contentful.vault.Sql.escape;
+import static com.contentful.vault.Sql.localizeName;
 import static com.contentful.vault.Sql.resourceColumnIndex;
 
 final class SqliteHelper extends SQLiteOpenHelper {
@@ -65,11 +73,14 @@ final class SqliteHelper extends SQLiteOpenHelper {
   }
 
   static void execCreate(SpaceHelper helper, SQLiteDatabase db) {
-    for (String sql : DEFAULT_CREATE) {
-      db.execSQL(sql);
+    db.execSQL(CREATE_ENTRY_TYPES);
+    db.execSQL(CREATE_SYNC_INFO);
+    for (String code : helper.getLocales()) {
+      db.execSQL(createAssets(code));
+      db.execSQL(createLinks(code));
     }
     for (ModelHelper<?> modelHelper : helper.getModels().values()) {
-      for (String sql : modelHelper.getCreateStatements()) {
+      for (String sql : modelHelper.getCreateStatements(helper)) {
         db.execSQL(sql);
       }
     }
@@ -78,11 +89,15 @@ final class SqliteHelper extends SQLiteOpenHelper {
   static void clearRecords(SpaceHelper helper, SQLiteDatabase db) {
     db.beginTransaction();
     try {
-      for (String name : DEFAULT_TABLES) {
-        db.delete(name, null, null);
-      }
-      for (ModelHelper<?> modelHelper : helper.getModels().values()) {
-        db.delete(modelHelper.getTableName(), null, null);
+      db.delete(escape(TABLE_ENTRY_TYPES), null, null);
+      db.delete(escape(TABLE_SYNC_INFO), null, null);
+      for (String code : helper.getLocales()) {
+        db.delete(escape(localizeName(TABLE_ASSETS, code)), null, null);
+        db.delete(escape(localizeName(TABLE_LINKS, code)), null, null);
+
+        for (ModelHelper<?> modelHelper : helper.getModels().values()) {
+          db.delete(escape(localizeName(modelHelper.getTableName(), code)), null, null);
+        }
       }
       db.setTransactionSuccessful();
     } finally {

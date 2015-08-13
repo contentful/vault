@@ -29,6 +29,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -188,11 +190,31 @@ public class Processor extends AbstractProcessor {
       }
     }
 
+    List<String> locales = Arrays.asList(annotation.locales());
+    Set<String> checked = new HashSet<String>();
+    for (int i = locales.size() - 1; i >= 0; i--) {
+      String code = locales.get(i);
+      if (!checked.add(code)) {
+        error(element, "@%s contains duplicate locale code '%s'. (%s)",
+            Space.class.getSimpleName(), code, element.getQualifiedName());
+        return;
+      } else if (code.contains(" ") || code.isEmpty()) {
+        error(element, "Invalid locale code '%s', must not be empty and may not contain spaces. (%s)",
+            code, element.getQualifiedName());
+        return;
+      }
+    }
+    if (checked.size() == 0) {
+      error(element, "@%s at least one locale must be configured. (%s)",
+          Space.class.getSimpleName(), element.getQualifiedName());
+      return;
+    }
+
     ClassName injectionClassName = getInjectionClassName(element, SUFFIX_SPACE);
     String dbName = "space_" + SqliteUtils.hashForId(id);
     String copyPath = StringUtils.defaultIfBlank(annotation.copyPath(), null);
     spaces.put(element, new SpaceInjection(id, injectionClassName, element, includedModels, dbName,
-        annotation.dbVersion(), copyPath));
+        annotation.dbVersion(), copyPath, locales));
   }
 
   private void parseContentType(TypeElement element, Map<TypeElement, ModelInjection> models) {
@@ -284,6 +306,13 @@ public class Processor extends AbstractProcessor {
           .setName(enclosedElement.getSimpleName().toString())
           .setType(enclosedElement.asType())
           .build());
+    }
+
+    if (fields.size() == 0) {
+      error(element, "Model must contain at least one @%s element. (%s)",
+          Field.class.getSimpleName(),
+          element.getQualifiedName());
+      return;
     }
 
     ClassName injectionClassName = getInjectionClassName(element, SUFFIX_MODEL);

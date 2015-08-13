@@ -27,17 +27,12 @@ import static com.contentful.java.cda.CDAType.ASSET;
 import static com.contentful.vault.BaseFields.REMOTE_ID;
 import static com.contentful.vault.Sql.TABLE_ENTRY_TYPES;
 import static com.contentful.vault.Sql.TABLE_LINKS;
+import static com.contentful.vault.Sql.escape;
+import static com.contentful.vault.Sql.localizeName;
 
 final class LinkResolver {
   private static final String LINKS_WHERE_CLAUSE =
       "l.parent = ? AND l.is_asset = ? AND l.field = ?";
-
-  private static final String QUERY_ASSET_LINKS = String.format(
-      "SELECT l.child, null FROM %s l WHERE %s", TABLE_LINKS, LINKS_WHERE_CLAUSE);
-
-  private static final String QUERY_ENTRY_LINKS = String.format(
-      "SELECT l.child, t.type_id FROM %s l INNER JOIN %s t ON l.child = t.%s WHERE %s",
-      TABLE_LINKS, TABLE_ENTRY_TYPES, REMOTE_ID, LINKS_WHERE_CLAUSE);
 
   private static final String QUERY_ENTRY_TYPE = String.format(
       "SELECT `type_id` FROM %s WHERE %s = ?", TABLE_ENTRY_TYPES, REMOTE_ID);
@@ -54,22 +49,22 @@ final class LinkResolver {
     this.entries = entries;
   }
 
-  void resolveLinks(Resource resource, List<FieldMeta> links) {
+  void resolveLinks(Resource resource, List<FieldMeta> links, String locale) {
     for (FieldMeta field : links) {
       if (field.isLink() || field.isArrayOfLinks()) {
-        resolveLinksForField(resource, field);
+        resolveLinksForField(resource, field, locale);
       }
     }
   }
 
   @SuppressWarnings("unchecked")
-  private void resolveLinksForField(Resource resource, FieldMeta field) {
-    List<Link> links = fetchLinks(resource.remoteId(), field);
+  private void resolveLinksForField(Resource resource, FieldMeta field, String locale) {
+    List<Link> links = fetchLinks(resource.remoteId(), field, locale);
     List<Resource> targets = null;
     if (links.size() > 0) {
       targets = new ArrayList<Resource>();
       for (Link link : links) {
-        Resource child = getCachedResourceOrFetch(link);
+        Resource child = getCachedResourceOrFetch(link, locale);
         if (child != null) {
           targets.add(child);
         }
@@ -92,17 +87,17 @@ final class LinkResolver {
     }
   }
 
-  private Resource getCachedResourceOrFetch(Link link) {
+  private Resource getCachedResourceOrFetch(Link link, String locale) {
     boolean linksToAsset = link.isAsset();
     Map<String, Resource> cache = linksToAsset ? assets : entries;
     Resource child = cache.get(link.child());
     if (child == null) {
       // Link target not found in cache, fetch from DB
-      child = resourceForLink(link);
+      child = resourceForLink(link, locale);
       if (child != null) {
         if (!linksToAsset) {
           // Resolve links for linked target
-          resolveLinks(child, getHelperForEntry(child).getFields());
+          resolveLinks(child, getHelperForEntry(child).getFields(), locale);
         }
 
         // Put into cache
@@ -114,17 +109,15 @@ final class LinkResolver {
 
   @SuppressWarnings("unchecked")
   private ModelHelper<Resource> getHelperForEntry(Resource resource) {
-    SpaceHelper spaceHelper = query.vault().getOrCreateSqliteHelper().getSpaceHelper();
+    SpaceHelper spaceHelper = query.vault().getSqliteHelper().getSpaceHelper();
     Class<?> modelType = spaceHelper.getTypes().get(resource.contentType());
     return (ModelHelper<Resource>) spaceHelper.getModels().get(modelType);
   }
 
-  private List<Link> fetchLinks(String parentId, FieldMeta field) {
+  private List<Link> fetchLinks(String parentId, FieldMeta field, String locale) {
     List<Link> result;
-
     boolean linksToAssets = isLinkForAssets(field);
-
-    String sql = linksToAssets ? QUERY_ASSET_LINKS : QUERY_ENTRY_LINKS;
+    String sql = linksToAssets ? queryAssetLinks(locale) : queryEntryLinks(locale);
 
     String[] args = new String[] {
         parentId,
@@ -145,7 +138,23 @@ final class LinkResolver {
     } finally {
       cursor.close();
     }
+
     return result;
+  }
+
+  private String queryAssetLinks(String locale) {
+    return String.format("SELECT l.child, null FROM %s l WHERE %s",
+        escape(localizeName(TABLE_LINKS, locale)),
+        LINKS_WHERE_CLAUSE);
+  }
+
+  private String queryEntryLinks(String locale) {
+    return String.format(
+        "SELECT l.child, t.type_id FROM %s l INNER JOIN %s t ON l.child = t.%s WHERE %s",
+        escape(localizeName(TABLE_LINKS, locale)),
+        TABLE_ENTRY_TYPES,
+        REMOTE_ID,
+        LINKS_WHERE_CLAUSE);
   }
 
   private boolean isLinkForAssets(FieldMeta field) {
@@ -170,14 +179,14 @@ final class LinkResolver {
     return result;
   }
 
-  private Resource resourceForLink(Link link) {
+  private Resource resourceForLink(Link link, String locale) {
     Resource resource = null;
     Class<? extends Resource> clazz;
     if (link.isAsset()) {
       clazz = Asset.class;
     } else {
       clazz = query.vault()
-          .getOrCreateSqliteHelper()
+          .getSqliteHelper()
           .getSpaceHelper()
           .getTypes()
           .get(link.childContentType());
@@ -185,7 +194,7 @@ final class LinkResolver {
     if (clazz != null) {
       resource = query.vault().fetch(clazz)
           .where(REMOTE_ID + " = ?", link.child())
-          .first(false);
+          .resolveFirst(false, locale);
     }
     return resource;
   }

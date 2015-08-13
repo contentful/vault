@@ -16,6 +16,7 @@
 
 package com.contentful.vault;
 
+import java.util.List;
 import java.util.Map;
 
 public abstract class SpaceHelper {
@@ -30,4 +31,10 @@ public abstract class SpaceHelper {
   public abstract String getCopyPath();
 
   public abstract String getSpaceId();
+
+  public abstract List<String> getLocales();
+
+  public final String getDefaultLocale() {
+    return getLocales().get(0);
+  }
 }

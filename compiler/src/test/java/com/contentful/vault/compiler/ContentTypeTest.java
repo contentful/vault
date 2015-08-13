@@ -95,4 +95,18 @@ public class ContentTypeTest {
             "Classes annotated with @ContentType must extend \"com.contentful.vault.Resource\". "
                 + "(Test)");
   }
+
+  @Test public void failsNoFields() throws Exception {
+    JavaFileObject source = JavaFileObjects.forSourceString("Test", Joiner.on('\n').join(
+        "import com.contentful.vault.ContentType;",
+        "import com.contentful.vault.Resource;",
+        "@ContentType(\"foo\")",
+        "class Test extends Resource {",
+        "}"));
+
+    ASSERT.about(javaSource()).that(source)
+        .processedWith(processors())
+        .failsToCompile()
+        .withErrorContaining("Model must contain at least one @Field element. (Test)");
+  }
 }

@@ -67,10 +67,14 @@ vault.fetch(Foo.class)
 
 ### Spaces
 
-Spaces can be defined by declaring a class annotated with the `@Space` annotation. It is also required to provide the Space ID and an array of model classes to include:
+Spaces can be defined by declaring a class annotated with the `@Space` annotation. It is required to specify the Space ID, an array of model classes and an array of locale codes you wish to persist:
 
 ```java
-@Space(value = "cfexampleapi", models = { Cat.class })
+@Space(
+    value = "cfexampleapi",
+    models = { Cat.class },
+    locales = { "en-US", "tlh" }
+)
 public class DemoSpace { }
 ```
 
@@ -150,10 +154,14 @@ vault.fetch(Cat.class)
     .where(Cat$Fields.NAME + " = ?", "Nyan Cat")
     .first();
     
-// Fetch all Cats, oredered by creation date:
+// Fetch all Cats, ordered by creation date:
 vault.fetch(Cat.class)
     .order(Cat$Fields.CREATED_AT)
     .all();
+
+// Fetch all Cats, using the Klingon locale:
+vault.fetch(Cat.class)
+    .all("tlh");
 ```
 
 If you're using RxJava, you can create queries with the `observe()` method, for example:

@@ -18,6 +18,6 @@ package com.contentful.vaultintegration.lib.demo;
 
 import com.contentful.vault.Space;
 
-@Space(value = "cfexampleapi", models = Cat.class)
+@Space(value = "cfexampleapi", models = Cat.class, locales = { "en-US", "tlh" })
 public class DemoSpace {
 }
