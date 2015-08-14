@@ -6,6 +6,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - TBA.
 
 ## Version [0.9.9] - 2015-08-13
+- NOTE: This release introduces backwards incompatible changes to any existing database schemas, when upgrading make sure to bump the `dbVersion` attribute on your `Space`.
 - New: Support multiple locales per space. Locales to persist must be explicitly defined with the `@Space` annotation.
 - Changed: Better error handling when initializing vault with an invalid class.
 - Changed: Declaring a model with no fields will fail at compile-time.
@@ -20,7 +21,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Changed: Use contentful.java v4.0.1 (fixes NPE for entries with null links).
 
 ## Version [0.9.6] - 2015-07-22
-- NOTE: This release introduces backwards incompatible changes to any existing database schemas, when updating make sure to bump the `dbVersion` attribute on your `Space`, in order to apply a migration.
+- NOTE: This release introduces backwards incompatible changes to any existing database schemas, when upgrading make sure to bump the `dbVersion` attribute on your `Space`.
 - New: Support using a pre-existing vault database with the `copyPath` attribute on `@Space`. 
 - New: Compiler now injects static `$Fields` class to every model, reflecting the model's column names.
 - New: Add `Asset.Fields` class.
