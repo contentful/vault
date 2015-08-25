@@ -24,15 +24,15 @@ import java.util.Map;
 import static com.contentful.java.cda.CDAType.ASSET;
 
 public final class Asset extends Resource implements Parcelable {
-  private String url;
+  private final String url;
 
-  private String mimeType;
+  private final String mimeType;
 
-  private String title;
+  private final String title;
 
-  private String description;
+  private final String description;
 
-  private HashMap<String, Object> file;
+  private final HashMap<String, Object> file;
 
   private Asset(Builder builder) {
     this.url = builder.url;
@@ -172,15 +172,21 @@ public final class Asset extends Resource implements Parcelable {
 
     this.mimeType = in.readString();
 
-    if (in.readInt() != -1) {
+    if (in.readInt() == -1) {
+      this.title = null;
+    } else {
       this.title = in.readString();
     }
 
-    if (in.readInt() != -1) {
+    if (in.readInt() == -1) {
+      this.description = null;
+    } else {
       this.description = in.readString();
     }
 
-    if (in.readInt() != -1) {
+    if (in.readInt() == -1) {
+      this.file = null;
+    } else {
       this.file = (HashMap<String, Object>) in.readSerializable();
     }
   }
