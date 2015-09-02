@@ -24,6 +24,7 @@ import com.contentful.vault.Space;
 import com.google.common.base.Joiner;
 import com.squareup.javapoet.ClassName;
 import com.sun.tools.javac.code.Attribute;
+import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Type;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -246,7 +247,13 @@ public class Processor extends AbstractProcessor {
       if (fieldId.isEmpty()) {
         fieldId = enclosedElement.getSimpleName().toString();
       }
-
+      if (enclosedElement instanceof Symbol) {
+        if (((Symbol) enclosedElement).isStatic()) {
+          error(element, "@%s elements must not be static. (%s.%s)", Field.class.getSimpleName(),
+              element.getQualifiedName(), enclosedElement.getSimpleName());
+          return;
+        }
+      }
       if (!memberIds.add(fieldId)) {
         error(element,
             "@%s for the same id (\"%s\") was used multiple times in the same class. (%s)",
