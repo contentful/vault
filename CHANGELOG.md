@@ -5,6 +5,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## Version [0.9.10][unreleased] - (in development)
 - Changed: Asset attrs are now final.
 - Changed: Compiler will fail for static `@Field` elements.
+- Changed: Compiler will fail for private `@Field` elements.
 - Fixed: Preserve order for arrays of links.
 - Fixed: Duplicate array links are no longer squashed.
 

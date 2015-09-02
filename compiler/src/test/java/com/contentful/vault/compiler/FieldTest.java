@@ -113,8 +113,24 @@ public class FieldTest {
     ASSERT.about(javaSource()).that(source)
         .processedWith(processors())
         .failsToCompile()
-        .withErrorContaining(
-            "@Field elements must not be static. (Test.foo)");
+        .withErrorContaining("@Field elements must not be static. (Test.foo)");
+  }
+
+  @Test public void failsPrivateField() throws Exception {
+    JavaFileObject source = JavaFileObjects.forSourceString("test.Test", Joiner.on('\n').join(
+        "import com.contentful.vault.ContentType;",
+        "import com.contentful.vault.Field;",
+        "import com.contentful.vault.Resource;",
+        "import java.util.List;",
+        "@ContentType(\"cid\")",
+        "class Test extends Resource {",
+        "  @Field private String foo;",
+        "}"));
+
+    ASSERT.about(javaSource()).that(source)
+        .processedWith(processors())
+        .failsToCompile()
+        .withErrorContaining("@Field elements must not be private. (Test.foo)");
   }
 
   @Test public void testInvalidListType() throws Exception {
