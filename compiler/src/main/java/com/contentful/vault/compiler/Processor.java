@@ -24,7 +24,6 @@ import com.contentful.vault.Space;
 import com.google.common.base.Joiner;
 import com.squareup.javapoet.ClassName;
 import com.sun.tools.javac.code.Attribute;
-import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Type;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -46,6 +45,7 @@ import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
@@ -247,13 +247,19 @@ public class Processor extends AbstractProcessor {
       if (fieldId.isEmpty()) {
         fieldId = enclosedElement.getSimpleName().toString();
       }
-      if (enclosedElement instanceof Symbol) {
-        if (((Symbol) enclosedElement).isStatic()) {
-          error(element, "@%s elements must not be static. (%s.%s)", Field.class.getSimpleName(),
-              element.getQualifiedName(), enclosedElement.getSimpleName());
-          return;
-        }
+
+      Set<Modifier> modifiers = enclosedElement.getModifiers();
+      if (modifiers.contains(Modifier.STATIC)) {
+        error(element, "@%s elements must not be static. (%s.%s)", Field.class.getSimpleName(),
+            element.getQualifiedName(), enclosedElement.getSimpleName());
+        return;
       }
+      if (modifiers.contains(Modifier.PRIVATE)) {
+        error(element, "@%s elements must not be private. (%s.%s)", Field.class.getSimpleName(),
+            element.getQualifiedName(), enclosedElement.getSimpleName());
+        return;
+      }
+
       if (!memberIds.add(fieldId)) {
         error(element,
             "@%s for the same id (\"%s\") was used multiple times in the same class. (%s)",
