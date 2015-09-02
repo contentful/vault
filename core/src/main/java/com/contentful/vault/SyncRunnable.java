@@ -262,7 +262,7 @@ public final class SyncRunnable implements Runnable {
       for (FieldMeta field : fields) {
         Object value = extractRawFieldValue(entry, field.id());
         if (field.isLink()) {
-          processLink(entry, field.id(), (Map<?, ?>) value);
+          processLink(entry, field.id(), (Map<?, ?>) value, 0);
         } else if (field.isArray()) {
           processArray(entry, values, field);
         } else if ("BLOB".equals(field.sqliteType())) {
@@ -310,15 +310,15 @@ public final class SyncRunnable implements Runnable {
 
       List<?> links = extractRawFieldValue(entry, field.id());
       if (links != null) {
-        for (Object link : links) {
-          processLink(entry, field.id(), (Map) link);
+        for (int i = 0; i < links.size(); i++) {
+          processLink(entry, field.id(), (Map<?, ?>) links.get(i), i);
         }
       }
     }
   }
 
   @SuppressWarnings("unchecked")
-  private void processLink(CDAEntry entry, String fieldId, Map<?, ?> value) {
+  private void processLink(CDAEntry entry, String fieldId, Map<?, ?> value, int position) {
     String parentId = entry.id();
     if (value != null) {
       Map<String, ?> linkInfo = (Map<String, ?>) value.get("sys");
@@ -327,7 +327,7 @@ public final class SyncRunnable implements Runnable {
         String targetId = (String) linkInfo.get("id");
 
         if (linkType != null && targetId != null) {
-          saveLink(parentId, fieldId, linkType, targetId);
+          saveLink(parentId, fieldId, linkType, targetId, position);
         }
       }
     } else {
@@ -346,13 +346,15 @@ public final class SyncRunnable implements Runnable {
     }
   }
 
-  private void saveLink(String parentId, String fieldId, String linkType, String targetId) {
+  private void saveLink(String parentId, String fieldId, String linkType, String targetId,
+      int position) {
     AutoEscapeValues values = new AutoEscapeValues();
 
     for (String code : spaceHelper.getLocales()) {
       values.put("parent", parentId);
       values.put("field", fieldId);
       values.put("child", targetId);
+      values.put("position", position);
       values.put("is_asset", CDAType.valueOf(linkType.toUpperCase(Vault.LOCALE)) == ASSET);
 
       db.insertWithOnConflict(escape(localizeName(TABLE_LINKS, code)), null, values.get(),

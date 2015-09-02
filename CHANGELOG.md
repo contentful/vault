@@ -4,6 +4,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Version [0.9.10][unreleased] - (in development)
 - Changed: Asset attrs are now final.
+- Fixed: Preserve order for arrays of links.
+- Fixed: Duplicate array links are no longer squashed.
 
 ## Version [0.9.9] - 2015-08-13
 - NOTE: This release introduces backwards incompatible changes to any existing database schemas, when upgrading make sure to bump the `dbVersion` attribute on your `Space`.

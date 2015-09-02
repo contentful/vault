@@ -63,4 +63,43 @@ public class LinksTest extends BaseTest {
     assertThat(ids).contains(container.assets().get(0).remoteId());
     assertThat(ids).contains(container.assets().get(1).remoteId());
   }
+
+  @Test public void testLinkArrayOrder() throws Exception {
+    final String CONTAINER_ID = "ordered";
+
+    // Initial
+    enqueueSync("links");
+    sync();
+
+    AssetsContainer container = vault.fetch(AssetsContainer.class)
+        .where(REMOTE_ID + " = ?", CONTAINER_ID)
+        .first();
+
+    assertThat(container).isNotNull();
+    assertThat(container.assets()).hasSize(4);
+    assertThat(container.assets().get(0).remoteId()).isEqualTo("4eHZNAfWq4UaiYIywMiSAy");
+    assertThat(container.assets().get(1).remoteId()).isEqualTo("1g07qGA9BMkucwiUysi8qQ");
+    assertThat(container.assets().get(2).remoteId()).isEqualTo("2lD1fm3UBiwYk0m6CgmiQQ");
+    assertThat(container.assets().get(3).remoteId()).isEqualTo("65ou5OAxawuQIkOAe2e42c");
+  }
+
+  @Test public void testLinkArrayDuplicates() throws Exception {
+    final String CONTAINER_ID = "duplicates";
+
+    // Initial
+    enqueueSync("links");
+    sync();
+
+    AssetsContainer container = vault.fetch(AssetsContainer.class)
+        .where(REMOTE_ID + " = ?", CONTAINER_ID)
+        .first();
+
+    assertThat(container).isNotNull();
+    assertThat(container.assets()).hasSize(3);
+
+    String id = "4eHZNAfWq4UaiYIywMiSAy";
+    assertThat(container.assets().get(0).remoteId()).isEqualTo(id);
+    assertThat(container.assets().get(1).remoteId()).isEqualTo(id);
+    assertThat(container.assets().get(2).remoteId()).isEqualTo(id);
+  }
 }

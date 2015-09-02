@@ -59,11 +59,13 @@ public final class Sql {
         + declareField("child", "STRING", false, ", ")
         + declareField("field", "STRING", false, ", ")
         + declareField("is_asset", "INT", false, ", ")
+        + declareField("position", "INT", false, ", ")
         + "UNIQUE ("
         + escape("parent") + ", "
         + escape("child") + ", "
         + escape("field") + ", "
-        + escape("is_asset") + ")"
+        + escape("is_asset") + ", "
+        + escape("position") + ")"
         + ");";
   }
 
