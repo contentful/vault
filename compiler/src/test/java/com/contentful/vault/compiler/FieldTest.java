@@ -99,6 +99,24 @@ public class FieldTest {
             "Array fields must have a type parameter specified. (Test.list)");
   }
 
+  @Test public void failsStaticField() throws Exception {
+    JavaFileObject source = JavaFileObjects.forSourceString("test.Test", Joiner.on('\n').join(
+        "import com.contentful.vault.ContentType;",
+        "import com.contentful.vault.Field;",
+        "import com.contentful.vault.Resource;",
+        "import java.util.List;",
+        "@ContentType(\"cid\")",
+        "class Test extends Resource {",
+        "  @Field static String foo;",
+        "}"));
+
+    ASSERT.about(javaSource()).that(source)
+        .processedWith(processors())
+        .failsToCompile()
+        .withErrorContaining(
+            "@Field elements must not be static. (Test.foo)");
+  }
+
   @Test public void testInvalidListType() throws Exception {
     JavaFileObject source = JavaFileObjects.forSourceString("test.Test", Joiner.on('\n').join(
         "import com.contentful.vault.ContentType;",
