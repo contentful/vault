@@ -143,14 +143,14 @@ final class LinkResolver {
   }
 
   private String queryAssetLinks(String locale) {
-    return String.format("SELECT l.child, null FROM %s l WHERE %s",
+    return String.format("SELECT l.child, null FROM %s l WHERE %s ORDER BY l.position",
         escape(localizeName(TABLE_LINKS, locale)),
         LINKS_WHERE_CLAUSE);
   }
 
   private String queryEntryLinks(String locale) {
     return String.format(
-        "SELECT l.child, t.type_id FROM %s l INNER JOIN %s t ON l.child = t.%s WHERE %s",
+        "SELECT l.child, t.type_id FROM %s l INNER JOIN %s t ON l.child = t.%s WHERE %s ORDER BY l.position",
         escape(localizeName(TABLE_LINKS, locale)),
         TABLE_ENTRY_TYPES,
         REMOTE_ID,
