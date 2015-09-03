@@ -18,6 +18,7 @@ package com.contentful.vault;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import com.contentful.java.cda.CDAClient;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Locale;
@@ -70,6 +71,14 @@ public class Vault {
       throw new IllegalArgumentException("Cannot be invoked with null space.");
     }
     return new Vault(context, space, getOrCreateSqliteHelper(context, space));
+  }
+
+  public void requestSync(CDAClient client) {
+    requestSync(client, null);
+  }
+
+  public void requestSync(CDAClient client, SyncCallback callback) {
+    requestSync(SyncConfig.builder().setClient(client).build(), callback);
   }
 
   public void requestSync(SyncConfig config) {

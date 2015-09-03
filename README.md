@@ -89,13 +89,8 @@ CDAClient client = CDAClient.builder()
     .setToken("b4c0n73n7fu1");
     .build();
 
-// Configuration
-SyncConfig config = SyncConfig.builder()
-      .setClient(client)
-      .build();
-
 // Sync
-Vault.with(context, DemoSpace.class).requestSync(config);
+Vault.with(context, DemoSpace.class).requestSync(client);
 ```
 
 Vault will use a worker thread to request incremental updates from the Sync API and reflect the remote changes to its database.
@@ -110,7 +105,7 @@ class SomeActivity extends Activity {
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     
-    Vault.with(this, DemoSpace.class).requestSync(config, callback = new SyncCallback() {
+    Vault.with(this, DemoSpace.class).requestSync(client, callback = new SyncCallback() {
       @Override public void onResult(SyncResult result) {
         if (result.isSuccessful()) {
           // Success \o/
