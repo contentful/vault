@@ -14,7 +14,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Changed: RxJava v1.0.14.
 - Changed: OkHttp v2.5.0.
 - Changed: contentful.java v4.0.2.
-- Changed: Project new uses Java 7 language level.
+- Changed: Project now uses Java 7 language level.
 - Fixed: Preserve order for arrays of links.
 - Fixed: Duplicate array links are no longer squashed.
 
