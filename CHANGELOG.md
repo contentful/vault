@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Changed: Compiler will fail for static `@Field` elements.
 - Changed: Compiler will fail for private `@Field` elements.
 - Changed: RxJava v1.0.14.
+- Changed: OkHttp v2.5.0.
 - Fixed: Preserve order for arrays of links.
 - Fixed: Duplicate array links are no longer squashed.
 
