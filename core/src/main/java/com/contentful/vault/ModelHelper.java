@@ -42,9 +42,7 @@ public abstract class ModelHelper<T extends Resource> {
     Exception exception = null;
     try {
       result = BlobUtils.fromBlob(clazz, blob);
-    } catch (IOException e) {
-      exception = e;
-    } catch (ClassNotFoundException e) {
+    } catch (IOException | ClassNotFoundException e) {
       exception = e;
     }
     if (exception != null) {

@@ -62,7 +62,7 @@ final class LinkResolver {
     List<Link> links = fetchLinks(resource.remoteId(), field, locale);
     List<Resource> targets = null;
     if (links.size() > 0) {
-      targets = new ArrayList<Resource>();
+      targets = new ArrayList<>();
       for (Link link : links) {
         Resource child = getCachedResourceOrFetch(link, locale);
         if (child != null) {
@@ -127,7 +127,7 @@ final class LinkResolver {
 
     Cursor cursor = query.vault().getReadableDatabase().rawQuery(sql, args);
     try {
-      result = new ArrayList<Link>();
+      result = new ArrayList<>();
       if (cursor.moveToFirst()) {
         do {
           String childId = cursor.getString(0);

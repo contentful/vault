@@ -221,7 +221,7 @@ final class ModelInjection extends Injection {
   }
 
   List<String> getModelCreateStatements() {
-    List<String> statements = new ArrayList<String>();
+    List<String> statements = new ArrayList<>();
     StringBuilder builder = new StringBuilder();
     builder.append("\"CREATE TABLE `")
         .append(sqlTableName)
@@ -249,7 +249,7 @@ final class ModelInjection extends Injection {
   }
 
   List<FieldMeta> extractNonLinkFields() {
-    List<FieldMeta> result = new ArrayList<FieldMeta>();
+    List<FieldMeta> result = new ArrayList<>();
     for (FieldMeta f : fields) {
       // Skip links / arrays of links
       if (f.isLink() || f.isArrayOfLinks()) {

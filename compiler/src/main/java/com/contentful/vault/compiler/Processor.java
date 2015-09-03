@@ -70,7 +70,7 @@ public class Processor extends AbstractProcessor {
   private static final String FQ_ASSET = "com.contentful.vault.Asset";
 
   @Override public Set<String> getSupportedAnnotationTypes() {
-    Set<String> types = new LinkedHashSet<String>();
+    Set<String> types = new LinkedHashSet<>();
     types.add(ContentType.class.getCanonicalName());
     types.add(Space.class.getCanonicalName());
     return types;
@@ -102,9 +102,9 @@ public class Processor extends AbstractProcessor {
   }
 
   private Set<Injection> findAndParseTargets(RoundEnvironment env) {
-    Map<TypeElement, ModelInjection> models = new LinkedHashMap<TypeElement, ModelInjection>();
-    Map<TypeElement, FieldsInjection> fields = new LinkedHashMap<TypeElement, FieldsInjection>();
-    Map<TypeElement, SpaceInjection> spaces = new LinkedHashMap<TypeElement, SpaceInjection>();
+    Map<TypeElement, ModelInjection> models = new LinkedHashMap<>();
+    Map<TypeElement, FieldsInjection> fields = new LinkedHashMap<>();
+    Map<TypeElement, SpaceInjection> spaces = new LinkedHashMap<>();
 
     // Parse ContentType bindings
     for (Element element : env.getElementsAnnotatedWith(ContentType.class)) {
@@ -129,7 +129,7 @@ public class Processor extends AbstractProcessor {
       fields.put(modelInjection.originatingElement, createFieldsInjection(modelInjection));
     }
 
-    Set<Injection> result = new LinkedHashSet<Injection>();
+    Set<Injection> result = new LinkedHashSet<>();
     result.addAll(models.values());
     result.addAll(fields.values());
     result.addAll(spaces.values());
@@ -154,7 +154,7 @@ public class Processor extends AbstractProcessor {
     }
 
     TypeMirror spaceMirror = elementUtils.getTypeElement(Space.class.getName()).asType();
-    List<ModelInjection> includedModels = new ArrayList<ModelInjection>();
+    List<ModelInjection> includedModels = new ArrayList<>();
     for (AnnotationMirror mirror : element.getAnnotationMirrors()) {
       if (typeUtils.isSameType(mirror.getAnnotationType(), spaceMirror)) {
         Set<? extends Map.Entry<? extends ExecutableElement, ? extends AnnotationValue>> items =
@@ -170,7 +170,7 @@ public class Processor extends AbstractProcessor {
               return;
             }
 
-            Set<String> modelIds = new LinkedHashSet<String>();
+            Set<String> modelIds = new LinkedHashSet<>();
             for (Object model : l) {
               TypeElement e = (TypeElement) ((Type) ((Attribute) model).getValue()).asElement();
               ModelInjection modelInjection = models.get(e);
@@ -192,7 +192,7 @@ public class Processor extends AbstractProcessor {
     }
 
     List<String> locales = Arrays.asList(annotation.locales());
-    Set<String> checked = new HashSet<String>();
+    Set<String> checked = new HashSet<>();
     for (int i = locales.size() - 1; i >= 0; i--) {
       String code = locales.get(i);
       if (!checked.add(code)) {
@@ -235,8 +235,8 @@ public class Processor extends AbstractProcessor {
       return;
     }
 
-    Set<FieldMeta> fields = new LinkedHashSet<FieldMeta>();
-    Set<String> memberIds = new LinkedHashSet<String>();
+    Set<FieldMeta> fields = new LinkedHashSet<>();
+    Set<String> memberIds = new LinkedHashSet<>();
     for (Element enclosedElement : element.getEnclosedElements()) {
       Field field = enclosedElement.getAnnotation(Field.class);
       if (field == null) {

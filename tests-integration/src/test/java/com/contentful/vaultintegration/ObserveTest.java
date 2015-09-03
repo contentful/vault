@@ -40,7 +40,7 @@ public class ObserveTest extends BaseTest {
     enqueue("demo/initial.json");
     sync();
 
-    TestSubscriber<Cat> subscriber = new TestSubscriber<Cat>();
+    TestSubscriber<Cat> subscriber = new TestSubscriber<>();
     vault.observe(Cat.class)
         .where(BaseFields.REMOTE_ID + " IN(?, ?, ?)", "happycat", "nyancat", "garfield")
         .limit(2)
@@ -62,7 +62,7 @@ public class ObserveTest extends BaseTest {
     enqueue("demo/types.json");
     enqueue("demo/initial.json");
 
-    TestSubscriber<SyncResult> subscriber = new TestSubscriber<SyncResult>();
+    TestSubscriber<SyncResult> subscriber = new TestSubscriber<>();
     Vault.observeSyncResults().subscribe(subscriber);
 
     subscriber.assertNoValues();
