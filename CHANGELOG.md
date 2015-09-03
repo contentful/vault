@@ -6,6 +6,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Changed: Asset attrs are now final.
 - Changed: Compiler will fail for static `@Field` elements.
 - Changed: Compiler will fail for private `@Field` elements.
+- Changed: RxJava v1.0.14.
 - Fixed: Preserve order for arrays of links.
 - Fixed: Duplicate array links are no longer squashed.
 

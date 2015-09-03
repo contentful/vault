@@ -61,7 +61,7 @@
     <mockwebserver.version>2.3.0</mockwebserver.version>
     <okhttp.version>2.4.0</okhttp.version>
     <robolectric.version>3.0</robolectric.version>
-    <rxjava.version>1.0.13</rxjava.version>
+    <rxjava.version>1.0.14</rxjava.version>
     <truth.version>0.25</truth.version>
   </properties>
 
