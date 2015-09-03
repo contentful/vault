@@ -37,7 +37,7 @@ public class LocaleTest extends BaseTest {
     checkCustomLocale();
   }
 
-  private void checkCustomLocale() throws Exception {
+  private void checkCustomLocale() {
     // Klingon
     Cat cat = vault.fetch(Cat.class)
         .where(REMOTE_ID + " = ?", "happycat")

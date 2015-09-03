@@ -27,7 +27,7 @@ public final class FetchQuery<T extends Resource> extends AbsQuery<T, FetchQuery
     if (locale == null) {
       locale = vault().getSqliteHelper().getSpaceHelper().getDefaultLocale();
     }
-    return new QueryResolver<T>(this).all(resolveLinks, locale);
+    return new QueryResolver<>(this).all(resolveLinks, locale);
   }
 
   T resolveFirst(boolean resolveLinks, String locale) {

@@ -32,9 +32,9 @@ final class QueryResolver<T extends Resource> {
 
   private final Vault vault;
 
-  private final Map<String, Resource> assets = new HashMap<String, Resource>();
+  private final Map<String, Resource> assets = new HashMap<>();
 
-  private final Map<String, Resource> entries = new HashMap<String, Resource>();
+  private final Map<String, Resource> entries = new HashMap<>();
 
   QueryResolver(AbsQuery<T, ?> query) {
     this.query = query;

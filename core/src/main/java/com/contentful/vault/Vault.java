@@ -38,18 +38,17 @@ public class Vault {
 
   static final Locale LOCALE = Locale.US;
 
-  static final Map<Class<?>, SqliteHelper> SQLITE_HELPERS =
-      new LinkedHashMap<Class<?>, SqliteHelper>();
+  static final Map<Class<?>, SqliteHelper> SQLITE_HELPERS = new LinkedHashMap<>();
 
   static final ExecutorService EXECUTOR_SYNC = Executors.newSingleThreadExecutor(
       new VaultThreadFactory());
 
   static final Executor EXECUTOR_CALLBACK = new MainThreadExecutor();
 
-  static final Map<String, CallbackBundle> CALLBACKS = new HashMap<String, CallbackBundle>();
+  static final Map<String, CallbackBundle> CALLBACKS = new HashMap<>();
 
   static final Subject<SyncResult, SyncResult> SYNC_SUBJECT =
-      new SerializedSubject<SyncResult, SyncResult>(PublishSubject.<SyncResult>create());
+      new SerializedSubject<>(PublishSubject.<SyncResult>create());
 
   private final Context context;
 
@@ -113,11 +112,11 @@ public class Vault {
   }
 
   public <T extends Resource> FetchQuery<T> fetch(Class<T> type) {
-    return new FetchQuery<T>(type, this);
+    return new FetchQuery<>(type, this);
   }
 
   public <T extends Resource> ObserveQuery<T> observe(Class<T> type) {
-    return new ObserveQuery<T>(type, this);
+    return new ObserveQuery<>(type, this);
   }
 
   public SQLiteDatabase getReadableDatabase() {
@@ -158,9 +157,7 @@ public class Vault {
       return (SpaceHelper) clazz.newInstance();
     } catch (ClassNotFoundException e) {
       throw new RuntimeException("Cannot find generated class for space: " + space.getName(), e);
-    } catch (IllegalAccessException e) {
-      throw new RuntimeException(e);
-    } catch (InstantiationException e) {
+    } catch (IllegalAccessException | InstantiationException e) {
       throw new RuntimeException(e);
     }
   }

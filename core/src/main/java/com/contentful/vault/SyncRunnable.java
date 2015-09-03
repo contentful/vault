@@ -53,9 +53,9 @@ public final class SyncRunnable implements Runnable {
 
   private final SyncConfig config;
 
-  private SqliteHelper sqliteHelper;
+  private final SqliteHelper sqliteHelper;
 
-  private SpaceHelper spaceHelper;
+  private final SpaceHelper spaceHelper;
 
   private SQLiteDatabase db;
 
