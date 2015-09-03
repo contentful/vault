@@ -3,6 +3,7 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Version [0.9.10][unreleased] - (in development)
+- New: Simplified extension `Vault.requestSync(CDAClient)`.
 - Changed: Asset attrs are now final.
 - Changed: Compiler will fail for static `@Field` elements.
 - Changed: Compiler will fail for private `@Field` elements.
