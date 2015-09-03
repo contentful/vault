@@ -2,7 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Version [0.9.10][unreleased] - (in development)
+## Version [0.9.11][unreleased] - (in development)
+- TBA.
+
+## Version [0.9.10] - 2015-09-03
+- NOTE: This release introduces backwards incompatible changes to any existing database schemas, when upgrading make sure to bump the `dbVersion` attribute on your `Space`.
 - New: Simplified extension `Vault.requestSync(CDAClient)`.
 - Changed: Asset attrs are now final.
 - Changed: Compiler will fail for static `@Field` elements.
@@ -10,6 +14,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Changed: RxJava v1.0.14.
 - Changed: OkHttp v2.5.0.
 - Changed: contentful.java v4.0.2.
+- Changed: Project new uses Java 7 language level.
 - Fixed: Preserve order for arrays of links.
 - Fixed: Duplicate array links are no longer squashed.
 
@@ -67,7 +72,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## Version 0.9.0 - 2015-05-18
 Initial release.
  
-[unreleased]: https://github.com/contentful/vault/compare/vault-parent-0.9.9...HEAD
+[unreleased]: https://github.com/contentful/vault/compare/vault-parent-0.9.10...HEAD
+[0.9.10]: https://github.com/contentful/vault/compare/vault-parent-0.9.9...vault-parent-0.9.10
 [0.9.9]: https://github.com/contentful/vault/compare/vault-parent-0.9.8...vault-parent-0.9.9
 [0.9.8]: https://github.com/contentful/vault/compare/vault-parent-0.9.7...vault-parent-0.9.8
 [0.9.7]: https://github.com/contentful/vault/compare/vault-parent-0.9.6...vault-parent-0.9.7

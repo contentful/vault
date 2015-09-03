@@ -12,18 +12,18 @@ Grab via Maven:
 <dependency>
   <groupId>com.contentful.vault</groupId>
   <artifactId>compiler</artifactId>
-  <version>0.9.9</version>
+  <version>0.9.10</version>
 </dependency>
 <dependency>
   <groupId>com.contentful.vault</groupId>
   <artifactId>core</artifactId>
-  <version>0.9.9</version>
+  <version>0.9.10</version>
 </dependency>
 ```
 or Gradle:
 ```groovy
-apt 'com.contentful.vault:compiler:0.9.9'
-compile 'com.contentful.vault:core:0.9.9'
+apt 'com.contentful.vault:compiler:0.9.10'
+compile 'com.contentful.vault:core:0.9.10'
 ```
 
 Note for Gradle users, make sure to use the [android-apt][apt] Gradle plugin, which lets you configure compile-time only dependencies.
