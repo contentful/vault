@@ -113,7 +113,7 @@ final class SqliteHelper extends SQLiteOpenHelper {
     List<String> tables = null;
     try {
       if (cursor.moveToFirst()) {
-        tables = new ArrayList<String>();
+        tables = new ArrayList<>();
         do {
           tables.add(cursor.getString(0));
         } while (cursor.moveToNext());
@@ -125,7 +125,7 @@ final class SqliteHelper extends SQLiteOpenHelper {
       db.beginTransaction();
       try {
         for (String table : tables) {
-          db.execSQL("DROP TABLE " + table);
+          db.execSQL("DROP TABLE " + escape(table));
         }
         db.setTransactionSuccessful();
       } finally {
