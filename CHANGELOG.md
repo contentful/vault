@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Version [0.9.11][unreleased] - (in development)
-- TBA.
+- Fixed: DB upgrade failures.
 
 ## Version [0.9.10] - 2015-09-03
 - NOTE: This release introduces backwards incompatible changes to any existing database schemas, when upgrading make sure to bump the `dbVersion` attribute on your `Space`.
