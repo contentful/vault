@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Version [0.9.13][unreleased] - (in development)
-- TBA.
+- Fixed: Incorrect persistence of localized links.
 
 ## Version [0.9.12] - 2015-10-28
 - Changed: Use contentful.java v5.0.1 (fixes CME for localized link fields pointing to non-existing resources).

@@ -320,18 +320,19 @@ public final class SyncRunnable implements Runnable {
   @SuppressWarnings("unchecked")
   private void processLink(CDAEntry entry, String fieldId, Map<?, ?> value, int position) {
     String parentId = entry.id();
-    if (value != null) {
+
+    if (value == null) {
+      deleteResourceLinks(parentId, fieldId, entry.locale());
+    } else {
       Map<String, ?> linkInfo = (Map<String, ?>) value.get("sys");
       if (linkInfo != null) {
         String linkType = (String) linkInfo.get("linkType");
         String targetId = (String) linkInfo.get("id");
 
         if (linkType != null && targetId != null) {
-          saveLink(parentId, fieldId, linkType, targetId, position);
+          saveLink(parentId, fieldId, linkType, targetId, position, entry.locale());
         }
       }
-    } else {
-      deleteResourceLinks(parentId, fieldId);
     }
   }
 
@@ -347,30 +348,30 @@ public final class SyncRunnable implements Runnable {
   }
 
   private void saveLink(String parentId, String fieldId, String linkType, String targetId,
-      int position) {
+      int position, String locale) {
     AutoEscapeValues values = new AutoEscapeValues();
 
-    for (String code : spaceHelper.getLocales()) {
-      values.put("parent", parentId);
-      values.put("field", fieldId);
-      values.put("child", targetId);
-      values.put("position", position);
-      values.put("is_asset", CDAType.valueOf(linkType.toUpperCase(Vault.LOCALE)) == ASSET);
+    values.put("parent", parentId);
+    values.put("field", fieldId);
+    values.put("child", targetId);
+    values.put("position", position);
+    values.put("is_asset", CDAType.valueOf(linkType.toUpperCase(Vault.LOCALE)) == ASSET);
 
-      db.insertWithOnConflict(escape(localizeName(TABLE_LINKS, code)), null, values.get(),
-          CONFLICT_REPLACE);
-
-      values.clear();
-    }
+    db.insertWithOnConflict(escape(localizeName(TABLE_LINKS, locale)), null, values.get(),
+        CONFLICT_REPLACE);
   }
 
   private void deleteResourceLinks(String parentId, String field) {
+    for (String code : spaceHelper.getLocales()) {
+      deleteResourceLinks(parentId, field, code);
+    }
+  }
+
+  private void deleteResourceLinks(String parentId, String field, String locale) {
     String where = "parent = ? AND field = ?";
     String[] args = new String[]{ parentId, field };
 
-    for (String code : spaceHelper.getLocales()) {
-      db.delete(escape(localizeName(TABLE_LINKS, code)), where, args);
-    }
+    db.delete(escape(localizeName(TABLE_LINKS, locale)), where, args);
   }
 
   private static void putResourceFields(CDAResource resource, AutoEscapeValues values) {
