@@ -1,0 +1,37 @@
+{
+  "sys": {
+    "type": "Array"
+  },
+  "total": 1,
+  "skip": 0,
+  "limit": 100,
+  "items": [
+    {
+      "name": "container",
+      "fields": [
+        {
+          "name": "image",
+          "id": "image",
+          "type": "Link",
+          "linkType": "Asset",
+          "localized": true
+        }
+      ],
+      "description": "",
+      "sys": {
+        "space": {
+          "sys": {
+            "type": "Link",
+            "linkType": "Space",
+            "id": "dotunxzzh0et"
+          }
+        },
+        "type": "ContentType",
+        "id": "2MciU8KpbOsieeoIUYQkse",
+        "revision": 1,
+        "createdAt": "2015-11-21T12:43:19.821Z",
+        "updatedAt": "2015-11-21T12:43:19.821Z"
+      }
+    }
+  ]
+}

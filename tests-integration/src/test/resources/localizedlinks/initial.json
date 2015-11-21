@@ -1,0 +1,119 @@
+{
+  "sys": {
+    "type": "Array"
+  },
+  "items": [
+    {
+      "sys": {
+        "space": {
+          "sys": {
+            "type": "Link",
+            "linkType": "Space",
+            "id": "dotunxzzh0et"
+          }
+        },
+        "type": "Entry",
+        "contentType": {
+          "sys": {
+            "type": "Link",
+            "linkType": "ContentType",
+            "id": "2MciU8KpbOsieeoIUYQkse"
+          }
+        },
+        "id": "2gwYYOMj8YMeAKsKYkY8qE",
+        "revision": 1,
+        "createdAt": "2015-11-21T12:47:38.947Z",
+        "updatedAt": "2015-11-21T12:47:38.948Z"
+      },
+      "fields": {
+        "image": {
+          "en-US": {
+            "sys": {
+              "type": "Link",
+              "linkType": "Asset",
+              "id": "3XREDPOkZqCSWgomgUWU4G"
+            }
+          },
+          "he-IL": {
+            "sys": {
+              "type": "Link",
+              "linkType": "Asset",
+              "id": "1Up25hQn3SU8mW4K4q2WKa"
+            }
+          }
+        }
+      }
+    },
+    {
+      "fields": {
+        "file": {
+          "en-US": {
+            "fileName": "snap.jpg",
+            "contentType": "image/jpeg",
+            "details": {
+              "image": {
+                "width": 800,
+                "height": 450
+              },
+              "size": 12726
+            },
+            "url": "//images.contentful.com/dotunxzzh0et/3XREDPOkZqCSWgomgUWU4G/e99b7ac9bfb4c331eecfaec2cf8896af/snap.jpg"
+          }
+        },
+        "title": {
+          "en-US": "hello"
+        }
+      },
+      "sys": {
+        "space": {
+          "sys": {
+            "type": "Link",
+            "linkType": "Space",
+            "id": "dotunxzzh0et"
+          }
+        },
+        "type": "Asset",
+        "id": "3XREDPOkZqCSWgomgUWU4G",
+        "revision": 2,
+        "createdAt": "2015-11-21T12:45:44.092Z",
+        "updatedAt": "2015-11-21T12:47:20.933Z"
+      }
+    },
+    {
+      "fields": {
+        "title": {
+          "en-US": "shalom"
+        },
+        "file": {
+          "en-US": {
+            "fileName": "snap.jpg",
+            "contentType": "image/jpeg",
+            "details": {
+              "image": {
+                "width": 800,
+                "height": 450
+              },
+              "size": 10200
+            },
+            "url": "//images.contentful.com/dotunxzzh0et/1Up25hQn3SU8mW4K4q2WKa/c3b04f48b25fcda1c89d3545526d61a9/snap.jpg"
+          }
+        }
+      },
+      "sys": {
+        "space": {
+          "sys": {
+            "type": "Link",
+            "linkType": "Space",
+            "id": "dotunxzzh0et"
+          }
+        },
+        "type": "Asset",
+        "id": "1Up25hQn3SU8mW4K4q2WKa",
+        "revision": 1,
+        "createdAt": "2015-11-21T12:47:11.033Z",
+        "updatedAt": "2015-11-21T12:47:11.033Z"
+      }
+    }
+  ],
+  "nextSyncUrl": "https://cdn.contentful.com/spaces/dotunxzzh0et/sync?sync_token=foo"
+}

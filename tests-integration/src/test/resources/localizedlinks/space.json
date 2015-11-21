@@ -1,0 +1,19 @@
+{
+  "sys": {
+    "type": "Space",
+    "id": "dotunxzzh0et"
+  },
+  "name": "localizedlinks",
+  "locales": [
+    {
+      "code": "en-US",
+      "default": true,
+      "name": "U.S. English"
+    },
+    {
+      "code": "he-IL",
+      "default": false,
+      "name": "Hebrew (Israel)"
+    }
+  ]
+}
