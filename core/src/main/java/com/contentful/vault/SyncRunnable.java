@@ -255,10 +255,18 @@ public final class SyncRunnable implements Runnable {
 
   @SuppressWarnings("unchecked")
   private void saveEntry(CDAEntry entry, String tableName, List<FieldMeta> fields) {
+    // Clear links
+    for (FieldMeta field : fields) {
+      if (field.isLink() || field.isArrayOfLinks()) {
+        deleteResourceLinks(entry.id(), field.id());
+      }
+    }
+    
     AutoEscapeValues values = new AutoEscapeValues();
     for (String code : spaceHelper.getLocales()) {
       entry.setLocale(code);
       putResourceFields(entry, values);
+
       for (FieldMeta field : fields) {
         Object value = extractRawFieldValue(entry, field.id());
         if (field.isLink()) {
