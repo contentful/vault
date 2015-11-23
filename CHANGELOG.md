@@ -2,7 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Version [0.9.14][unreleased] - (in development)
+## Version [0.9.15][unreleased] - (in development)
+- TBA.
+
+## Version [0.9.14] - 2015-11-23
 - Fixed: Non-localized arrays of links now resolve properly.
 
 ## Version [0.9.13] - 2015-11-21
@@ -81,7 +84,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## Version 0.9.0 - 2015-05-18
 Initial release.
  
-[unreleased]: https://github.com/contentful/vault/compare/vault-parent-0.9.13...HEAD
+[unreleased]: https://github.com/contentful/vault/compare/vault-parent-0.9.14...HEAD
+[0.9.14]: https://github.com/contentful/vault/compare/vault-parent-0.9.13...vault-parent-0.9.14
 [0.9.13]: https://github.com/contentful/vault/compare/vault-parent-0.9.12...vault-parent-0.9.13
 [0.9.12]: https://github.com/contentful/vault/compare/vault-parent-0.9.11...vault-parent-0.9.12
 [0.9.11]: https://github.com/contentful/vault/compare/vault-parent-0.9.10...vault-parent-0.9.11
