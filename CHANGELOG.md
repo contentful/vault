@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Version [0.9.14][unreleased] - (in development)
-- TBA.
+- Fixed: Non-localized arrays of links now resolve properly.
 
 ## Version [0.9.13] - 2015-11-21
 - Fixed: Incorrect persistence of localized links.

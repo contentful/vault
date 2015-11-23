@@ -261,7 +261,7 @@ public final class SyncRunnable implements Runnable {
         deleteResourceLinks(entry.id(), field.id());
       }
     }
-    
+
     AutoEscapeValues values = new AutoEscapeValues();
     for (String code : spaceHelper.getLocales()) {
       entry.setLocale(code);
@@ -313,9 +313,6 @@ public final class SyncRunnable implements Runnable {
       }
       saveBlob(entry, values, field, (Serializable) list);
     } else {
-      // Array of resources
-      deleteResourceLinks(entry.id(), field.id());
-
       List<?> links = extractRawFieldValue(entry, field.id());
       if (links != null) {
         for (int i = 0; i < links.size(); i++) {

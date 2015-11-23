@@ -17,16 +17,34 @@
           "sys": {
             "type": "Link",
             "linkType": "ContentType",
-            "id": "2MciU8KpbOsieeoIUYQkse"
+            "id": "2Ux73cONSU2w2sCe42Gusy"
           }
         },
-        "id": "2gwYYOMj8YMeAKsKYkY8qE",
+        "id": "5oM5rpMdGgQQomIyGe8cM6",
         "revision": 1,
-        "createdAt": "2015-11-21T12:47:38.947Z",
-        "updatedAt": "2015-11-21T12:47:38.948Z"
+        "createdAt": "2015-11-23T05:05:19.262Z",
+        "updatedAt": "2015-11-23T05:05:19.262Z"
       },
       "fields": {
-        "image": {
+        "assets": {
+          "en-US": [
+            {
+              "sys": {
+                "type": "Link",
+                "linkType": "Asset",
+                "id": "3XREDPOkZqCSWgomgUWU4G"
+              }
+            },
+            {
+              "sys": {
+                "type": "Link",
+                "linkType": "Asset",
+                "id": "1Up25hQn3SU8mW4K4q2WKa"
+              }
+            }
+          ]
+        },
+        "one": {
           "en-US": {
             "sys": {
               "type": "Link",
