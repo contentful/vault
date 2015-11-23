@@ -7,11 +7,22 @@
   "limit": 100,
   "items": [
     {
-      "name": "container",
+      "name": "foo",
       "fields": [
         {
-          "name": "image",
-          "id": "image",
+          "name": "assets",
+          "id": "assets",
+          "type": "Array",
+          "items": {
+            "type": "Link",
+            "linkType": "Asset",
+            "validations": []
+          },
+          "localized": false
+        },
+        {
+          "name": "one",
+          "id": "one",
           "type": "Link",
           "linkType": "Asset",
           "localized": true
@@ -27,10 +38,10 @@
           }
         },
         "type": "ContentType",
-        "id": "2MciU8KpbOsieeoIUYQkse",
+        "id": "2Ux73cONSU2w2sCe42Gusy",
         "revision": 1,
-        "createdAt": "2015-11-21T12:43:19.821Z",
-        "updatedAt": "2015-11-21T12:43:19.821Z"
+        "createdAt": "2015-11-23T05:04:52.898Z",
+        "updatedAt": "2015-11-23T05:04:52.898Z"
       }
     }
   ]
