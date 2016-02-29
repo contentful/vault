@@ -27,7 +27,7 @@ final class SqliteUtils {
 
   static String typeForClass(String className) {
     if (String.class.getName().equals(className)) {
-      return "STRING";
+      return "TEXT";
     } else if (Boolean.class.getName().equals(className)) {
       return "BOOL";
     } else if (Integer.class.getName().equals(className)) {
