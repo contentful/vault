@@ -2,8 +2,12 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Version [0.9.15][unreleased] - (in development)
-- TBA.
+## Version [1.0.1][unreleased] - (in development)
+
+## Version [1.0.0] - 2016-02-29
+- NOTE: This release introduces backwards incompatible changes to any existing database schemas, when upgrading make sure to bump the `dbVersion` attribute on your `Space`.
+- NOTE: Also: Indicate satisfaction with current stability of api
+- fixed: Use correct text type for sql statements
 
 ## Version [0.9.14] - 2015-11-23
 - Fixed: Non-localized arrays of links now resolve properly.
@@ -84,7 +88,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## Version 0.9.0 - 2015-05-18
 Initial release.
  
-[unreleased]: https://github.com/contentful/vault/compare/vault-parent-0.9.14...HEAD
+[unreleased]: https://github.com/contentful/vault/compare/vault-parent-1.0.0...HEAD
+[1.0.0]: https://github.com/contentful/vault/compare/vault-parent-0.9.14...vault-parent-1.0.0
 [0.9.14]: https://github.com/contentful/vault/compare/vault-parent-0.9.13...vault-parent-0.9.14
 [0.9.13]: https://github.com/contentful/vault/compare/vault-parent-0.9.12...vault-parent-0.9.13
 [0.9.12]: https://github.com/contentful/vault/compare/vault-parent-0.9.11...vault-parent-0.9.12
