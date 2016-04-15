@@ -28,7 +28,7 @@ import com.contentful.java.cda.CDAResource;
 import com.contentful.java.cda.CDAType;
 import com.contentful.java.cda.LocalizedResource;
 import com.contentful.java.cda.SynchronizedSpace;
-import com.squareup.okhttp.HttpUrl;
+import okhttp3.HttpUrl;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collections;

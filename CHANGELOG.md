@@ -2,7 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Version [1.0.1][unreleased] - (in development)
+## Version [2.0.1][unreleased] - (in development)
+- TBA
+
+## Version [2.0.0] - 2016-04-15
+- changed: update cda to 7.0.0
 
 ## Version [1.0.0] - 2016-02-29
 - NOTE: This release introduces backwards incompatible changes to any existing database schemas, when upgrading make sure to bump the `dbVersion` attribute on your `Space`.
@@ -88,7 +92,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## Version 0.9.0 - 2015-05-18
 Initial release.
  
-[unreleased]: https://github.com/contentful/vault/compare/vault-parent-1.0.0...HEAD
+[unreleased]: https://github.com/contentful/vault/compare/vault-parent-2.0.0...HEAD
+[2.0.0]: https://github.com/contentful/vault/compare/vault-parent-1.0.0...vault-parent-2.0.0
 [1.0.0]: https://github.com/contentful/vault/compare/vault-parent-0.9.14...vault-parent-1.0.0
 [0.9.14]: https://github.com/contentful/vault/compare/vault-parent-0.9.13...vault-parent-0.9.14
 [0.9.13]: https://github.com/contentful/vault/compare/vault-parent-0.9.12...vault-parent-0.9.13

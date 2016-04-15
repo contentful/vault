@@ -18,6 +18,9 @@ package com.contentful.vault;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Handler;
+import android.os.Looper;
+
 import com.contentful.java.cda.CDAClient;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -26,7 +29,6 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import retrofit.android.MainThreadExecutor;
 import rx.Observable;
 import rx.subjects.PublishSubject;
 import rx.subjects.SerializedSubject;
@@ -44,7 +46,12 @@ public class Vault {
   static final ExecutorService EXECUTOR_SYNC = Executors.newSingleThreadExecutor(
       new VaultThreadFactory());
 
-  static final Executor EXECUTOR_CALLBACK = new MainThreadExecutor();
+  static final Executor EXECUTOR_CALLBACK = new Executor() {
+    Handler handler = new Handler(Looper.getMainLooper());
+    @Override public void execute(Runnable command) {
+      handler.post(command);
+    }
+  };
 
   static final Map<String, CallbackBundle> CALLBACKS = new HashMap<>();
 
@@ -166,7 +173,9 @@ public class Vault {
       return (SpaceHelper) clazz.newInstance();
     } catch (ClassNotFoundException e) {
       throw new RuntimeException("Cannot find generated class for space: " + space.getName(), e);
-    } catch (IllegalAccessException | InstantiationException e) {
+    } catch (IllegalAccessException e) {
+      throw new RuntimeException(e);
+    } catch (InstantiationException e) {
       throw new RuntimeException(e);
     }
   }
