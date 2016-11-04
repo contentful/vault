@@ -23,17 +23,19 @@ import com.contentful.vault.SyncResult;
 import com.contentful.vault.Vault;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 import com.squareup.okhttp.mockwebserver.MockWebServer;
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executor;
+
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -111,7 +113,7 @@ public abstract class BaseTest {
       }
     };
 
-    final SyncResult[] result = { null };
+    final SyncResult[] result = {null};
     SyncCallback callback = new SyncCallback() {
       @Override public void onResult(SyncResult r) {
         result[0] = r;
@@ -123,6 +125,9 @@ public abstract class BaseTest {
     latch.await();
 
     assertThat(result[0]).isNotNull();
-    assertThat(result[0].isSuccessful()).isTrue();
+
+    if (!result[0].isSuccessful()) {
+      throw (RuntimeException) result[0].error();
+    }
   }
 }
