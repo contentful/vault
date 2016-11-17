@@ -85,8 +85,8 @@ Once a Space is defined, invoke Vault to sync the local database with the remote
 ```java
 // Client
 CDAClient client = CDAClient.builder()
-    .setSpace("cfexampleapi");
-    .setToken("b4c0n73n7fu1");
+    .setSpace("cfexampleapi")
+    .setToken("b4c0n73n7fu1")
     .build();
 
 // Sync
