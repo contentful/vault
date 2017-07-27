@@ -148,6 +148,17 @@ vault.fetch(Cat.class)
 vault.fetch(Cat.class)
     .where(Cat$Fields.NAME + " = ?", "Nyan Cat")
     .first();
+
+// Fetch a Cat with a specific name pattern
+vault.fetch(Cat.class)
+    .where(Cat$Fields.NAME + " LIKE ?", "%Nyan%")
+    .first();
+
+// Fetch a Cat with a specific boolean field
+// SQLite is storing booleans as 0/1 
+vault.fetch(Cat.class)
+    .where(Cat$Fields.IS_GRUMPY + " = ?", "1")
+    .first();
     
 // Fetch all Cats, ordered by creation date:
 vault.fetch(Cat.class)
