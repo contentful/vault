@@ -19,7 +19,7 @@ android:
   licenses:
     - android-sdk-license-5be876d5
 
-sudo: false
+sudo: required
 
 branches:
   except:
