@@ -21,8 +21,6 @@ import com.contentful.vault.SyncCallback;
 import com.contentful.vault.SyncConfig;
 import com.contentful.vault.SyncResult;
 import com.contentful.vault.Vault;
-import com.squareup.okhttp.mockwebserver.MockResponse;
-import com.squareup.okhttp.mockwebserver.MockWebServer;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -34,8 +32,13 @@ import org.robolectric.annotation.Config;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
+import java.util.logging.LogManager;
+
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -47,6 +50,7 @@ public abstract class BaseTest {
   Vault vault;
 
   @Before public void setUp() throws Exception {
+    LogManager.getLogManager().reset();
     server = new MockWebServer();
     server.start();
     setupClient();
@@ -69,8 +73,7 @@ public abstract class BaseTest {
   }
 
   protected String getServerUrl() {
-    URL url = server.getUrl("/");
-    return "http://" + url.getHost() + ":" + url.getPort();
+    return "http://" + server.getHostName() + ":" + server.getPort();
   }
 
   protected void enqueue(String fileName) throws IOException {
@@ -79,7 +82,8 @@ public abstract class BaseTest {
       throw new IllegalArgumentException("File not found");
     }
     server.enqueue(new MockResponse().setResponseCode(200)
-        .setBody(FileUtils.readFileToString(new File(resource.getFile()))));
+        .setBody(FileUtils.readFileToString(new File(resource.getFile()),
+            Charset.defaultCharset())));
   }
 
   protected void enqueueSync(String space) throws IOException {

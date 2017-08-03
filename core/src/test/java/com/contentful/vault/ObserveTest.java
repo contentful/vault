@@ -20,13 +20,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
-import rx.observers.TestSubscriber;
+
+import io.reactivex.subscribers.TestSubscriber;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(manifest = Config.NONE)
+@Config(manifest = "src/test/resources/AndroidManifest.xml")
 public class ObserveTest {
   @Test public void observeOnError() throws Exception {
     Vault vault = mock(Vault.class);

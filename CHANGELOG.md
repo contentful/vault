@@ -2,8 +2,21 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Version [2.1.1][unreleased] - (in development)
-- BugFix: circular dependencies on non asset links.
+## Version [3.0.0][unreleased] - (in development)
+- Fixes
+ * Circular dependencies on links
+- Changes
+ * Remove direct client passing through. Please use a `SyncConfig.Builder()`.
+- Updates
+ * Contentful 8.0.0 (was 7.2.0)
+ * rx Java 2.1.1 (was 1.0.14)
+ * okhttp 3.8.1 (was 2.5.0)
+ * robolectric 3.3.2 (was 3.0)
+ * truth 0.34 (was 0.25)
+ * compile-testing 0.9 (was 0.6)
+ * guava 22.0 (was 18.0)
+ * commons-io 2.5 (was 2.4)
+ * junit 4.12 (was 4.10)
 
 ## Version [2.1.0]- 2016-11-10
 - Updating to newest Contentful Delivery Api SDK, adding limited support for sync in preview.
@@ -95,7 +108,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## Version 0.9.0 - 2015-05-18
 Initial release.
  
-[unreleased]: https://github.com/contentful/vault/compare/vault-parent-2.1.1...HEAD
+[unreleased]: https://github.com/contentful/vault/compare/vault-parent-3.0.0...HEAD
+[3.0.0]: https://github.com/contentful/vault/compare/vault-parent-2.1.0...vault-parent-3.0.0
 [2.1.0]: https://github.com/contentful/vault/compare/vault-parent-2.0.0...vault-parent-2.1.0
 [2.0.0]: https://github.com/contentful/vault/compare/vault-parent-1.0.0...vault-parent-2.0.0
 [1.0.0]: https://github.com/contentful/vault/compare/vault-parent-0.9.14...vault-parent-1.0.0

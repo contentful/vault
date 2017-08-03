@@ -22,6 +22,7 @@ import android.os.Handler;
 import android.os.Looper;
 
 import com.contentful.java.cda.CDAClient;
+
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Locale;
@@ -29,10 +30,11 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import rx.Observable;
-import rx.subjects.PublishSubject;
-import rx.subjects.SerializedSubject;
-import rx.subjects.Subject;
+
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.Flowable;
+import io.reactivex.subjects.PublishSubject;
+import io.reactivex.subjects.Subject;
 
 public class Vault {
   public static final String ACTION_SYNC_COMPLETE = "com.contentful.vault.ACTION_SYNC_COMPLETE";
@@ -48,6 +50,7 @@ public class Vault {
 
   static final Executor EXECUTOR_CALLBACK = new Executor() {
     Handler handler = new Handler(Looper.getMainLooper());
+
     @Override public void execute(Runnable command) {
       handler.post(command);
     }
@@ -55,8 +58,8 @@ public class Vault {
 
   static final Map<String, CallbackBundle> CALLBACKS = new HashMap<>();
 
-  static final Subject<SyncResult, SyncResult> SYNC_SUBJECT =
-      new SerializedSubject<>(PublishSubject.<SyncResult>create());
+  static final Subject<SyncResult> SYNC_SUBJECT =
+      PublishSubject.<SyncResult>create().toSerialized();
 
   private final Context context;
 
@@ -78,14 +81,6 @@ public class Vault {
       throw new IllegalArgumentException("Cannot be invoked with null space.");
     }
     return new Vault(context, space, getOrCreateSqliteHelper(context, space));
-  }
-
-  public void requestSync(CDAClient client) {
-    requestSync(client, null);
-  }
-
-  public void requestSync(CDAClient client, SyncCallback callback) {
-    requestSync(SyncConfig.builder().setClient(client).build(), callback);
   }
 
   public void requestSync(SyncConfig config) {
@@ -159,8 +154,8 @@ public class Vault {
     }
   }
 
-  public static Observable<SyncResult> observeSyncResults() {
-    return SYNC_SUBJECT.asObservable();
+  public static Flowable<SyncResult> observeSyncResults() {
+    return SYNC_SUBJECT.toFlowable(BackpressureStrategy.BUFFER);
   }
 
   private static SqliteHelper createSqliteHelper(Context context, SpaceHelper spaceHelper) {

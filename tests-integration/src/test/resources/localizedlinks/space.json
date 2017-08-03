@@ -13,7 +13,8 @@
     {
       "code": "he-IL",
       "default": false,
-      "name": "Hebrew (Israel)"
+      "name": "Hebrew (Israel)",
+      "fallbackCode": "en-US"
     }
   ]
 }

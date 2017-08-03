@@ -13,7 +13,8 @@
     {
       "code": "tlh",
       "default": false,
-      "name": "Klingon"
+      "name": "Klingon",
+      "fallbackCode": "en-US"
     }
   ]
 }
