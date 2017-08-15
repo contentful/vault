@@ -95,13 +95,13 @@ final class LinkResolver {
       // Link target not found in cache, fetch from DB
       child = resourceForLink(link, locale);
       if (child != null) {
+        // Put into cache
+        cache.put(child.remoteId(), child);
+
         if (!linksToAsset) {
           // Resolve links for linked target
           resolveLinks(child, getHelperForEntry(child).getFields(), locale);
         }
-
-        // Put into cache
-        cache.put(child.remoteId(), child);
       }
     }
     return child;

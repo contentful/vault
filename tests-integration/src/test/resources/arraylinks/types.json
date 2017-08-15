@@ -1,0 +1,110 @@
+{
+  "sys": {
+    "type": "Array"
+  },
+  "total": 2,
+  "skip": 0,
+  "limit": 100,
+  "items": [
+    {
+      "sys": {
+        "space": {
+          "sys": {
+            "type": "Link",
+            "linkType": "Space",
+            "id": "kykc8h4zm12t"
+          }
+        },
+        "id": "product",
+        "type": "ContentType",
+        "createdAt": "2017-08-15T13:46:27.919Z",
+        "updatedAt": "2017-08-15T13:52:44.380Z",
+        "revision": 3
+      },
+      "displayField": "name",
+      "name": "Product",
+      "description": "A product in a shop",
+      "fields": [
+        {
+          "id": "name",
+          "name": "name",
+          "type": "Symbol",
+          "localized": false,
+          "required": false,
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "shops",
+          "name": "shops",
+          "type": "Array",
+          "localized": false,
+          "required": false,
+          "disabled": false,
+          "omitted": false,
+          "items": {
+            "type": "Link",
+            "validations": [
+              {
+                "linkContentType": [
+                  "shop"
+                ]
+              }
+            ],
+            "linkType": "Entry"
+          }
+        }
+      ]
+    },
+    {
+      "sys": {
+        "space": {
+          "sys": {
+            "type": "Link",
+            "linkType": "Space",
+            "id": "kykc8h4zm12t"
+          }
+        },
+        "id": "shop",
+        "type": "ContentType",
+        "createdAt": "2017-08-15T13:47:07.542Z",
+        "updatedAt": "2017-08-15T13:52:34.917Z",
+        "revision": 2
+      },
+      "displayField": "name",
+      "name": "Shop",
+      "description": "A shop of producs",
+      "fields": [
+        {
+          "id": "name",
+          "name": "name",
+          "type": "Symbol",
+          "localized": false,
+          "required": false,
+          "disabled": false,
+          "omitted": false
+        },
+        {
+          "id": "products",
+          "name": "products",
+          "type": "Array",
+          "localized": false,
+          "required": false,
+          "disabled": false,
+          "omitted": false,
+          "items": {
+            "type": "Link",
+            "validations": [
+              {
+                "linkContentType": [
+                  "product"
+                ]
+              }
+            ],
+            "linkType": "Entry"
+          }
+        }
+      ]
+    }
+  ]
+}
