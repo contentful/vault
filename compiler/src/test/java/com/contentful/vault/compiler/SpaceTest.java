@@ -18,12 +18,14 @@ package com.contentful.vault.compiler;
 
 import com.google.common.base.Joiner;
 import com.google.testing.compile.JavaFileObjects;
-import javax.tools.JavaFileObject;
+
 import org.junit.Test;
+
+import javax.tools.JavaFileObject;
 
 import static com.contentful.vault.compiler.lib.TestUtils.processors;
 import static com.contentful.vault.compiler.lib.TestUtils.readTestResource;
-import static com.google.common.truth.Truth.ASSERT;
+import static com.google.common.truth.Truth.assert_;
 import static com.google.testing.compile.JavaSourceSubjectFactory.javaSource;
 
 public class SpaceTest {
@@ -56,7 +58,7 @@ public class SpaceTest {
         "Test$AwesomeSpace$$SpaceHelper",
         readTestResource("SpaceInjection.java"));
 
-    ASSERT.about(javaSource()).that(source)
+    assert_().about(javaSource()).that(source)
         .processedWith(processors())
         .compilesWithoutError()
         .and()
@@ -85,7 +87,7 @@ public class SpaceTest {
         "Test$AwesomeSpace$$SpaceHelper",
         readTestResource("SpaceInjectionVersion.java"));
 
-    ASSERT.about(javaSource()).that(source)
+    assert_().about(javaSource()).that(source)
         .processedWith(processors())
         .compilesWithoutError()
         .and()
@@ -114,7 +116,7 @@ public class SpaceTest {
         "Test$AwesomeSpace$$SpaceHelper",
         readTestResource("SpaceInjectionCopyPath.java"));
 
-    ASSERT.about(javaSource()).that(source)
+    assert_().about(javaSource()).that(source)
         .processedWith(processors())
         .compilesWithoutError()
         .and()
@@ -128,7 +130,7 @@ public class SpaceTest {
         "class Test {",
         "}"));
 
-    ASSERT.about(javaSource()).that(source)
+    assert_().about(javaSource()).that(source)
         .processedWith(processors())
         .failsToCompile()
         .withErrorContaining("@Space id may not be empty. (Test)");
@@ -141,7 +143,7 @@ public class SpaceTest {
         "class Test {",
         "}"));
 
-    ASSERT.about(javaSource()).that(source)
+    assert_().about(javaSource()).that(source)
         .processedWith(processors())
         .failsToCompile()
         .withErrorContaining("@Space models must not be empty. (Test)");
@@ -166,7 +168,7 @@ public class SpaceTest {
         "  static class Test3 {}",
         "}"));
 
-    ASSERT.about(javaSource()).that(source)
+    assert_().about(javaSource()).that(source)
         .processedWith(processors())
         .failsToCompile()
         .withErrorContaining(
@@ -189,7 +191,7 @@ public class SpaceTest {
         "  static class TSpace { }",
         "}"));
 
-    ASSERT.about(javaSource()).that(source)
+    assert_().about(javaSource()).that(source)
         .processedWith(processors())
         .failsToCompile()
         .withErrorContaining("@Space contains duplicate locale code 'foo'. (Test.TSpace)");
@@ -211,7 +213,7 @@ public class SpaceTest {
         "  static class TSpace { }",
         "}"));
 
-    ASSERT.about(javaSource()).that(source)
+    assert_().about(javaSource()).that(source)
         .processedWith(processors())
         .failsToCompile()
         .withErrorContaining(

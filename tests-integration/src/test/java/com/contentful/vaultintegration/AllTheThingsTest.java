@@ -22,11 +22,13 @@ import com.contentful.vaultintegration.lib.allthethings.AllTheThingsResource;
 import com.contentful.vaultintegration.lib.allthethings.AllTheThingsSpace;
 import org.junit.Test;
 import org.robolectric.RuntimeEnvironment;
+import org.robolectric.annotation.Config;
 
 import static com.contentful.vault.BaseFields.REMOTE_ID;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
+@Config(manifest = "src/main/AndroidManifest.xml")
 public class AllTheThingsTest extends BaseTest {
   @Override protected void setupVault() {
     vault = Vault.with(RuntimeEnvironment.application, AllTheThingsSpace.class);

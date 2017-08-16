@@ -4,17 +4,20 @@ import com.contentful.vault.Asset;
 import com.contentful.vault.Vault;
 import com.contentful.vaultintegration.lib.demo.Cat;
 import com.contentful.vaultintegration.lib.demo.DemoSpace;
-import com.squareup.okhttp.mockwebserver.RecordedRequest;
 
+import org.junit.Ignore;
 import org.robolectric.RuntimeEnvironment;
 
 import java.io.IOException;
 import java.util.List;
 
+import okhttp3.mockwebserver.RecordedRequest;
+
 import static com.contentful.vault.BaseFields.CREATED_AT;
 import static com.contentful.vault.BaseFields.REMOTE_ID;
 import static com.google.common.truth.Truth.assertThat;
 
+@Ignore
 public class SyncBase extends BaseTest {
 
   @Override protected void setupVault() {

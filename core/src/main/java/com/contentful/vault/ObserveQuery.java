@@ -17,23 +17,26 @@
 package com.contentful.vault;
 
 import java.util.List;
-import rx.Observable;
-import rx.Subscriber;
+
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.Flowable;
+import io.reactivex.FlowableEmitter;
+import io.reactivex.FlowableOnSubscribe;
 
 public final class ObserveQuery<T extends Resource> extends AbsQuery<T, ObserveQuery<T>> {
   ObserveQuery(Class<T> type, Vault vault) {
     super(type, vault);
   }
 
-  public Observable<T> all() {
+  public Flowable<T> all() {
     return all(null);
   }
 
-  public Observable<T> all(String locale) {
-    return Observable.create(new AllOnSubscribe<T>(this, locale));
+  public Flowable<T> all(String locale) {
+    return Flowable.create(new AllOnSubscribe<T>(this, locale), BackpressureStrategy.BUFFER);
   }
 
-  static class AllOnSubscribe<T extends Resource> implements Observable.OnSubscribe<T> {
+  static class AllOnSubscribe<T extends Resource> implements FlowableOnSubscribe<T> {
     private final ObserveQuery<T> query;
     private final String locale;
 
@@ -42,25 +45,25 @@ public final class ObserveQuery<T extends Resource> extends AbsQuery<T, ObserveQ
       this.locale = locale;
     }
 
-    @Override public void call(Subscriber<? super T> subscriber) {
+    @Override public void subscribe(FlowableEmitter<T> flowableEmitter) throws Exception {
       try {
         FetchQuery<T> fetchQuery = query.vault().fetch(query.type());
         fetchQuery.setParams(query.params());
         List<T> items = fetchQuery.all(locale);
         for (T item : items) {
-          if (subscriber.isUnsubscribed()) {
+          if (flowableEmitter.isCancelled()) {
             return;
           }
-          subscriber.onNext(item);
+          flowableEmitter.onNext(item);
         }
       } catch (Throwable t) {
-        if (!subscriber.isUnsubscribed()) {
-          subscriber.onError(t);
+        if (!flowableEmitter.isCancelled()) {
+          flowableEmitter.onError(t);
         }
         return;
       }
-      if (!subscriber.isUnsubscribed()) {
-        subscriber.onCompleted();
+      if (!flowableEmitter.isCancelled()) {
+        flowableEmitter.onComplete();
       }
     }
   }

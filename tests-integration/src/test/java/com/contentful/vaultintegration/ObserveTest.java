@@ -25,7 +25,8 @@ import com.contentful.vaultintegration.lib.demo.DemoSpace;
 import java.util.List;
 import org.junit.Test;
 import org.robolectric.RuntimeEnvironment;
-import rx.observers.TestSubscriber;
+
+import io.reactivex.subscribers.TestSubscriber;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -49,9 +50,9 @@ public class ObserveTest extends BaseTest {
         .subscribe(subscriber);
 
     subscriber.assertNoErrors();
-    subscriber.assertCompleted();
+    subscriber.assertComplete();
 
-    List<Cat> cats = subscriber.getOnNextEvents();
+    List<Cat> cats = subscriber.values();
     assertThat(cats).hasSize(2);
     assertThat(cats.get(0).updatedAt()).isEqualTo("2013-11-18T15:58:02.018Z");
     assertThat(cats.get(1).updatedAt()).isEqualTo("2013-09-04T09:19:39.027Z");
@@ -67,9 +68,9 @@ public class ObserveTest extends BaseTest {
 
     subscriber.assertNoValues();
     sync();
-    subscriber.assertNoTerminalEvent();
+    subscriber.assertNoErrors();
 
-    List<SyncResult> events = subscriber.getOnNextEvents();
+    List<SyncResult> events = subscriber.values();
     assertThat(events).hasSize(1);
     assertThat(events.get(0).isSuccessful()).isTrue();
     assertThat(events.get(0).spaceId()).isEqualTo("cfexampleapi");

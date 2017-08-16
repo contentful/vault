@@ -13,7 +13,8 @@
     {
       "code": "es-ES",
       "default": false,
-      "name": "Spanish"
+      "name": "Spanish",
+      "fallbackCode": "en-US"
     }
   ]
 }
