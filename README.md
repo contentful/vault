@@ -25,8 +25,15 @@ or Gradle:
 apt 'com.contentful.vault:compiler:2.1.0'
 compile 'com.contentful.vault:core:2.1.0'
 ```
+or Gradle 3.+:
+```groovy
+annotationProcessor 'com.contentful.vault:compiler:2.1.0'
+annotationProcessor 'com.contentful.vault:core:2.1.0'
+compile 'com.contentful.vault:core:2.1.0'
+```
 
 Note for Gradle users, make sure to use the [android-apt][apt] Gradle plugin, which lets you configure compile-time only dependencies.
+Note for Gradle 3.0 users, please use the `annotationProcessor` instead of `apt`.
 
 Snapshots of the development version are available in [Sonatype's `snapshots` repository][snap].
 
@@ -218,7 +225,7 @@ Javadoc is available [here][javadoc].
 License
 -------
 
-    Copyright 2015 Contentful, GmbH.
+    Copyright 2017 Contentful, GmbH.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
