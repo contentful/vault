@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Version [2.1.1][unreleased] - (in development)
-- TBA
+- BugFix: circular dependencies on non asset links.
 
 ## Version [2.1.0]- 2016-11-10
 - Updating to newest Contentful Delivery Api SDK, adding limited support for sync in preview.

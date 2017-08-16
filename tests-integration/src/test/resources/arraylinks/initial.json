@@ -1,0 +1,376 @@
+{
+  "sys": {
+    "type": "Array"
+  },
+  "items": [
+    {
+      "sys": {
+        "space": {
+          "sys": {
+            "type": "Link",
+            "linkType": "Space",
+            "id": "kykc8h4zm12t"
+          }
+        },
+        "id": "1c268NE7eYoMGamkAQqaca",
+        "type": "Entry",
+        "createdAt": "2017-08-15T13:53:25.989Z",
+        "updatedAt": "2017-08-15T13:55:43.659Z",
+        "revision": 3,
+        "contentType": {
+          "sys": {
+            "type": "Link",
+            "linkType": "ContentType",
+            "id": "product"
+          }
+        }
+      },
+      "fields": {
+        "name": {
+          "en-US": "🍅"
+        },
+        "shops": {
+          "en-US": [
+            {
+              "sys": {
+                "type": "Link",
+                "linkType": "Entry",
+                "id": "5O4RZBdPPicIeqEUaqUGmU"
+              }
+            },
+            {
+              "sys": {
+                "type": "Link",
+                "linkType": "Entry",
+                "id": "4YRwJ0j2L6GACSSE2Y2Gqg"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "sys": {
+        "space": {
+          "sys": {
+            "type": "Link",
+            "linkType": "Space",
+            "id": "kykc8h4zm12t"
+          }
+        },
+        "id": "QKmnd0RGmc6UkIQQ0qUac",
+        "type": "Entry",
+        "createdAt": "2017-08-15T13:54:46.663Z",
+        "updatedAt": "2017-08-15T13:55:09.618Z",
+        "revision": 2,
+        "contentType": {
+          "sys": {
+            "type": "Link",
+            "linkType": "ContentType",
+            "id": "product"
+          }
+        }
+      },
+      "fields": {
+        "name": {
+          "en-US": "👽"
+        },
+        "shops": {
+          "en-US": [
+            {
+              "sys": {
+                "type": "Link",
+                "linkType": "Entry",
+                "id": "645eBLi2GWKekOgaqsMWA6"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "sys": {
+        "space": {
+          "sys": {
+            "type": "Link",
+            "linkType": "Space",
+            "id": "kykc8h4zm12t"
+          }
+        },
+        "id": "645eBLi2GWKekOgaqsMWA6",
+        "type": "Entry",
+        "createdAt": "2017-08-15T13:54:50.025Z",
+        "updatedAt": "2017-08-15T13:54:50.025Z",
+        "revision": 1,
+        "contentType": {
+          "sys": {
+            "type": "Link",
+            "linkType": "ContentType",
+            "id": "shop"
+          }
+        }
+      },
+      "fields": {
+        "name": {
+          "en-US": "Penny"
+        },
+        "products": {
+          "en-US": [
+            {
+              "sys": {
+                "type": "Link",
+                "linkType": "Entry",
+                "id": "QKmnd0RGmc6UkIQQ0qUac"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "sys": {
+        "space": {
+          "sys": {
+            "type": "Link",
+            "linkType": "Space",
+            "id": "kykc8h4zm12t"
+          }
+        },
+        "id": "4YRwJ0j2L6GACSSE2Y2Gqg",
+        "type": "Entry",
+        "createdAt": "2017-08-15T13:54:14.774Z",
+        "updatedAt": "2017-08-15T13:54:14.774Z",
+        "revision": 1,
+        "contentType": {
+          "sys": {
+            "type": "Link",
+            "linkType": "ContentType",
+            "id": "shop"
+          }
+        }
+      },
+      "fields": {
+        "name": {
+          "en-US": "Rewe"
+        },
+        "products": {
+          "en-US": [
+            {
+              "sys": {
+                "type": "Link",
+                "linkType": "Entry",
+                "id": "1c268NE7eYoMGamkAQqaca"
+              }
+            },
+            {
+              "sys": {
+                "type": "Link",
+                "linkType": "Entry",
+                "id": "1c268NE7eYoMGamkAQqaca"
+              }
+            },
+            {
+              "sys": {
+                "type": "Link",
+                "linkType": "Entry",
+                "id": "1c268NE7eYoMGamkAQqaca"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "sys": {
+        "space": {
+          "sys": {
+            "type": "Link",
+            "linkType": "Space",
+            "id": "kykc8h4zm12t"
+          }
+        },
+        "id": "5O4RZBdPPicIeqEUaqUGmU",
+        "type": "Entry",
+        "createdAt": "2017-08-15T13:53:48.189Z",
+        "updatedAt": "2017-08-15T13:53:48.189Z",
+        "revision": 1,
+        "contentType": {
+          "sys": {
+            "type": "Link",
+            "linkType": "ContentType",
+            "id": "shop"
+          }
+        }
+      },
+      "fields": {
+        "name": {
+          "en-US": "Alexa"
+        },
+        "products": {
+          "en-US": [
+            {
+              "sys": {
+                "type": "Link",
+                "linkType": "Entry",
+                "id": "2ZMtY36Lj2M204kesAs4CK"
+              }
+            },
+            {
+              "sys": {
+                "type": "Link",
+                "linkType": "Entry",
+                "id": "5mCJUNJ3bycq4sU4Ie6G0c"
+              }
+            },
+            {
+              "sys": {
+                "type": "Link",
+                "linkType": "Entry",
+                "id": "1c268NE7eYoMGamkAQqaca"
+              }
+            },
+            {
+              "sys": {
+                "type": "Link",
+                "linkType": "Entry",
+                "id": "2ZMtY36Lj2M204kesAs4CK"
+              }
+            },
+            {
+              "sys": {
+                "type": "Link",
+                "linkType": "Entry",
+                "id": "5mCJUNJ3bycq4sU4Ie6G0c"
+              }
+            },
+            {
+              "sys": {
+                "type": "Link",
+                "linkType": "Entry",
+                "id": "2G4yweTBVeMsyQCoQC0WmY"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "sys": {
+        "space": {
+          "sys": {
+            "type": "Link",
+            "linkType": "Space",
+            "id": "kykc8h4zm12t"
+          }
+        },
+        "id": "2G4yweTBVeMsyQCoQC0WmY",
+        "type": "Entry",
+        "createdAt": "2017-08-15T13:53:07.230Z",
+        "updatedAt": "2017-08-15T13:53:07.230Z",
+        "revision": 1,
+        "contentType": {
+          "sys": {
+            "type": "Link",
+            "linkType": "ContentType",
+            "id": "product"
+          }
+        }
+      },
+      "fields": {
+        "name": {
+          "en-US": "🥒"
+        },
+        "shops": {
+          "en-US": [
+            {
+              "sys": {
+                "type": "Link",
+                "linkType": "Entry",
+                "id": "5O4RZBdPPicIeqEUaqUGmU"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "sys": {
+        "space": {
+          "sys": {
+            "type": "Link",
+            "linkType": "Space",
+            "id": "kykc8h4zm12t"
+          }
+        },
+        "id": "5mCJUNJ3bycq4sU4Ie6G0c",
+        "type": "Entry",
+        "createdAt": "2017-08-15T13:52:12.284Z",
+        "updatedAt": "2017-08-15T13:52:12.284Z",
+        "revision": 1,
+        "contentType": {
+          "sys": {
+            "type": "Link",
+            "linkType": "ContentType",
+            "id": "product"
+          }
+        }
+      },
+      "fields": {
+        "name": {
+          "en-US": "🍐"
+        },
+        "shops": {
+          "en-US": [
+            {
+              "sys": {
+                "type": "Link",
+                "linkType": "Entry",
+                "id": "5O4RZBdPPicIeqEUaqUGmU"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "sys": {
+        "space": {
+          "sys": {
+            "type": "Link",
+            "linkType": "Space",
+            "id": "kykc8h4zm12t"
+          }
+        },
+        "id": "2ZMtY36Lj2M204kesAs4CK",
+        "type": "Entry",
+        "createdAt": "2017-08-15T13:51:50.244Z",
+        "updatedAt": "2017-08-15T13:51:50.244Z",
+        "revision": 1,
+        "contentType": {
+          "sys": {
+            "type": "Link",
+            "linkType": "ContentType",
+            "id": "product"
+          }
+        }
+      },
+      "fields": {
+        "name": {
+          "en-US": "🍎"
+        },
+        "shops": {
+          "en-US": [
+            {
+              "sys": {
+                "type": "Link",
+                "linkType": "Entry",
+                "id": "5O4RZBdPPicIeqEUaqUGmU"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "nextSyncUrl": "https://cdn.contentful.com/spaces/kykc8h4zm12t/sync?sync_token=w5ZGw6JFwqZmVcKsE8Kow4grw45QdybCqsOcHsO0woBpw5FFw6nDu8O9CS0DUU_ClcONbWHDiMObEGrDqMKaw53DrEzCkn3ChMKEF3Zew5cCwp1Vw4oxwojDk3YyNxjDmkDCjRMpw7zDnMKHU8OUw5ZMwqpvVU0"
+}
