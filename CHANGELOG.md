@@ -2,7 +2,9 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Version [3.0.0][unreleased] - (in development)
+## Version [3.0.1][unreleased] - (in development)
+
+## Version [3.0.0] - 2017-08-16
 - Fixes
  * Circular dependencies on links
 - Changes
