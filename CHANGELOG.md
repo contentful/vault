@@ -5,6 +5,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## Version [3.0.2][unreleased] - (in development)
 - TBA
 
+## Version [3.0.2] - 2017-08-24
+- Fix: Use different deploy plugin, fixing previous releases.
+
 ## Version [3.0.1] - 2017-08-18
 - Fix: Upload all artifacts.
 
