@@ -13,9 +13,10 @@
   <packaging>pom</packaging>
 
   <modules>
-    <module>tests-integration</module>
     <module>compiler</module>
     <module>core</module>
+    <module>tests-integration</module>
+    <module>last-module</module>
   </modules>
 
   <scm>
