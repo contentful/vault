@@ -208,7 +208,7 @@
         </executions>
         <configuration>
           <nexusUrl>https://oss.sonatype.org</nexusUrl>
-          <serverId>sonatype-nexus-snapshots</serverId>
+          <serverId>sonatype-nexus-staging</serverId>
           <stagingProfileId>6c692a1d2981a9</stagingProfileId>
         </configuration>
       </plugin>
