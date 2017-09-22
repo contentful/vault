@@ -18,13 +18,9 @@ package com.contentful.vault;
 
 import com.contentful.java.cda.CDAClient;
 
-import java.io.IOException;
-import java.util.Properties;
+import static com.contentful.vault.build.GeneratedBuildParameters.PROJECT_VERSION;
 
 public final class SyncConfig {
-  private static final String PROPERTIES = "vault.properties";
-  private static final String PROPERTIES_KEY_VERSION_NAME = "version.name";
-
   private final CDAClient client;
 
   private final boolean invalidate;
@@ -47,23 +43,12 @@ public final class SyncConfig {
           .builder()
           .setToken(builder.accessToken)
           .setSpace(builder.spaceId)
-          .setIntegration("Vault", getVersion())
+          .setIntegration("Vault", PROJECT_VERSION)
           .build();
     } else {
       this.client = builder.client;
     }
   }
-
-  private static String getVersion() {
-    Properties properties = new Properties();
-    try {
-      properties.load(SyncConfig.class.getClassLoader().getResourceAsStream(
-          PROPERTIES));
-    } catch (IOException e) {
-      return "0.0";
-    }
-    return properties.getProperty(PROPERTIES_KEY_VERSION_NAME);
- }
 
   public CDAClient client() {
     return client;
