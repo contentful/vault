@@ -2,8 +2,9 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Version [3.1.0][unreleased] - (in development)
+## Version [3.0.2] - 2017-10-18
 - Fix: Do not use a properties file for version name storage.
+- Fix: Update version of CDA SDK to include non properties file loading.
 
 ## Version [3.0.1] - 2017-08-24
 - Fix: Upload all artifacts.
@@ -114,8 +115,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## Version 0.9.0 - 2015-05-18
 Initial release.
  
-[unreleased]: https://github.com/contentful/vault/compare/vault-parent-3.1.0...HEAD
-[3.1.0]: https://github.com/contentful/vault/compare/vault-parent-3.0.0...vault-parent-3.1.0
+[unreleased]: https://github.com/contentful/vault/compare/vault-parent-3.0.1...HEAD
+[3.0.1]: https://github.com/contentful/vault/compare/vault-parent-3.0.0...vault-parent-3.0.1
 [3.0.0]: https://github.com/contentful/vault/compare/vault-parent-2.1.0...vault-parent-3.0.0
 [2.1.0]: https://github.com/contentful/vault/compare/vault-parent-2.0.0...vault-parent-2.1.0
 [2.0.0]: https://github.com/contentful/vault/compare/vault-parent-1.0.0...vault-parent-2.0.0
