@@ -1,0 +1,48 @@
+{
+  "sys": {
+    "type": "Array"
+  },
+  "items": [
+    {
+      "sys": {
+        "space": {
+          "sys": {
+            "type": "Link",
+            "linkType": "Space",
+            "id": "cfexampleapi"
+          }
+        },
+        "type": "Asset",
+        "id": "1x0xpXu4pSGS4OukSyWGUK",
+        "revision": 6,
+        "createdAt": "2013-11-06T09:45:10.000Z",
+        "updatedAt": "2013-12-18T13:27:14.917Z"
+      },
+      "fields": {
+        "title": {
+          "en-US": "Doge",
+          "de-DE": "Dogge"
+        },
+        "file": {
+          "en-US": {
+            "fileName": "doge.jpg",
+            "contentType": "image/jpeg",
+            "details": {
+              "image": {
+                "width": 5800,
+                "height": 4350
+              },
+              "size": 522943
+            },
+            "url": "//images.contentful.com/cfexampleapi/1x0xpXu4pSGS4OukSyWGUK/cc1239c6385428ef26f4180190532818/doge.jpg"
+          }
+        },
+        "description": {
+          "en-US": "nice picture",
+          "de-DE": "Schönes Bild"
+        }
+      }
+    }
+  ],
+  "nextSyncUrl": "http://cdn.contentful.com/spaces/cfexampleapi/sync?sync_token=st1"
+}

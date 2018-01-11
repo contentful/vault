@@ -16,24 +16,24 @@ Grab via Maven:
 <dependency>
   <groupId>com.contentful.vault</groupId>
   <artifactId>compiler</artifactId>
-  <version>3.0.1/version>
+  <version>3.1.0</version>
 </dependency>
 <dependency>
   <groupId>com.contentful.vault</groupId>
   <artifactId>core</artifactId>
-  <version>3.0.1</version>
+  <version>3.1.0</version>
 </dependency>
 ```
 or Gradle:
 ```groovy
-apt 'com.contentful.vault:compiler:3.0.1'
-compile 'com.contentful.vault:core:3.0.1'
+apt 'com.contentful.vault:compiler:3.1.0'
+compile 'com.contentful.vault:core:3.1.0'
 ```
 or Gradle 3.+:
 ```groovy
-annotationProcessor 'com.contentful.vault:compiler:3.0.1'
-annotationProcessor 'com.contentful.vault:core:3.0.1'
-compile 'com.contentful.vault:core:3.0.1'
+annotationProcessor 'com.contentful.vault:compiler:3.1.0'
+annotationProcessor 'com.contentful.vault:core:3.1.0'
+compile 'com.contentful.vault:core:3.1.0'
 ```
 
 Note for Gradle users, make sure to use the [android-apt][apt] Gradle plugin, which lets you configure compile-time only dependencies.
@@ -209,12 +209,36 @@ Note: this will delete any previously persisted data.
 
 ### Database pre-seeding
 
-Depending on the amount of content in a given space, initial synchronization might take some time. For that we've added support to pre-seed the database with static content. In order to do that one has to add an existing Vault database file into the **assets** folder of the project, and then reference this file through the **copyPath** attribute, for example:
+Depending on the amount of content in a given space, initial synchronization might take some time. For that we've added support to pre-seed the database with static content. 
+
+If you want to create an initial database file, please use the `VaultDatabaseExporter`. This class takes an Android Context and a Vault Space like you would provide Vault with. If you call the exporters `.export(..)` method, it will create a sqlite database in `src/main/assets/initial_seed.db`. Feel free to rename this file to your needs. If you want to tell Vault to use this database, please create a Vault space class like this:
 
 ```java
-@Space(value = "foo", models = { Bar.class }, copyPath = "vault_file_name.db")
-public class FooSpace { }
+@Space(
+    value = "foo", // space id of the space to use
+    models = { Bar.class },  // model classes to be used
+    copyPath = "initial_seed.db" // name of the just created database file.
+)
+public class VaultSpace { }
 ```
+
+If you want to update this database file, you could think about running a [robolectric](robolectric.org) test before releasing. This test would sync Contentful data to the existing database.
+
+A simple test suite would look like this:
+
+```java
+@RunWith(RobolectricTestRunner.class)
+public class TestSeedDB {
+ @literal @Test
+  public void testSyncDBtoSqlite() throws Exception {
+    final Activity activity = Robolectric.setupActivity(Activity.class);
+
+    assertTrue(new VaultDatabaseExporter().export(activity, VaultSpace.class, VaultSpace.TOKEN));
+  }
+}
+```
+
+Now your database content will always be uptodate when you execute those tests. If an error happens this test will fail and inform you about next steps.
 
 Note that in order to add this functionality to an already shipped app, the **dbVersion** value has to be increased, as it causes invalidation of any pre-existing content.
 
@@ -242,10 +266,6 @@ License
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
-
-
-
-
 
  [snap]: https://oss.sonatype.org/content/repositories/snapshots/
  [apt]: https://bitbucket.org/hvisser/android-apt

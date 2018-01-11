@@ -23,10 +23,24 @@ import org.junit.Test;
 
 import java.util.List;
 
+import okhttp3.mockwebserver.RecordedRequest;
+
 import static com.contentful.vault.BaseFields.CREATED_AT;
 import static com.google.common.truth.Truth.assertThat;
 
 public class SyncTest extends SyncBase {
+
+  @Test public void testAssetFallback() throws Exception {
+    enqueue("assets/space.json");
+    enqueue("assets/types.json");
+    enqueue("assets/initial.json");
+    sync();
+
+    server.takeRequest();
+    server.takeRequest();
+    RecordedRequest request = server.takeRequest();
+    assertThat(request.getPath()).isEqualTo("/spaces/space/sync?initial=true");
+  }
 
   @Test public void testSync() throws Exception {
     // Initial

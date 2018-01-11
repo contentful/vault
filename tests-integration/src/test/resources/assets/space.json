@@ -1,0 +1,27 @@
+{
+  "sys": {
+    "type": "Space",
+    "id": "dont'care"
+  },
+  "name": "Locale Asset Space",
+  "locales": [
+    {
+      "code": "en-US",
+      "default": true,
+      "name": "U.S. English 🇺🇸",
+      "fallbackCode": null
+    },
+    {
+      "code": "de-DE",
+      "default": false,
+      "name": "Deutsch 🇩🇪",
+      "fallbackCode": "en-US"
+    },
+    {
+      "code": "tlh",
+      "default": false,
+      "name": "Klingon",
+      "fallbackCode": "de-DE"
+    }
+  ]
+}
