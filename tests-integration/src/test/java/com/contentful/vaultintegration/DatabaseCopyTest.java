@@ -22,14 +22,19 @@ import com.contentful.vault.Field;
 import com.contentful.vault.Resource;
 import com.contentful.vault.Space;
 import com.contentful.vault.Vault;
-import java.util.List;
+import com.contentful.vault.VaultDatabaseExporter;
+
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
+import java.util.List;
+
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest = "src/main/AndroidManifest.xml")
@@ -37,10 +42,11 @@ public class DatabaseCopyTest extends BaseTest {
   @Space(
       value = "cfexampleapi",
       models = Cat.class,
-      locales = { "en-US", "tlh" },
+      locales = {"en-US", "tlh"},
       copyPath = "cfexampleapi.db"
-  )
-  static class Sp { }
+  ) interface Sp {
+    String TOKEN = "b4c0n73n7fu1";
+  }
 
   @ContentType("cat")
   static class Cat extends Resource {
@@ -56,5 +62,17 @@ public class DatabaseCopyTest extends BaseTest {
   @Test public void testDatabaseCopy() throws Exception {
     List<Cat> cats = vault.fetch(Cat.class).all();
     assertThat(cats).hasSize(3);
+  }
+
+  @Ignore("Do not update db on ci.")
+  @Test
+  public void testSyncDBtoSqlite() throws Exception {
+    assertTrue(
+        new VaultDatabaseExporter()
+            .export(
+                RuntimeEnvironment.application,
+                Sp.class,
+                Sp.TOKEN)
+    );
   }
 }
