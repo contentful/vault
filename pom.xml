@@ -9,7 +9,7 @@
 
   <groupId>com.contentful.vault</groupId>
   <artifactId>vault-parent</artifactId>
-  <version>3.1.1</version>
+  <version>3.1.2-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <modules>
@@ -23,7 +23,7 @@
     <url>http://github.com/contentful/vault/</url>
     <connection>scm:git:git://github.com/contentful/vault.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/contentful/vault.git</developerConnection>
-    <tag>vault-parent-3.1.1</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <issueManagement>
