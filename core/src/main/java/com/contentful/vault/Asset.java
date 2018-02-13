@@ -34,7 +34,7 @@ public final class Asset extends Resource implements Parcelable {
 
   private final HashMap<String, Object> file;
 
-  private Asset(Builder builder) {
+  Asset(Builder builder) {
     this.url = builder.url;
     this.mimeType = builder.mimeType;
     this.title = builder.title;
@@ -71,14 +71,11 @@ public final class Asset extends Resource implements Parcelable {
   }
 
   static class Builder {
-    private Builder() {
-    }
-
-    private String url;
-    private String mimeType;
-    private String title;
-    private String description;
-    private HashMap<String, Object> file;
+    String url;
+    String mimeType;
+    String title;
+    String description;
+    HashMap<String, Object> file;
 
     public Builder setUrl(String url) {
       this.url = url;
@@ -159,7 +156,7 @@ public final class Asset extends Resource implements Parcelable {
   };
 
   @SuppressWarnings("unchecked")
-  private Asset(Parcel in) {
+  Asset(Parcel in) {
     setRemoteId(in.readString());
 
     setCreatedAt(in.readString());

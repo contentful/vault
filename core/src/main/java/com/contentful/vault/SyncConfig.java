@@ -25,7 +25,7 @@ public final class SyncConfig {
 
   private final boolean invalidate;
 
-  private SyncConfig(Builder builder) {
+  SyncConfig(Builder builder) {
     this.invalidate = builder.invalidate;
 
     if (builder.client == null) {
@@ -63,16 +63,10 @@ public final class SyncConfig {
   }
 
   public static class Builder {
-    private CDAClient client;
-
-    private boolean invalidate;
-
-    private String accessToken;
-
-    private String spaceId;
-
-    private Builder() {
-    }
+    CDAClient client;
+    boolean invalidate;
+    String accessToken;
+    String spaceId;
 
     public Builder setAccessToken(String accessToken) {
       if (client != null) {
