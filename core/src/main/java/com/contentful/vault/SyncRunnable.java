@@ -61,7 +61,7 @@ public final class SyncRunnable implements Runnable {
 
   private String tag;
 
-  private SyncRunnable(Builder builder) {
+  SyncRunnable(Builder builder) {
     this.context = builder.context;
     this.config = builder.config;
     this.tag = builder.tag;
@@ -386,13 +386,10 @@ public final class SyncRunnable implements Runnable {
   }
 
   static class Builder {
-    private Context context;
-    private SqliteHelper sqliteHelper;
-    private SyncConfig config;
-    private String tag;
-
-    private Builder() {
-    }
+    Context context;
+    SqliteHelper sqliteHelper;
+    SyncConfig config;
+    String tag;
 
     Builder setContext(Context context) {
       this.context = context.getApplicationContext();

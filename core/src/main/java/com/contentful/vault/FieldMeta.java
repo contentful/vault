@@ -31,7 +31,7 @@ public final class FieldMeta {
 
   private final String arrayType;
 
-  private FieldMeta(Builder builder) {
+  FieldMeta(Builder builder) {
     this.id = builder.id;
     this.name = builder.name;
     this.type = builder.type;
@@ -94,20 +94,12 @@ public final class FieldMeta {
   }
 
   public static class Builder {
-    private String id;
-
-    private String name;
-
-    private TypeMirror type;
-
-    private String sqliteType;
-
-    private String linkType;
-
-    private String arrayType;
-
-    private Builder() {
-    }
+    String id;
+    String name;
+    TypeMirror type;
+    String sqliteType;
+    String linkType;
+    String arrayType;
 
     public Builder setId(String id) {
       this.id = id;

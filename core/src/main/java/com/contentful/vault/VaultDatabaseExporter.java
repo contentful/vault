@@ -18,7 +18,7 @@ import static java.util.Locale.getDefault;
  * This exporter takes a given space and syncs it's Contentful resources to a sqlite database.
  */
 public class VaultDatabaseExporter {
-  private boolean successful;
+  boolean successful;
 
   /**
    * Use this method to export Contentful spaces into sqlite3 databases which can be imported later.
@@ -63,7 +63,7 @@ public class VaultDatabaseExporter {
     return successful;
   }
 
-  private String createOutputPath(SpaceHelper helper) {
+  String createOutputPath(SpaceHelper helper) {
     String outputPath = "src/main/assets/";
     if (helper.getCopyPath() != null) {
       outputPath += helper.getCopyPath();
@@ -80,11 +80,11 @@ public class VaultDatabaseExporter {
     return outputPath;
   }
 
-  private String getSpaceClassName(SpaceHelper helper) {
+  String getSpaceClassName(SpaceHelper helper) {
     return helper.getClass().getCanonicalName().split("\\$")[0];
   }
 
-  private SpaceHelper crateSpaceHelper(Class<?> spaceClass) {
+  SpaceHelper crateSpaceHelper(Class<?> spaceClass) {
     final Class<?> clazz;
     try {
       clazz = Class.forName(spaceClass.getName() + Constants.SUFFIX_SPACE);
@@ -107,7 +107,7 @@ public class VaultDatabaseExporter {
     return helper;
   }
 
-  private boolean saveResultInDatabaseFile(SyncResult result, Vault vault, String dataBaseFilePath) {
+  boolean saveResultInDatabaseFile(SyncResult result, Vault vault, String dataBaseFilePath) {
     boolean successful = result.isSuccessful();
     if (!successful) {
       throw new IllegalStateException("Could not return a valid result.", result.error());
