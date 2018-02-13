@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Version [3.1.0] - 2018-02-13
+- Add: update CDA SDK
+- Remove: Synthetic methods
+
 ## Version [3.1.0] - 2017-10-18
 - Add: Database pre seeding utility
 - Update: Contentful CDA SDK to include Android pre 5.0 auto configured  TLS 1.2.
