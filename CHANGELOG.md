@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Version [3.2.0] - TBD
+## Version [3.2.0] - 2018-04-24
 - Change: use https for asset urls.
 - Change: Use CDA SDK 10.0.0 and throw if environments are used.
 - Change: Locale handling: CDA 10 uses `/locales` and not `/space.locales`, update tests and internal structure.
