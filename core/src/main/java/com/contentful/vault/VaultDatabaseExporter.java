@@ -44,9 +44,13 @@ public class VaultDatabaseExporter {
             .build(),
         new SyncCallback() {
           @Override public void onResult(SyncResult result) {
-            successful = saveResultInDatabaseFile(result, vault, outputPath);
-
-            countDownLatch.countDown();
+            try {
+              successful = saveResultInDatabaseFile(result, vault, outputPath);
+            } catch (Throwable t) {
+              t.printStackTrace(System.err);
+            } finally {
+              countDownLatch.countDown();
+            }
           }
         }, new Executor() {
           @Override public void execute(Runnable runnable) {

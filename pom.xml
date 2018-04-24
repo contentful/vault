@@ -9,7 +9,7 @@
 
   <groupId>com.contentful.vault</groupId>
   <artifactId>vault-parent</artifactId>
-  <version>3.1.2-SNAPSHOT</version>
+  <version>3.2.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <modules>
@@ -49,7 +49,7 @@
 
     <android.platform>19</android.platform>
     <android.version>4.1.1.4</android.version>
-    <cda.version>9.1.0</cda.version>
+    <cda.version>10.0.0</cda.version>
     <commons-codec.version>1.10</commons-codec.version>
     <commons-io.version>2.5</commons-io.version>
     <commons-lang3.version>3.4</commons-lang3.version>
@@ -57,8 +57,8 @@
     <guava.version>22.0-android</guava.version>
     <javapoet.version>1.2.0</javapoet.version>
     <junit.version>4.12</junit.version>
-    <okhttp.version>3.8.1</okhttp.version>
-    <robolectric.version>3.3.2</robolectric.version>
+    <okhttp.version>3.10.0</okhttp.version>
+    <robolectric.version>3.8</robolectric.version>
     <rxjava.version>2.1.1</rxjava.version>
     <truth.version>0.34</truth.version>
     <mockito.version>2.8.47</mockito.version>

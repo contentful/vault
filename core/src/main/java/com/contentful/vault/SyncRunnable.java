@@ -22,18 +22,21 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
+
 import com.contentful.java.cda.CDAAsset;
 import com.contentful.java.cda.CDAEntry;
 import com.contentful.java.cda.CDAResource;
 import com.contentful.java.cda.CDAType;
 import com.contentful.java.cda.LocalizedResource;
 import com.contentful.java.cda.SynchronizedSpace;
-import okhttp3.HttpUrl;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import okhttp3.HttpUrl;
 
 import static android.database.sqlite.SQLiteDatabase.CONFLICT_REPLACE;
 import static com.contentful.java.cda.CDAType.ASSET;
@@ -101,8 +104,8 @@ public final class SyncRunnable implements Runnable {
       } finally {
         db.endTransaction();
       }
-    } catch (Exception e) {
-      error = new SyncException(e);
+    } catch (Throwable throwable) {
+      error = new SyncException(throwable);
     } finally {
       // Notify via broadcast
       context.sendBroadcast(new Intent(Vault.ACTION_SYNC_COMPLETE)
@@ -188,14 +191,14 @@ public final class SyncRunnable implements Runnable {
 
   private void deleteEntryType(String remoteId) {
     String whereClause = REMOTE_ID + " = ?";
-    String[] whereArgs = new String[]{ remoteId };
+    String[] whereArgs = new String[]{remoteId};
     db.delete(TABLE_ENTRY_TYPES, whereClause, whereArgs);
   }
 
   private void deleteResource(String remoteId, String tableName) {
     // resource
     String resWhere = REMOTE_ID + " = ?";
-    String resArgs[] = new String[]{ remoteId };
+    String resArgs[] = new String[]{remoteId};
 
     // links
     String linksWhere = "`parent` = ? OR `child` = ?";
@@ -204,22 +207,23 @@ public final class SyncRunnable implements Runnable {
         remoteId
     };
 
-    for (String code : spaceHelper.getLocales()) {
-      db.delete(escape(localizeName(tableName, code)), resWhere, resArgs);
-      db.delete(escape(localizeName(TABLE_LINKS, code)), linksWhere, linkArgs);
+    for (String locale : spaceHelper.getLocales()) {
+      db.delete(escape(localizeName(tableName, locale)), resWhere, resArgs);
+      db.delete(escape(localizeName(TABLE_LINKS, locale)), linksWhere, linkArgs);
     }
   }
 
   @TargetApi(Build.VERSION_CODES.FROYO)
   private void saveAsset(CDAAsset asset) {
     AutoEscapeValues values = new AutoEscapeValues();
-    for (String code : spaceHelper.getLocales()) {
-      asset.setLocale(code);
+    for (String locale : spaceHelper.getLocales()) {
       putResourceFields(asset, values);
-      values.put(Asset.Fields.URL, "http:" + asset.url());
-      values.put(Asset.Fields.MIME_TYPE, asset.mimeType());
-      values.put(Asset.Fields.TITLE, asset.title());
-      values.put(Asset.Fields.DESCRIPTION, asset.<String>getField("description"));
+      final LocalizedResource.Localizer localizer = asset.localize(locale);
+      final Map<String, Object> file = localizer.getField("file");
+      values.put(Asset.Fields.URL, "https:" + file.get("url"));
+      values.put(Asset.Fields.MIME_TYPE, (String) file.get("contentType"));
+      values.put(Asset.Fields.TITLE, localizer.<String>getField("title"));
+      values.put(Asset.Fields.DESCRIPTION, localizer.<String>getField("description"));
 
       byte[] value = null;
       Serializable fileMap = asset.getField("file");
@@ -233,7 +237,7 @@ public final class SyncRunnable implements Runnable {
       }
       values.put(Asset.Fields.FILE, value);
 
-      db.insertWithOnConflict(escape(localizeName(TABLE_ASSETS, code)), null, values.get(),
+      db.insertWithOnConflict(escape(localizeName(TABLE_ASSETS, locale)), null, values.get(),
           CONFLICT_REPLACE);
 
       values.clear();
@@ -241,10 +245,10 @@ public final class SyncRunnable implements Runnable {
   }
 
   @SuppressWarnings("unchecked")
-  private <T> T extractRawFieldValue(CDAEntry entry, String fieldId) {
+  private <T> T extractRawFieldValue(CDAEntry entry, String locale, String fieldId) {
     Map<?, ?> value = (Map<?, ?>) entry.rawFields().get(fieldId);
     if (value != null) {
-      T result = (T) value.get(entry.locale());
+      T result = (T) value.get(locale);
       if (result == null) {
         result = (T) value.get(spaceHelper.getDefaultLocale());
       }
@@ -263,16 +267,15 @@ public final class SyncRunnable implements Runnable {
     }
 
     AutoEscapeValues values = new AutoEscapeValues();
-    for (String code : spaceHelper.getLocales()) {
-      entry.setLocale(code);
+    for (String locale : spaceHelper.getLocales()) {
       putResourceFields(entry, values);
 
       for (FieldMeta field : fields) {
-        Object value = extractRawFieldValue(entry, field.id());
+        Object value = extractRawFieldValue(entry, locale, field.id());
         if (field.isLink()) {
-          processLink(entry, field.id(), (Map<?, ?>) value, 0);
+          processLink(entry, locale, field.id(), (Map<?, ?>) value, 0);
         } else if (field.isArray()) {
-          processArray(entry, values, field);
+          processArray(entry, locale, values, field);
         } else if ("BLOB".equals(field.sqliteType())) {
           saveBlob(entry, values, field, (Serializable) value);
         } else if ("BOOL".equals(field.sqliteType())) {
@@ -286,7 +289,7 @@ public final class SyncRunnable implements Runnable {
         }
       }
 
-      db.insertWithOnConflict(escape(localizeName(tableName, code)), null, values.get(),
+      db.insertWithOnConflict(escape(localizeName(tableName, locale)), null, values.get(),
           CONFLICT_REPLACE);
 
       values.clear();
@@ -305,7 +308,7 @@ public final class SyncRunnable implements Runnable {
     values.put(field.name(), write);
   }
 
-  private void processArray(CDAEntry entry, AutoEscapeValues values, FieldMeta field) {
+  private void processArray(CDAEntry entry, String locale, AutoEscapeValues values, FieldMeta field) {
     if (field.isArrayOfSymbols()) {
       List<?> list = entry.getField(field.id());
       if (list == null) {
@@ -313,21 +316,21 @@ public final class SyncRunnable implements Runnable {
       }
       saveBlob(entry, values, field, (Serializable) list);
     } else {
-      List<?> links = extractRawFieldValue(entry, field.id());
+      List<?> links = extractRawFieldValue(entry, locale, field.id());
       if (links != null) {
         for (int i = 0; i < links.size(); i++) {
-          processLink(entry, field.id(), (Map<?, ?>) links.get(i), i);
+          processLink(entry, locale, field.id(), (Map<?, ?>) links.get(i), i);
         }
       }
     }
   }
 
   @SuppressWarnings("unchecked")
-  private void processLink(CDAEntry entry, String fieldId, Map<?, ?> value, int position) {
+  private void processLink(CDAEntry entry, String locale, String fieldId, Map<?, ?> value, int position) {
     String parentId = entry.id();
 
     if (value == null) {
-      deleteResourceLinks(parentId, fieldId, entry.locale());
+      deleteResourceLinks(parentId, fieldId, locale);
     } else {
       Map<String, ?> linkInfo = (Map<String, ?>) value.get("sys");
       if (linkInfo != null) {
@@ -335,14 +338,14 @@ public final class SyncRunnable implements Runnable {
         String targetId = (String) linkInfo.get("id");
 
         if (linkType != null && targetId != null) {
-          saveLink(parentId, fieldId, linkType, targetId, position, entry.locale());
+          saveLink(parentId, fieldId, linkType, targetId, position, locale);
         }
       }
     }
   }
 
   private void saveBlob(CDAEntry entry, AutoEscapeValues values, FieldMeta field,
-      Serializable value) {
+                        Serializable value) {
     try {
       values.put(field.name(), BlobUtils.toBlob(value));
     } catch (IOException e) {
@@ -353,7 +356,7 @@ public final class SyncRunnable implements Runnable {
   }
 
   private void saveLink(String parentId, String fieldId, String linkType, String targetId,
-      int position, String locale) {
+                        int position, String locale) {
     AutoEscapeValues values = new AutoEscapeValues();
 
     values.put("parent", parentId);
@@ -367,14 +370,14 @@ public final class SyncRunnable implements Runnable {
   }
 
   private void deleteResourceLinks(String parentId, String field) {
-    for (String code : spaceHelper.getLocales()) {
-      deleteResourceLinks(parentId, field, code);
+    for (String locale : spaceHelper.getLocales()) {
+      deleteResourceLinks(parentId, field, locale);
     }
   }
 
   private void deleteResourceLinks(String parentId, String field, String locale) {
     String where = "parent = ? AND field = ?";
-    String[] args = new String[]{ parentId, field };
+    String[] args = new String[]{parentId, field};
 
     db.delete(escape(localizeName(TABLE_LINKS, locale)), where, args);
   }

@@ -32,7 +32,7 @@ public class ParcelableTest extends BaseTest {
   }
 
   @Test public void asset() throws Exception {
-    enqueue("demo/space.json");
+    enqueue("demo/locales.json");
     enqueue("demo/types.json");
     enqueue("demo/initial.json");
     sync();

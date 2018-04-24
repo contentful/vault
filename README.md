@@ -16,24 +16,24 @@ Grab via Maven:
 <dependency>
   <groupId>com.contentful.vault</groupId>
   <artifactId>compiler</artifactId>
-  <version>3.1.1</version>
+  <version>3.2.0</version>
 </dependency>
 <dependency>
   <groupId>com.contentful.vault</groupId>
   <artifactId>core</artifactId>
-  <version>3.1.1</version>
+  <version>3.2.0</version>
 </dependency>
 ```
 or Gradle:
 ```groovy
-apt 'com.contentful.vault:compiler:3.1.1'
-compile 'com.contentful.vault:core:3.1.1'
+apt 'com.contentful.vault:compiler:3.2.0'
+compile 'com.contentful.vault:core:3.2.0'
 ```
 or Gradle 3.+:
 ```groovy
-annotationProcessor 'com.contentful.vault:compiler:3.1.1'
-annotationProcessor 'com.contentful.vault:core:3.1.1'
-compile 'com.contentful.vault:core:3.1.1'
+annotationProcessor 'com.contentful.vault:compiler:3.2.0'
+annotationProcessor 'com.contentful.vault:core:3.2.0'
+compile 'com.contentful.vault:core:3.2.0'
 ```
 
 Note for Gradle users, make sure to use the [android-apt][apt] Gradle plugin, which lets you configure compile-time only dependencies.

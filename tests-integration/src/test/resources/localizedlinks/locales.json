@@ -1,0 +1,31 @@
+{
+  "sys": {
+    "type": "Array"
+  },
+  "total": 1,
+  "skip": 0,
+  "limit": 1000,
+  "items": [
+    {
+      "code": "en-US",
+      "default": true,
+      "name": "U.S. English",
+      "sys": {
+        "id": "id1",
+        "type": "Locale",
+        "version": 1
+      }
+    },
+    {
+      "code": "he-IL",
+      "default": false,
+      "name": "Hebrew (Israel)",
+      "fallbackCode": "en-US",
+      "sys": {
+        "id": "id2",
+        "type": "Locale",
+        "version": 1
+      }
+    }
+  ]
+}
