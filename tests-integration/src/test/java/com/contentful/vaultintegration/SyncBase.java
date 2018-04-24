@@ -52,13 +52,13 @@ public class SyncBase extends BaseTest {
   }
 
   protected void enqueueInitial() throws IOException {
-    enqueue("demo/space.json");
+    enqueue("demo/locales.json");
     enqueue("demo/types.json");
     enqueue("demo/initial.json");
   }
 
   protected void enqueueUpdate() throws IOException {
-    enqueue("demo/space.json");
+    enqueue("demo/locales.json");
     enqueue("demo/types.json");
     enqueue("demo/update.json");
   }
@@ -87,7 +87,7 @@ public class SyncBase extends BaseTest {
     assertThat(assets.get(0).remoteId()).isEqualTo("nyancat");
     assertThat(assets.get(1).remoteId()).isEqualTo("jake");
     assertThat(assets.get(2).remoteId()).isEqualTo("happycat");
-    assertThat(assets.get(2).url()).isEqualTo("http://happycat.jpg");
+    assertThat(assets.get(2).url()).isEqualTo("https://happycat.jpg");
     assertThat(assets.get(3).remoteId()).isEqualTo("1x0xpXu4pSGS4OukSyWGUK");
 
     for (Asset asset : assets) {
@@ -107,7 +107,7 @@ public class SyncBase extends BaseTest {
     assertThat(assets).hasSize(3);
     assertThat(assets.get(0).remoteId()).isEqualTo("nyancat");
     assertThat(assets.get(1).remoteId()).isEqualTo("happycat");
-    assertThat(assets.get(1).url()).isEqualTo("http://happiercat.jpg");
+    assertThat(assets.get(1).url()).isEqualTo("https://happiercat.jpg");
     assertThat(assets.get(2).remoteId()).isEqualTo("1x0xpXu4pSGS4OukSyWGUK");
 
     for (Asset asset : assets) {

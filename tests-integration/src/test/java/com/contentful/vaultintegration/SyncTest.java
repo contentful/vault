@@ -31,7 +31,7 @@ import static com.google.common.truth.Truth.assertThat;
 public class SyncTest extends SyncBase {
 
   @Test public void testAssetFallback() throws Exception {
-    enqueue("assets/space.json");
+    enqueue("assets/locales.json");
     enqueue("assets/types.json");
     enqueue("assets/initial.json");
     sync();

@@ -1,0 +1,43 @@
+{
+  "sys": {
+    "type": "Array"
+  },
+  "total": 3,
+  "skip": 0,
+  "limit": 1000,
+  "items": [
+    {
+      "code": "en-US",
+      "default": true,
+      "name": "U.S. English 🇺🇸",
+      "fallbackCode": null,
+      "sys": {
+        "id": "id1",
+        "type": "Locale",
+        "version": 1
+      }
+    },
+    {
+      "code": "de-DE",
+      "default": false,
+      "name": "Deutsch 🇩🇪",
+      "fallbackCode": "en-US",
+      "sys": {
+        "id": "id2",
+        "type": "Locale",
+        "version": 1
+      }
+    },
+    {
+      "code": "tlh",
+      "default": false,
+      "name": "Klingon",
+      "fallbackCode": "de-DE",
+      "sys": {
+        "id": "id3",
+        "type": "Locale",
+        "version": 1
+      }
+    }
+  ]
+}

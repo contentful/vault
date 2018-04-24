@@ -36,7 +36,7 @@ public class ObserveTest extends BaseTest {
   }
 
   @Test public void observeQuery() throws Exception {
-    enqueue("demo/space.json");
+    enqueue("demo/locales.json");
     enqueue("demo/types.json");
     enqueue("demo/initial.json");
     sync();
@@ -59,7 +59,7 @@ public class ObserveTest extends BaseTest {
   }
 
   @Test public void observeSyncResults() throws Exception {
-    enqueue("demo/space.json");
+    enqueue("demo/locales.json");
     enqueue("demo/types.json");
     enqueue("demo/initial.json");
 

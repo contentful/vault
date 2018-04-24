@@ -43,7 +43,7 @@ import okhttp3.mockwebserver.MockWebServer;
 import static com.google.common.truth.Truth.assertThat;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(manifest = "src/main/AndroidManifest.xml")
+@Config(manifest = "src/main/AndroidManifest.xml", sdk = 23)
 public abstract class BaseTest {
   MockWebServer server;
   CDAClient client;
@@ -91,7 +91,7 @@ public abstract class BaseTest {
   }
 
   protected void enqueueSync(String space, boolean update) throws IOException {
-    enqueue(space + "/space.json");
+    enqueue(space + "/locales.json");
     enqueue(space + "/types.json");
     if (update) {
       enqueue(space + "/update.json");

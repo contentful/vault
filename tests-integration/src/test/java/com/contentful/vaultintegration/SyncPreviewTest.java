@@ -39,7 +39,7 @@ public class SyncPreviewTest extends SyncBase {
   }
 
   @Test public void testSyncInPreview() throws Exception {
-    enqueue("demo/space.json");
+    enqueue("demo/locales.json");
     enqueue("demo/types.json");
     enqueue("demo/initial.json");
 
@@ -50,14 +50,14 @@ public class SyncPreviewTest extends SyncBase {
 
   @Test
   public void testSyncInPreviewNotInitialDoesInitial() throws Exception {
-    enqueue("demo/space.json");
+    enqueue("demo/locales.json");
     enqueue("demo/types.json");
     enqueue("demo/initial.json");
 
     sync();
     assertSyncInitial();
 
-    enqueue("demo/space.json");
+    enqueue("demo/locales.json");
     enqueue("demo/types.json");
     enqueue("demo/initial.json");
 
