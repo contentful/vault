@@ -220,8 +220,10 @@ public final class SyncRunnable implements Runnable {
       putResourceFields(asset, values);
       final LocalizedResource.Localizer localizer = asset.localize(locale);
       final Map<String, Object> file = localizer.getField("file");
-      values.put(Asset.Fields.URL, "https:" + file.get("url"));
-      values.put(Asset.Fields.MIME_TYPE, (String) file.get("contentType"));
+      if (file != null) {
+        values.put(Asset.Fields.URL, "https:" + file.get("url"));
+        values.put(Asset.Fields.MIME_TYPE, (String) file.get("contentType"));
+      }
       values.put(Asset.Fields.TITLE, localizer.<String>getField("title"));
       values.put(Asset.Fields.DESCRIPTION, localizer.<String>getField("description"));
 

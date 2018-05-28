@@ -72,8 +72,8 @@ public final class Sql {
   static String createAssets(String locale) {
     return "CREATE TABLE " + escape(localizeName(TABLE_ASSETS, locale)) + " ("
         + StringUtils.join(RESOURCE_COLUMNS, ", ") + ","
-        + declareField(Asset.Fields.URL, "STRING", false, ", ")
-        + declareField(Asset.Fields.MIME_TYPE, "STRING", false, ", ")
+        + declareField(Asset.Fields.URL, "STRING", true, ", ")
+        + declareField(Asset.Fields.MIME_TYPE, "STRING", true, ", ")
         + declareField(Asset.Fields.TITLE, "STRING", true, ", ")
         + declareField(Asset.Fields.DESCRIPTION, "STRING", true, ", ")
         + declareField(Asset.Fields.FILE, "BLOB", true, null)

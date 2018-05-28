@@ -1,0 +1,32 @@
+{
+  "sys": {
+    "type": "Array"
+  },
+  "items": [
+    {
+      "sys": {
+        "space": {
+          "sys": {
+            "type": "Link",
+            "linkType": "Space",
+            "id": "cfexampleapi"
+          },
+          "environment": {
+            "sys": {
+              "id": "staging",
+              "type": "Link",
+              "linkType": "Environment"
+            }
+          }
+        },
+        "type": "Asset",
+        "id": "id",
+        "revision": 6,
+        "createdAt": "2018-05-06T09:45:10.000Z",
+        "updatedAt": "2018-06-18T13:27:14.917Z"
+      },
+      "fields": {}
+    }
+  ],
+  "nextSyncUrl": "http://cdn.contentful.com/spaces/cfexampleapi/sync?sync_token=st1"
+}

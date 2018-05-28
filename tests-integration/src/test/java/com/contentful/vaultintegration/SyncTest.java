@@ -42,6 +42,28 @@ public class SyncTest extends SyncBase {
     assertThat(request.getPath()).isEqualTo("/spaces/space/sync?initial=true");
   }
 
+  @Test public void testAssetsInDraft() throws Exception {
+    enqueue("assets/locales.json");
+    enqueue("assets/types.json");
+    enqueue("assets/empty.json");
+    sync();
+
+    server.takeRequest(); // ignore locales request
+    server.takeRequest(); // ignore content types request
+    RecordedRequest request = server.takeRequest(); // analyse empty asset response
+    assertThat(request.getPath()).isEqualTo("/spaces/space/sync?initial=true");
+
+
+    List<Asset> assets = vault.fetch(Asset.class).all();
+
+    assertThat(assets).isNotNull();
+    assertThat(assets).hasSize(1);
+
+    Asset asset = assets.get(0);
+    assertThat(asset).isNotNull();
+    assertThat(asset.file()).isNull();
+  }
+
   @Test public void testSync() throws Exception {
     // Initial
     enqueueInitial();
