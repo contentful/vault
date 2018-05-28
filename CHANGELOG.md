@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Version [3.2.1] - 2018-05-28
+- Fix: ignore empty asset fields
+- Update: Contentful CDA SDK to version 10.1.0.
+
 ## Version [3.2.0] - 2018-04-24
 - Change: use https for asset urls.
 - Change: Use CDA SDK 10.0.0 and throw if environments are used.
@@ -128,7 +132,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## Version 0.9.0 - 2015-05-18
 Initial release.
  
-[unreleased]: https://github.com/contentful/vault/compare/vault-parent-3.2.0...HEAD
+[unreleased]: https://github.com/contentful/vault/compare/vault-parent-3.2.1...HEAD
+[3.2.0]: https://github.com/contentful/vault/compare/vault-parent-3.2.0...vault-parent-3.2.1
 [3.2.0]: https://github.com/contentful/vault/compare/vault-parent-3.1.1...vault-parent-3.2.0
 [3.1.1]: https://github.com/contentful/vault/compare/vault-parent-3.1.0...vault-parent-3.1.1
 [3.1.0]: https://github.com/contentful/vault/compare/vault-parent-3.0.2...vault-parent-3.1.0

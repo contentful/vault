@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Contentful GmbH
+ * Copyright (C) 2018 Contentful GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,8 +72,8 @@ public final class Sql {
   static String createAssets(String locale) {
     return "CREATE TABLE " + escape(localizeName(TABLE_ASSETS, locale)) + " ("
         + StringUtils.join(RESOURCE_COLUMNS, ", ") + ","
-        + declareField(Asset.Fields.URL, "STRING", false, ", ")
-        + declareField(Asset.Fields.MIME_TYPE, "STRING", false, ", ")
+        + declareField(Asset.Fields.URL, "STRING", true, ", ")
+        + declareField(Asset.Fields.MIME_TYPE, "STRING", true, ", ")
         + declareField(Asset.Fields.TITLE, "STRING", true, ", ")
         + declareField(Asset.Fields.DESCRIPTION, "STRING", true, ", ")
         + declareField(Asset.Fields.FILE, "BLOB", true, null)

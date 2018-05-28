@@ -17,7 +17,7 @@ import static com.contentful.vault.BaseFields.CREATED_AT;
 import static com.contentful.vault.BaseFields.REMOTE_ID;
 import static com.google.common.truth.Truth.assertThat;
 
-@Ignore
+@Ignore("Do not test the base test class.")
 public class SyncBase extends BaseTest {
 
   @Override protected void setupVault() {
@@ -41,14 +41,14 @@ public class SyncBase extends BaseTest {
     server.takeRequest();
     server.takeRequest();
     RecordedRequest request = server.takeRequest();
-    assertThat(request.getPath()).isEqualTo("/spaces/space/sync?sync_token=st1");
+    assertThat(request.getPath()).isEqualTo("/spaces/space/environments/master/sync?sync_token=st1");
   }
 
   protected void assertRequestInitial() throws InterruptedException {
     server.takeRequest();
     server.takeRequest();
     RecordedRequest request = server.takeRequest();
-    assertThat(request.getPath()).isEqualTo("/spaces/space/sync?initial=true");
+    assertThat(request.getPath()).isEqualTo("/spaces/space/environments/master/sync?initial=true");
   }
 
   protected void enqueueInitial() throws IOException {
