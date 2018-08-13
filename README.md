@@ -14,12 +14,12 @@ vault - Contentful Offline Persistence for Android
 
 [![Build Status](https://travis-ci.org/contentful/vault.svg)](https://travis-ci.org/contentful/vault/builds#)
 
-> Vault is an Android library that simplifies persistence of Resources from Contentful via SQLite. It defines a Java representation of Contentful models. At compile-time Vault will create a corresponding database schema by generating all the required boilerplate code and injecting it into the classpath. It is also bundled with a complementary lightweight runtime which exposes a simple ORM-like API for pulling resources from the generated database.
+> Vault is an Android library that simplifies persistence of Resources from Contentful via SQLite. It defines a Java representation of Contentful models. At compile-time Vault creates a corresponding database schema by generating all the required boilerplate code and injecting it into the classpath. It is also bundled with a complementary lightweight runtime which exposes a simple ORM-like API for pulling resources from the generated database.
 
 What is Contentful?
 -------------------
 
-[Contentful](https://www.contentful.com) provides a content infrastructure for digital teams to power content in websites, apps, and devices. Unlike a CMS, Contentful was built to integrate with the modern software stack. It offers a central hub for structured content, powerful management and delivery APIs, and a customizable web app that enable developers and content creators to ship digital products faster.
+[Contentful](https://www.contentful.com) provides a content infrastructure for digital teams to power content in websites, apps, and devices. 	Contentful, unlike any other CMS, is built to integrate with the modern software stack. It offers a central hub for structured content, powerful management and delivery APIs, and a customizable web app that enable developers and content creators to ship digital products faster.
 
 
 <details open>
@@ -78,7 +78,7 @@ annotationProcessor 'com.contentful.vault:core:3.2.1'
 compile 'com.contentful.vault:core:3.2.1'
 ```
 
-> Note for Gradle: Use the [android-apt][apt] Gradle plugin, which lets you configure compile-time only dependencies.
+> Note for Gradle: Use the [android-apt][apt] Gradle plugin, which configures compile-time dependencies only.
 > Note for Gradle 3.0 and newer: Use the `annotationProcessor` instead of `apt`.
 
 Snapshots
@@ -105,7 +105,7 @@ public class Cat extends Resource {
 }
 ```
 
-By default, the name of the attribute will be used as the field's ID, but can also be specified explicitly:
+By default, the name of the attribute is used as the field's ID, but can also be specified explicitly:
 
 ```java
 @Field("field-id-goes-here") 
@@ -121,7 +121,7 @@ public class Foo extends Resource {
 }
 ```
 
-Since `order` is a reserved SQLite keyword, making a query which references that field will be done like so:
+Since `order` is a reserved SQLite keyword, making a query which references that field is done as following:
 
 ```java
 vault.fetch(Foo.class)
@@ -160,7 +160,7 @@ Vault.with(context, DemoSpace.class).requestSync(client);
 ```
 
 Vault uses a worker thread to request updates from the Sync API and reflect the changes in its database.
-Once sync is completed, Vault will fire a broadcast with the action `Vault.ACTION_SYNC_COMPLETE`.
+Once sync is completed, Vault fires a broadcast with the action `Vault.ACTION_SYNC_COMPLETE`.
 
 Providing a `SyncCallback` results in it beeing invoked once sync is completed:
 
@@ -247,7 +247,7 @@ vault.observe(Cat.class)
     .all() // returns Observable<Cat>
 ```
 
-The above example creates an `Observable` that subscribes and observes on the same thread initiating the query. That changes if this typical use-case is used:
+The above example creates an `Observable` that subscribes and observes on the same thread initiating the query. However, it changes if this typical use-case is used:
 
 ```java
 vault.observe(Cat.class)
@@ -266,7 +266,7 @@ Whenever changes are introduced to any of the previously used Models, a migratio
 public class DemoSpace { }
 ```
 
-> Note: this will delete any previously persisted data and reaquires them.
+> Note: this deletes any previously persisted data and reaquires them.
 
 Preseeding
 ----------
@@ -348,7 +348,7 @@ Bugs and Feature Requests
 Sharing Confidential Information
 --------------------------------
 
-* File a support ticket at our Contentful Customer Support: [![File support ticket](https://img.shields.io/badge/-Submit%20Support%20Ticket-3AB2E6.svg?logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MiA1OSI+CiAgPHBhdGggZmlsbD0iI0Y4RTQxOCIgZD0iTTE4IDQxYTE2IDE2IDAgMCAxIDAtMjMgNiA2IDAgMCAwLTktOSAyOSAyOSAwIDAgMCAwIDQxIDYgNiAwIDEgMCA5LTkiIG1hc2s9InVybCgjYikiLz4KICA8cGF0aCBmaWxsPSIjNTZBRUQyIiBkPSJNMTggMThhMTYgMTYgMCAwIDEgMjMgMCA2IDYgMCAxIDAgOS05QTI5IDI5IDAgMCAwIDkgOWE2IDYgMCAwIDAgOSA5Ii8+CiAgPHBhdGggZmlsbD0iI0UwNTM0RSIgZD0iTTQxIDQxYTE2IDE2IDAgMCAxLTIzIDAgNiA2IDAgMSAwLTkgOSAyOSAyOSAwIDAgMCA0MSAwIDYgNiAwIDAgMC05LTkiLz4KICA8cGF0aCBmaWxsPSIjMUQ3OEE0IiBkPSJNMTggMThhNiA2IDAgMSAxLTktOSA2IDYgMCAwIDEgOSA5Ii8+CiAgPHBhdGggZmlsbD0iI0JFNDMzQiIgZD0iTTE4IDUwYTYgNiAwIDEgMS05LTkgNiA2IDAgMCAxIDkgOSIvPgo8L3N2Zz4K&maxAge=31557600)](https://www.contentful.com/support/)
+* File a support ticket at Contentful Customer Support: [![File support ticket](https://img.shields.io/badge/-Submit%20Support%20Ticket-3AB2E6.svg?logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MiA1OSI+CiAgPHBhdGggZmlsbD0iI0Y4RTQxOCIgZD0iTTE4IDQxYTE2IDE2IDAgMCAxIDAtMjMgNiA2IDAgMCAwLTktOSAyOSAyOSAwIDAgMCAwIDQxIDYgNiAwIDEgMCA5LTkiIG1hc2s9InVybCgjYikiLz4KICA8cGF0aCBmaWxsPSIjNTZBRUQyIiBkPSJNMTggMThhMTYgMTYgMCAwIDEgMjMgMCA2IDYgMCAxIDAgOS05QTI5IDI5IDAgMCAwIDkgOWE2IDYgMCAwIDAgOSA5Ii8+CiAgPHBhdGggZmlsbD0iI0UwNTM0RSIgZD0iTTQxIDQxYTE2IDE2IDAgMCAxLTIzIDAgNiA2IDAgMSAwLTkgOSAyOSAyOSAwIDAgMCA0MSAwIDYgNiAwIDAgMC05LTkiLz4KICA8cGF0aCBmaWxsPSIjMUQ3OEE0IiBkPSJNMTggMThhNiA2IDAgMSAxLTktOSA2IDYgMCAwIDEgOSA5Ii8+CiAgPHBhdGggZmlsbD0iI0JFNDMzQiIgZD0iTTE4IDUwYTYgNiAwIDEgMS05LTkgNiA2IDAgMCAxIDkgOSIvPgo8L3N2Zz4K&maxAge=31557600)](https://www.contentful.com/support/)
 
 Getting involved
 ----------------
