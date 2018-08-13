@@ -273,7 +273,7 @@ Preseeding
 
 Depending on the amount of content in a given space, initial synchronization might take some time. For that support to pre-seed the database with static content got added. 
 
-For creating an initial database file, use the `VaultDatabaseExporter`. This class takes an Android Context and a Vault Space. Calling the `.export(..)` method, it  creates a sqlite database in `src/main/assets/initial_seed.db`. Instrucing Vault to use this is done like so:
+For creating an initial database file, use the `VaultDatabaseExporter`. This class takes an Android Context and a Vault Space. Calling the `.export(..)` method, it  creates a sqlite database in `src/main/assets/initial_seed.db`. Vault is instructed to use this as follows:
 
 ```java
 @Space(
@@ -284,7 +284,7 @@ For creating an initial database file, use the `VaultDatabaseExporter`. This cla
 public class VaultSpace { }
 ```
 
-Udating this database file is done by leveraging a [robolectric](robolectric.org) test before releasing. This test would sync Contentful data to the existing database.
+The database file is updated by leveraging a [robolectric](robolectric.org) test before releasing. This test syncs Contentful data to the existing database.
 
 A simple test suite looks like this:
 
