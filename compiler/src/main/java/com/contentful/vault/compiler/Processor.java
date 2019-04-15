@@ -16,48 +16,32 @@
 
 package com.contentful.vault.compiler;
 
-import com.contentful.vault.ContentType;
-import com.contentful.vault.Field;
-import com.contentful.vault.FieldMeta;
-import com.contentful.vault.Resource;
-import com.contentful.vault.Space;
+import com.contentful.vault.*;
 import com.google.common.base.Joiner;
 import com.squareup.javapoet.ClassName;
 import com.sun.tools.javac.code.Attribute;
 import com.sun.tools.javac.code.Type;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import org.apache.commons.lang3.StringUtils;
+
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
-import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.AnnotationValue;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.Modifier;
-import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.*;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
-import org.apache.commons.lang3.StringUtils;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.lang.annotation.Annotation;
+import java.util.*;
 
 import static com.contentful.java.cda.CDAType.ASSET;
 import static com.contentful.java.cda.CDAType.ENTRY;
-import static com.contentful.vault.Constants.SUFFIX_FIELDS;
-import static com.contentful.vault.Constants.SUFFIX_MODEL;
-import static com.contentful.vault.Constants.SUFFIX_SPACE;
+import static com.contentful.vault.Constants.*;
 import static javax.tools.Diagnostic.Kind.ERROR;
 
 public class Processor extends AbstractProcessor {
@@ -248,15 +232,21 @@ public class Processor extends AbstractProcessor {
         fieldId = enclosedElement.getSimpleName().toString();
       }
 
+      FieldMeta.Builder fieldBuilder = FieldMeta.builder();
       Set<Modifier> modifiers = enclosedElement.getModifiers();
       if (modifiers.contains(Modifier.STATIC)) {
         error(element, "@%s elements must not be static. (%s.%s)", Field.class.getSimpleName(),
             element.getQualifiedName(), enclosedElement.getSimpleName());
         return;
       }
-      if (modifiers.contains(Modifier.PRIVATE)) {
-        error(element, "@%s elements must not be private. (%s.%s)", Field.class.getSimpleName(),
-            element.getQualifiedName(), enclosedElement.getSimpleName());
+
+      String setter = getSetter(element, enclosedElement);
+      if(setter != null) {
+        fieldBuilder.setSetter(setter);
+      }
+      else if (modifiers.contains(Modifier.PRIVATE) || modifiers.contains(Modifier.PROTECTED)) {
+        error(element, "@%s private elements must have public setter methods. (%s.%s)", Field.class.getSimpleName(),
+                element.getQualifiedName(), enclosedElement.getSimpleName());
         return;
       }
 
@@ -267,7 +257,6 @@ public class Processor extends AbstractProcessor {
         return;
       }
 
-      FieldMeta.Builder fieldBuilder = FieldMeta.builder();
       if (isList(enclosedElement)) {
         DeclaredType declaredType = (DeclaredType) enclosedElement.asType();
         List<? extends TypeMirror> typeArguments = declaredType.getTypeArguments();
@@ -331,6 +320,22 @@ public class Processor extends AbstractProcessor {
     ClassName injectionClassName = getInjectionClassName(element, SUFFIX_MODEL);
     String tableName = "entry_" + SqliteUtils.hashForId(id);
     models.put(element, new ModelInjection(id, injectionClassName, element, tableName, fields));
+  }
+
+  private String getSetter(TypeElement element, Element enclosedElement) {
+    List<ExecutableElement> methodsIn = ElementFilter.methodsIn(elementUtils.getAllMembers(element));
+    for(ExecutableElement method : methodsIn) {
+      Name methodName = method.getSimpleName();
+      String fluentSetterName = enclosedElement.getSimpleName().toString();
+      String setterName = "set" + StringUtils.capitalize(fluentSetterName);
+      if((methodName.contentEquals(setterName) || methodName.contentEquals(fluentSetterName))
+              && method.getParameters().size() == 1
+              && method.getModifiers().contains(Modifier.PUBLIC)
+              && typeUtils.isSameType(method.getParameters().get(0).asType(), enclosedElement.asType())) {
+        return methodName.toString();
+      }
+    }
+    return null;
   }
 
   private boolean isValidListType(TypeMirror typeMirror) {

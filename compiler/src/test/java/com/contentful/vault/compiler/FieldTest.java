@@ -132,7 +132,7 @@ public class FieldTest {
     assert_().about(javaSource()).that(source)
         .processedWith(processors())
         .failsToCompile()
-        .withErrorContaining("@Field elements must not be private. (Test.foo)");
+        .withErrorContaining("@Field private elements must have public setter methods. (Test.foo)");
   }
 
   @Test public void testInvalidListType() throws Exception {

@@ -35,7 +35,6 @@ public class ContentTypeTest {
         "import com.contentful.vault.ContentType;",
         "import com.contentful.vault.Field;",
         "import com.contentful.vault.Resource;",
-        "import com.contentful.vault.SpaceHelper;",
         "import java.util.List;",
         "import java.util.Map;",
         "class Test {",
@@ -51,6 +50,10 @@ public class ContentTypeTest {
         "    @Field List<Asset> arrayOfAssets;",
         "    @Field List<AwesomeModel> arrayOfModels;",
         "    @Field List<String> arrayOfSymbols;",
+        "    @Field private String privateField;",
+        "    @Field private String privateFluentField;",
+        "    public void setPrivateField(String privateField) { this.privateField = privateField; }",
+        "    public void privateFluentField(String privateFluentField) { this.privateFluentField = privateFluentField; }",
         "  }",
         "}"
     ));
