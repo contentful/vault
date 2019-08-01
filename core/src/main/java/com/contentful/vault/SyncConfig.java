@@ -95,7 +95,7 @@ public final class SyncConfig {
     public Builder setEnvironment(String environment) {
       if (client != null) {
         throw new IllegalStateException(
-            "Do not set an environment, when a client is already set. User either environment " +
+            "Do not set an environment, when a client is already set. Use either environment " +
                 "or a previously created client."
         );
       }
@@ -119,7 +119,7 @@ public final class SyncConfig {
 
       if (environment != null) {
         throw new IllegalStateException(
-            "Do not set a client, when an environment is already set. User either environment " +
+            "Do not set a client, when an environment is already set. Use either environment " +
                 "or a previously created client."
         );
       }
