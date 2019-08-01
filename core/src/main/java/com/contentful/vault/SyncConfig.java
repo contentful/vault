@@ -43,6 +43,7 @@ public final class SyncConfig {
           .builder()
           .setToken(builder.accessToken)
           .setSpace(builder.spaceId)
+          .setEnvironment(builder.environment)
           .setIntegration("Vault", PROJECT_VERSION)
           .build();
     } else {
@@ -67,6 +68,7 @@ public final class SyncConfig {
     boolean invalidate;
     String accessToken;
     String spaceId;
+    String environment;
 
     public Builder setAccessToken(String accessToken) {
       if (client != null) {
@@ -90,6 +92,17 @@ public final class SyncConfig {
       return this;
     }
 
+    public Builder setEnvironment(String environment) {
+      if (client != null) {
+        throw new IllegalStateException(
+            "Do not set an environment, when a client is already set. User either environment " +
+                "or a previously created client."
+        );
+      }
+      this.environment = environment;
+      return this;
+    }
+
     public Builder setClient(CDAClient client) {
       if (accessToken != null) {
         throw new IllegalStateException(
@@ -101,6 +114,13 @@ public final class SyncConfig {
         throw new IllegalStateException(
             "Do not set a client, when a space id is already set. Use either space id and " +
                 "a token or a previously created client."
+        );
+      }
+
+      if (environment != null) {
+        throw new IllegalStateException(
+            "Do not set a client, when an environment is already set. User either environment " +
+                "or a previously created client."
         );
       }
 
