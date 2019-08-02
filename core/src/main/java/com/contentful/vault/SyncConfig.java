@@ -19,6 +19,7 @@ package com.contentful.vault;
 import com.contentful.java.cda.CDAClient;
 
 import static com.contentful.vault.build.GeneratedBuildParameters.PROJECT_VERSION;
+import static java.text.MessageFormat.format;
 
 public final class SyncConfig {
   private final CDAClient client;
@@ -64,6 +65,10 @@ public final class SyncConfig {
   }
 
   public static class Builder {
+
+    private static final String FIELD_ALREADY_EXISTS = "Do not set {0}, when {1} is already set. " +
+            "Use either {0} or a previously added {1}.";
+
     CDAClient client;
     boolean invalidate;
     String accessToken;
@@ -72,10 +77,7 @@ public final class SyncConfig {
 
     public Builder setAccessToken(String accessToken) {
       if (client != null) {
-        throw new IllegalStateException(
-            "Do not set an access token, when a client is already set. Use either space id and " +
-                "a token or a previously created client."
-        );
+        throw new IllegalStateException(format(FIELD_ALREADY_EXISTS, "access token", "client"));
       }
       this.accessToken = accessToken;
       return this;
@@ -83,10 +85,7 @@ public final class SyncConfig {
 
     public Builder setSpaceId(String spaceId) {
       if (client != null) {
-        throw new IllegalStateException(
-            "Do not set a space id, when a client is already set. Use either space id and " +
-                "a token or a previously created client."
-        );
+        throw new IllegalStateException(format(FIELD_ALREADY_EXISTS, "space id", "client"));
       }
       this.spaceId = spaceId;
       return this;
@@ -94,10 +93,7 @@ public final class SyncConfig {
 
     public Builder setEnvironment(String environment) {
       if (client != null) {
-        throw new IllegalStateException(
-            "Do not set an environment, when a client is already set. Use either environment " +
-                "or a previously created client."
-        );
+        throw new IllegalStateException(format(FIELD_ALREADY_EXISTS, "environment", "client"));
       }
       this.environment = environment;
       return this;
@@ -105,23 +101,14 @@ public final class SyncConfig {
 
     public Builder setClient(CDAClient client) {
       if (accessToken != null) {
-        throw new IllegalStateException(
-            "Do not set a client, when an access token is already set. Use either space id and " +
-                "a token or a previously created client."
-        );
+        throw new IllegalStateException(format(FIELD_ALREADY_EXISTS, "client", "access token"));
       }
       if (spaceId != null) {
-        throw new IllegalStateException(
-            "Do not set a client, when a space id is already set. Use either space id and " +
-                "a token or a previously created client."
-        );
+        throw new IllegalStateException(format(FIELD_ALREADY_EXISTS, "client", "space id"));
       }
 
       if (environment != null) {
-        throw new IllegalStateException(
-            "Do not set a client, when an environment is already set. Use either environment " +
-                "or a previously created client."
-        );
+        throw new IllegalStateException(format(FIELD_ALREADY_EXISTS, "client", "environment"));
       }
 
       this.client = client;
