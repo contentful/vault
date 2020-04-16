@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Version [3.2.2] - [Unreleased]
+## Version [3.2.3] - [2020-04-16]
 - Fix: SyncConfig has been extended by environment field
 
 ## Version [3.2.1] - 2018-05-28
