@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Version [3.2.2] - [Unreleased]
+- Fix: SyncConfig has been extended by environment field
+
 ## Version [3.2.1] - 2018-05-28
 - Fix: ignore empty asset fields
 - Update: Contentful CDA SDK to version 10.1.0.
