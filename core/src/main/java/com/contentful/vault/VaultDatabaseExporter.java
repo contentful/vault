@@ -28,7 +28,7 @@ public class VaultDatabaseExporter {
    * @param accessToken a CDA access token, used for retrieving the resources.
    * @return true in case of success. On error, please read System.err output.
    */
-  public boolean export(Context context, Class<?> spaceClass, String accessToken) {
+  public boolean export(Context context, Class<?> spaceClass, String accessToken, String environment) {
     successful = false;
     final SpaceHelper helper = crateSpaceHelper(spaceClass);
     final String outputPath = createOutputPath(helper);
@@ -41,6 +41,7 @@ public class VaultDatabaseExporter {
             .builder()
             .setSpaceId(helper.getSpaceId())
             .setAccessToken(accessToken)
+            .setEnvironment(environment)
             .build(),
         new SyncCallback() {
           @Override public void onResult(SyncResult result) {
