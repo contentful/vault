@@ -56,26 +56,26 @@ Install the dependency by
 <dependency>
   <groupId>com.contentful.vault</groupId>
   <artifactId>compiler</artifactId>
-  <version>3.2.3</version>
+  <version>3.2.5</version>
 </dependency>
 <dependency>
   <groupId>com.contentful.vault</groupId>
   <artifactId>core</artifactId>
-  <version>3.2.3</version>
+  <version>3.2.5</version>
 </dependency>
 ```
 
 * _Gradle_
 
 ```groovy
-apt 'com.contentful.vault:compiler:3.2.3'
-compile 'com.contentful.vault:core:3.2.3'
+apt 'com.contentful.vault:compiler:3.2.5'
+compile 'com.contentful.vault:core:3.2.5'
 ```
 * _Gradle 3.+_
 ```groovy
-annotationProcessor 'com.contentful.vault:compiler:3.2.3'
-annotationProcessor 'com.contentful.vault:core:3.2.3'
-compile 'com.contentful.vault:core:3.2.3'
+annotationProcessor 'com.contentful.vault:compiler:3.2.5'
+annotationProcessor 'com.contentful.vault:core:3.2.5'
+compile 'com.contentful.vault:core:3.2.5'
 ```
 
 > Note for Gradle: Use the [android-apt][apt] Gradle plugin, which configures compile-time dependencies only.
