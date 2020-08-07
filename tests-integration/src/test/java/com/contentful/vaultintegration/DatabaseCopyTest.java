@@ -46,6 +46,7 @@ public class DatabaseCopyTest extends BaseTest {
       copyPath = "cfexampleapi.db"
   ) interface Sp {
     String TOKEN = "b4c0n73n7fu1";
+    String ENVIRONMENT = "environment";
   }
 
   @ContentType("cat")
@@ -72,7 +73,8 @@ public class DatabaseCopyTest extends BaseTest {
             .export(
                 RuntimeEnvironment.application,
                 Sp.class,
-                Sp.TOKEN)
+                Sp.TOKEN,
+                Sp.ENVIRONMENT)
     );
   }
 }

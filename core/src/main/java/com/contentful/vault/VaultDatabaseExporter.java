@@ -1,9 +1,11 @@
 package com.contentful.vault;
 
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
+import android.os.Build;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -21,14 +23,14 @@ public class VaultDatabaseExporter {
   boolean successful;
 
   /**
-   * Use this method to export Contentful spaces into sqlite3 databases which can be imported later.
+   * Use this method to exposrt Contentful spaces into sqlite3 databases which can be imported later.
    *
    * @param context     Android (Robolectric?) Context for creating the sqlite database.
    * @param spaceClass  Configured {@link Space} containing the name and the id of the space.
    * @param accessToken a CDA access token, used for retrieving the resources.
    * @return true in case of success. On error, please read System.err output.
    */
-  public boolean export(Context context, Class<?> spaceClass, String accessToken) {
+  public boolean export(Context context, Class<?> spaceClass, String accessToken, String environment) {
     successful = false;
     final SpaceHelper helper = crateSpaceHelper(spaceClass);
     final String outputPath = createOutputPath(helper);
@@ -41,6 +43,7 @@ public class VaultDatabaseExporter {
             .builder()
             .setSpaceId(helper.getSpaceId())
             .setAccessToken(accessToken)
+            .setEnvironment(environment)
             .build(),
         new SyncCallback() {
           @Override public void onResult(SyncResult result) {
