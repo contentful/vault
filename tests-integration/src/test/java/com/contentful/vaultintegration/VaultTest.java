@@ -50,13 +50,6 @@ public class VaultTest extends BaseTest {
   }
 
   @Test(expected = IllegalStateException.class)
-  public void failsIfRequestingToSyncAndOnlyEnvironmentSet() {
-    SyncConfig
-        .builder()
-        .setEnvironment("foo")
-        .build();
-  }
-  @Test(expected = IllegalStateException.class)
   public void failsIfRequestingToSyncAndAccessTokenAndClientSet() {
     SyncConfig
         .builder()
@@ -74,22 +67,12 @@ public class VaultTest extends BaseTest {
         .build();
   }
 
-  @Test(expected = IllegalStateException.class)
-  public void failsIfRequestingToSyncAndEnvironmentAndClientSet() {
-    SyncConfig
-        .builder()
-        .setEnvironment("foo")
-        .setClient(null)
-        .build();
-  }
-
   @Test
   public void createsACustomCDAClient() {
     final SyncConfig syncConfig = SyncConfig
         .builder()
         .setAccessToken("foo")
         .setSpaceId("bar")
-        .setEnvironment("environment")
         .build();
 
     final CDAClient client = syncConfig.client();
