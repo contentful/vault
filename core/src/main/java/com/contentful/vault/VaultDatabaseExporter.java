@@ -1,11 +1,9 @@
 package com.contentful.vault;
 
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
-import android.os.Build;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -23,7 +21,7 @@ public class VaultDatabaseExporter {
   boolean successful;
 
   /**
-   * Use this method to exposrt Contentful spaces into sqlite3 databases which can be imported later.
+   * Use this method to export Contentful spaces into sqlite3 databases which can be imported later.
    *
    * @param context     Android (Robolectric?) Context for creating the sqlite database.
    * @param spaceClass  Configured {@link Space} containing the name and the id of the space.
