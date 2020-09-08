@@ -81,6 +81,10 @@ final class ModelInjection extends Injection {
           .add(".setId($S)", f.id())
           .add(".setName($S)", f.name());
 
+      if (f.setter() != null) {
+        block.add(".setSetter($S)", f.setter());
+      }
+
       if (f.sqliteType() != null) {
         block.add(".setSqliteType($S)", f.sqliteType());
       }
@@ -122,7 +126,7 @@ final class ModelInjection extends Injection {
       } else {
         method.endControlFlow().beginControlFlow("else if ($S.equals(name))", field.name());
       }
-      method.addStatement("resource.$L = ($T) value", field.name(), field.type());
+      addStatement(method, field, "($T) value", "resource", field.type());
     }
     method.endControlFlow()
         .beginControlFlow("else")
@@ -154,28 +158,41 @@ final class ModelInjection extends Injection {
       FieldMeta field = nonLinkFields.get(i);
       int columnIndex = RESOURCE_COLUMNS.length + i;
       String fqClassName = field.type().toString();
-      String name = field.name();
 
       if (String.class.getName().equals(fqClassName)) {
-        method.addStatement("$N.$L = cursor.getString($L)", result, name, columnIndex);
+        addStatement(method, field,"cursor.getString($L)", result, columnIndex);
       } else if (Boolean.class.getName().equals(fqClassName)) {
-        method.addStatement("$N.$L = Integer.valueOf(1).equals(cursor.getInt($L))", result,
-            name, columnIndex);
+        addStatement(method, field, "Integer.valueOf(1).equals(cursor.getInt($L))", result, columnIndex);
       } else if (Integer.class.getName().equals(fqClassName)) {
-        method.addStatement("$N.$L = cursor.getInt($L)", result, name, columnIndex);
+        addStatement(method, field, "cursor.getInt($L)", result, columnIndex);
       } else if (Double.class.getName().equals(fqClassName)) {
-        method.addStatement("$N.$L = cursor.getDouble($L)", result, name, columnIndex);
+        addStatement(method, field, "cursor.getDouble($L)", result, columnIndex);
       } else if (Map.class.getName().equals(fqClassName)) {
-        method.addStatement("$N.$L = fieldFromBlob($T.class, cursor, $L)", result, name,
+        addStatement(method, field, "fieldFromBlob($T.class, cursor, $L)", result,
             ClassName.get(HashMap.class), columnIndex);
       } else if (field.isArrayOfSymbols()) {
-        method.addStatement("$N.$L = fieldFromBlob($T.class, cursor, $L)", result, name,
+        addStatement(method, field, "fieldFromBlob($T.class, cursor, $L)", result,
             ClassName.get(ArrayList.class), columnIndex);
       }
     }
 
     method.addStatement("return $N", result);
     builder.addMethod(method.build());
+  }
+
+  private void addStatement(MethodSpec.Builder method, FieldMeta field, String operation, String resource, Object... args) {
+    Object[] newArgs = new Object[args.length + 2];
+    System.arraycopy(args, 0, newArgs, 2, args.length);
+    newArgs[0] = resource;
+
+    if(field.setter() != null) {
+      newArgs[1] = field.setter();
+      method.addStatement("$N.$L(" + operation + ")", newArgs);
+    }
+    else {
+      newArgs[1] = field.name();
+      method.addStatement("$N.$L = " + operation, newArgs);
+    }
   }
 
   private void appendCreateStatements(TypeSpec.Builder builder) {

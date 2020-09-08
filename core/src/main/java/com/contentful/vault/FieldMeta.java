@@ -23,6 +23,8 @@ public final class FieldMeta {
 
   private final String name;
 
+  private final String setter;
+
   private final TypeMirror type;
 
   private final String sqliteType;
@@ -34,6 +36,7 @@ public final class FieldMeta {
   FieldMeta(Builder builder) {
     this.id = builder.id;
     this.name = builder.name;
+    this.setter = builder.setter;
     this.type = builder.type;
     this.sqliteType = builder.sqliteType;
     this.linkType = builder.linkType;
@@ -46,6 +49,10 @@ public final class FieldMeta {
 
   public String name() {
     return name;
+  }
+
+  public String setter() {
+    return setter;
   }
 
   public TypeMirror type() {
@@ -100,6 +107,7 @@ public final class FieldMeta {
     String sqliteType;
     String linkType;
     String arrayType;
+    String setter;
 
     public Builder setId(String id) {
       this.id = id;
@@ -108,6 +116,11 @@ public final class FieldMeta {
 
     public Builder setName(String name) {
       this.name = name;
+      return this;
+    }
+
+    public Builder setSetter(String setter) {
+      this.setter = setter;
       return this;
     }
 
