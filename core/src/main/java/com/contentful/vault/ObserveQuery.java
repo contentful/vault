@@ -18,10 +18,11 @@ package com.contentful.vault;
 
 import java.util.List;
 
-import io.reactivex.BackpressureStrategy;
-import io.reactivex.Flowable;
-import io.reactivex.FlowableEmitter;
-import io.reactivex.FlowableOnSubscribe;
+import io.reactivex.rxjava3.annotations.NonNull;
+import io.reactivex.rxjava3.core.BackpressureStrategy;
+import io.reactivex.rxjava3.core.Flowable;
+import io.reactivex.rxjava3.core.FlowableEmitter;
+import io.reactivex.rxjava3.core.FlowableOnSubscribe;
 
 public final class ObserveQuery<T extends Resource> extends AbsQuery<T, ObserveQuery<T>> {
   ObserveQuery(Class<T> type, Vault vault) {
@@ -45,25 +46,26 @@ public final class ObserveQuery<T extends Resource> extends AbsQuery<T, ObserveQ
       this.locale = locale;
     }
 
-    @Override public void subscribe(FlowableEmitter<T> flowableEmitter) throws Exception {
+    @Override
+    public void subscribe(@NonNull FlowableEmitter<T> emitter) {
       try {
         FetchQuery<T> fetchQuery = query.vault().fetch(query.type());
         fetchQuery.setParams(query.params());
         List<T> items = fetchQuery.all(locale);
         for (T item : items) {
-          if (flowableEmitter.isCancelled()) {
+          if (emitter.isCancelled()) {
             return;
           }
-          flowableEmitter.onNext(item);
+          emitter.onNext(item);
         }
       } catch (Throwable t) {
-        if (!flowableEmitter.isCancelled()) {
-          flowableEmitter.onError(t);
+        if (!emitter.isCancelled()) {
+          emitter.onError(t);
         }
         return;
       }
-      if (!flowableEmitter.isCancelled()) {
-        flowableEmitter.onComplete();
+      if (!emitter.isCancelled()) {
+        emitter.onComplete();
       }
     }
   }

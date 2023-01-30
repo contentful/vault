@@ -47,7 +47,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <java.version>1.7</java.version>
 
-    <android.platform>19</android.platform>
+    <android.platform>30</android.platform>
     <android.version>4.1.1.4</android.version>
     <cda.version>10.1.0</cda.version>
     <commons-codec.version>1.10</commons-codec.version>
@@ -59,12 +59,12 @@
     <junit.version>4.12</junit.version>
     <okhttp.version>3.10.0</okhttp.version>
     <robolectric.version>3.8</robolectric.version>
-    <rxjava.version>2.1.1</rxjava.version>
+    <rxjava.version>3.1.6</rxjava.version>
     <truth.version>0.34</truth.version>
     <mockito.version>2.8.47</mockito.version>
 
     <!-- Build Dependencies -->
-    <build-helper.version>3.0.0</build-helper.version>
+    <build-helper.version>3.3.0</build-helper.version>
   </properties>
 
   <dependencyManagement>
@@ -82,7 +82,7 @@
       </dependency>
 
       <dependency>
-        <groupId>io.reactivex.rxjava2</groupId>
+        <groupId>io.reactivex.rxjava3</groupId>
         <artifactId>rxjava</artifactId>
         <version>${rxjava.version}</version>
       </dependency>
@@ -233,7 +233,7 @@
         <plugin>
           <groupId>com.simpligility.maven.plugins</groupId>
           <artifactId>android-maven-plugin</artifactId>
-          <version>4.5.0</version>
+          <version>4.6.0</version>
           <configuration>
             <sdk>
               <platform>${android.platform}</platform>

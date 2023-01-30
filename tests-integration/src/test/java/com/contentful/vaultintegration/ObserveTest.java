@@ -23,10 +23,11 @@ import com.contentful.vaultintegration.lib.demo.Cat;
 import com.contentful.vaultintegration.lib.demo.Cat$Fields;
 import com.contentful.vaultintegration.lib.demo.DemoSpace;
 import java.util.List;
+
+import io.reactivex.rxjava3.subscribers.TestSubscriber;
 import org.junit.Test;
 import org.robolectric.RuntimeEnvironment;
 
-import io.reactivex.subscribers.TestSubscriber;
 
 import static com.google.common.truth.Truth.assertThat;
 
