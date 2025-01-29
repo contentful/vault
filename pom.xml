@@ -9,7 +9,7 @@
 
   <groupId>com.contentful.vault</groupId>
   <artifactId>vault-parent</artifactId>
-  <version>3.2.7-SNAPSHOT</version>
+  <version>3.2.7</version>
   <packaging>pom</packaging>
 
   <modules>
@@ -22,7 +22,7 @@
     <url>http://github.com/contentful/vault/</url>
     <connection>scm:git:git://github.com/contentful/vault.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/contentful/vault.git</developerConnection>
-    <tag>HEAD</tag>
+    <tag>vault-parent-3.2.7</tag>
   </scm>
 
   <issueManagement>
@@ -173,8 +173,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.0</version>
         <configuration>
-          <source>${java.version}</source>
-          <target>${java.version}</target>
+          <source>1.8</source>
+          <target>1.8</target>
           <showWarnings>true</showWarnings>
           <showDeprecation>true</showDeprecation>
         </configuration>
