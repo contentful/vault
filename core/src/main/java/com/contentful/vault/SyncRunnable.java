@@ -81,15 +81,19 @@ public final class SyncRunnable implements Runnable {
     db = sqliteHelper.getWritableDatabase();
     try {
       String token = null;
+      Integer limit = null;
       if (config.shouldInvalidate()) {
         SqliteHelper.clearRecords(spaceHelper, db);
       } else {
         token = fetchSyncToken();
       }
+      if (config.limit != null) {
+        limit = config.limit;
+      }
 
       SynchronizedSpace syncedSpace;
       if (token == null) {
-        syncedSpace = config.client().sync().fetch();
+        syncedSpace = config.client().sync(limit).fetch();
       } else {
         syncedSpace = config.client().sync(token).fetch();
       }

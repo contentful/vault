@@ -26,8 +26,11 @@ public final class SyncConfig {
 
   private final boolean invalidate;
 
+  final Integer limit;
+
   SyncConfig(Builder builder) {
     this.invalidate = builder.invalidate;
+    this.limit = builder.limit;
 
     if (builder.client == null) {
       if (builder.accessToken == null) {
@@ -75,6 +78,8 @@ public final class SyncConfig {
     String spaceId;
     String environment;
 
+    Integer limit;
+
     public Builder setAccessToken(String accessToken) {
       if (client != null) {
         throw new IllegalStateException(format(FIELD_ALREADY_EXISTS, "access token", "client"));
@@ -117,6 +122,11 @@ public final class SyncConfig {
 
     public Builder setInvalidate(boolean invalidate) {
       this.invalidate = invalidate;
+      return this;
+    }
+
+    public Builder setLimit(Integer limit) {
+      this.limit = limit;
       return this;
     }
 
