@@ -36,11 +36,6 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.HashMap;
-import java.util.ArrayList;
-import java.util.Iterator;
 
 import okhttp3.HttpUrl;
 
@@ -106,11 +101,8 @@ public final class SyncRunnable implements Runnable {
 
       db.beginTransaction();
       try {
-        // First process deleted resources to ensure clean state
         processDeleted(syncedSpace);
-
-        // Process entries in order: child models first, then parent models
-        processResourcesInOrder(syncedSpace);
+        processResources(syncedSpace);
 
         saveSyncInfo(HttpUrl.parse(syncedSpace.nextSyncUrl()).queryParameter("sync_token"));
         db.setTransactionSuccessful();
@@ -134,92 +126,13 @@ public final class SyncRunnable implements Runnable {
     }
   }
 
-  private void processResourcesInOrder(SynchronizedSpace syncedSpace) {
-    // First process deleted resources
-    for (String deletedId : syncedSpace.deletedEntries()) {
-      deleteEntry(deletedId);
-    }
-
-    // Group entries by content type
-    Map<String, List<CDAEntry>> entriesByType = new HashMap<>();
-    for (CDAEntry entry : syncedSpace.entries().values()) {
-      String contentTypeId = entry.contentType().id();
-      List<CDAEntry> entries = entriesByType.get(contentTypeId);
-      if (entries == null) {
-        entries = new ArrayList<>();
-        entriesByType.put(contentTypeId, entries);
-      }
-      entries.add(entry);
-    }
-
-    // Process entries in order: assets first, then child models, then parent models
-    Set<String> processedIds = new HashSet<>();
-
-    // Process assets first
+  private void processResources(SynchronizedSpace syncedSpace) {
     for (CDAAsset asset : syncedSpace.assets().values()) {
       processResource(asset);
-      processedIds.add(asset.id());
     }
-
-    // Process entries in dependency order
-    while (!entriesByType.isEmpty()) {
-      boolean processedAny = false;
-      Iterator<Map.Entry<String, List<CDAEntry>>> it = entriesByType.entrySet().iterator();
-
-      while (it.hasNext()) {
-        Map.Entry<String, List<CDAEntry>> entry = it.next();
-        String contentTypeId = entry.getKey();
-
-        if (areDependenciesSatisfied(contentTypeId, processedIds)) {
-          for (CDAEntry contentEntry : entry.getValue()) {
-            processResource(contentEntry);
-            processedIds.add(contentEntry.id());
-          }
-          it.remove();
-          processedAny = true;
-        }
-      }
-
-      if (!processedAny && !entriesByType.isEmpty()) {
-        // If we couldn't process any entries and there are still entries left,
-        // we have a circular dependency. Process remaining entries in any order.
-        for (Map.Entry<String, List<CDAEntry>> entry : entriesByType.entrySet()) {
-          for (CDAEntry contentEntry : entry.getValue()) {
-            processResource(contentEntry);
-            processedIds.add(contentEntry.id());
-          }
-        }
-        break;
-      }
+    for (CDAEntry entry : syncedSpace.entries().values()) {
+      processResource(entry);
     }
-  }
-
-  private boolean areDependenciesSatisfied(String contentTypeId, Set<String> processedIds) {
-    // Check if all content types this one depends on have been processed
-    Class<?> modelClass = spaceHelper.getTypes().get(contentTypeId);
-    if (modelClass == null) {
-      return true;
-    }
-
-    ModelHelper<?> modelHelper = spaceHelper.getModels().get(modelClass);
-    for (FieldMeta field : modelHelper.getFields()) {
-      if (field.isLink() || field.isArrayOfLinks()) {
-        String referencedType = getReferencedType(field);
-        if (!processedIds.contains(referencedType)) {
-          return false;
-        }
-      }
-    }
-    return true;
-  }
-
-  private String getReferencedType(FieldMeta fieldMeta) {
-    if (fieldMeta.isLink()) {
-      return fieldMeta.linkType();
-    } else if (fieldMeta.isArrayOfLinks()) {
-      return fieldMeta.arrayType();
-    }
-    return null;
   }
 
   private void processDeleted(SynchronizedSpace syncedSpace) {
@@ -314,18 +227,7 @@ public final class SyncRunnable implements Runnable {
   }
 
   private void insertWithOnConflict(String table, String nullColumnHack, ContentValues values, int conflictAlgorithm) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
-      db.insertWithOnConflict(table, nullColumnHack, values, conflictAlgorithm);
-    } else {
-      // For older Android versions, try insert first, then update if it fails
-      long rowId = db.insert(table, nullColumnHack, values);
-      if (rowId == -1) {
-        // Insert failed, try update
-        String whereClause = REMOTE_ID + " = ?";
-        String[] whereArgs = new String[]{values.getAsString(REMOTE_ID)};
-        db.update(table, values, whereClause, whereArgs);
-      }
-    }
+    db.insertWithOnConflict(table, nullColumnHack, values, conflictAlgorithm);
   }
 
   @TargetApi(Build.VERSION_CODES.FROYO)
@@ -407,9 +309,10 @@ public final class SyncRunnable implements Runnable {
     }
 
     // Save entry type (locale-independent)
-    values.put(REMOTE_ID, entry.id());
-    values.put("type_id", entry.contentType().id());
-    insertWithOnConflict(escape(TABLE_ENTRY_TYPES), null, values.get(), CONFLICT_REPLACE);
+    AutoEscapeValues typeValues = new AutoEscapeValues();
+    typeValues.put(REMOTE_ID, entry.id());
+    typeValues.put("type_id", entry.contentType().id());
+    insertWithOnConflict(escape(TABLE_ENTRY_TYPES), null, typeValues.get(), CONFLICT_REPLACE);
   }
 
   private void processEntryForLocale(CDAEntry entry, String tableName, List<FieldMeta> fields,
