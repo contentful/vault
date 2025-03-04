@@ -17,6 +17,7 @@
 package com.contentful.vault;
 
 import android.annotation.TargetApi;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -298,43 +299,76 @@ public final class SyncRunnable implements Runnable {
             remoteId
     };
 
-    for (String locale : spaceHelper.getLocales()) {
+    if (config.isSingleLocale()) {
+      // Process only the default locale
+      String locale = spaceHelper.getDefaultLocale();
       db.delete(escape(localizeName(tableName, locale)), resWhere, resArgs);
       db.delete(escape(localizeName(TABLE_LINKS, locale)), linksWhere, linkArgs);
+    } else {
+      // Process all locales
+      for (String locale : spaceHelper.getLocales()) {
+        db.delete(escape(localizeName(tableName, locale)), resWhere, resArgs);
+        db.delete(escape(localizeName(TABLE_LINKS, locale)), linksWhere, linkArgs);
+      }
+    }
+  }
+
+  private void insertWithOnConflict(String table, String nullColumnHack, ContentValues values, int conflictAlgorithm) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
+      db.insertWithOnConflict(table, nullColumnHack, values, conflictAlgorithm);
+    } else {
+      // For older Android versions, try insert first, then update if it fails
+      long rowId = db.insert(table, nullColumnHack, values);
+      if (rowId == -1) {
+        // Insert failed, try update
+        String whereClause = REMOTE_ID + " = ?";
+        String[] whereArgs = new String[]{values.getAsString(REMOTE_ID)};
+        db.update(table, values, whereClause, whereArgs);
+      }
     }
   }
 
   @TargetApi(Build.VERSION_CODES.FROYO)
   private void saveAsset(CDAAsset asset) {
     AutoEscapeValues values = new AutoEscapeValues();
-    for (String locale : spaceHelper.getLocales()) {
-      putResourceFields(asset, values);
-      final LocalizedResource.Localizer localizer = asset.localize(locale);
-      final Map<String, Object> file = localizer.getField("file");
-      if (file != null) {
-        values.put(Asset.Fields.URL, "https:" + file.get("url"));
-        values.put(Asset.Fields.MIME_TYPE, (String) file.get("contentType"));
+    if (config.isSingleLocale()) {
+      // Process only the default locale
+      String locale = spaceHelper.getDefaultLocale();
+      processAssetForLocale(asset, values, locale);
+    } else {
+      // Process all locales
+      for (String locale : spaceHelper.getLocales()) {
+        processAssetForLocale(asset, values, locale);
+        values.clear();
       }
-      values.put(Asset.Fields.TITLE, localizer.<String>getField("title"));
-      values.put(Asset.Fields.DESCRIPTION, localizer.<String>getField("description"));
-
-      byte[] value = null;
-      Serializable fileMap = asset.getField("file");
-      if (fileMap != null) {
-        try {
-          value = BlobUtils.toBlob(fileMap);
-        } catch (IOException e) {
-          throw new RuntimeException(
-                  String.format("Failed converting field map for asset with id '%s'.", asset.id()));
-        }
-      }
-      values.put(Asset.Fields.FILE, value);
-
-      db.insertWithOnConflict(escape(localizeName(TABLE_ASSETS, locale)), null, values.get(),
-              CONFLICT_REPLACE);
-
-      values.clear();
     }
+  }
+
+  private void processAssetForLocale(CDAAsset asset, AutoEscapeValues values, String locale) {
+    putResourceFields(asset, values);
+    final LocalizedResource.Localizer localizer = asset.localize(locale);
+    final Map<String, Object> file = localizer.getField("file");
+    if (file != null) {
+      values.put(Asset.Fields.URL, "https:" + file.get("url"));
+      values.put(Asset.Fields.MIME_TYPE, (String) file.get("contentType"));
+    }
+    values.put(Asset.Fields.TITLE, localizer.<String>getField("title"));
+    values.put(Asset.Fields.DESCRIPTION, localizer.<String>getField("description"));
+
+    byte[] value = null;
+    Serializable fileMap = asset.getField("file");
+    if (fileMap != null) {
+      try {
+        value = BlobUtils.toBlob(fileMap);
+      } catch (IOException e) {
+        throw new RuntimeException(
+                String.format("Failed converting field map for asset with id '%s'.", asset.id()));
+      }
+    }
+    values.put(Asset.Fields.FILE, value);
+
+    insertWithOnConflict(escape(localizeName(TABLE_ASSETS, locale)), null, values.get(),
+            CONFLICT_REPLACE);
   }
 
   @SuppressWarnings("unchecked")
@@ -360,37 +394,49 @@ public final class SyncRunnable implements Runnable {
     }
 
     AutoEscapeValues values = new AutoEscapeValues();
-    for (String locale : spaceHelper.getLocales()) {
-      putResourceFields(entry, values);
-
-      for (FieldMeta field : fields) {
-        Object value = extractRawFieldValue(entry, locale, field.id());
-        if (field.isLink()) {
-          processLink(entry, locale, field.id(), (Map<?, ?>) value, 0);
-        } else if (field.isArray()) {
-          processArray(entry, locale, values, field);
-        } else if ("BLOB".equals(field.sqliteType())) {
-          saveBlob(entry, values, field, (Serializable) value);
-        } else if ("BOOL".equals(field.sqliteType())) {
-          saveBoolean(values, field, (Boolean) value);
-        } else {
-          String stringValue = null;
-          if (value != null) {
-            stringValue = value.toString();
-          }
-          values.put(field.name(), stringValue);
-        }
+    if (config.isSingleLocale()) {
+      // Process only the default locale
+      String locale = spaceHelper.getDefaultLocale();
+      processEntryForLocale(entry, tableName, fields, values, locale);
+    } else {
+      // Process all locales
+      for (String locale : spaceHelper.getLocales()) {
+        processEntryForLocale(entry, tableName, fields, values, locale);
+        values.clear();
       }
-
-      db.insertWithOnConflict(escape(localizeName(tableName, locale)), null, values.get(),
-              CONFLICT_REPLACE);
-
-      values.clear();
     }
 
+    // Save entry type (locale-independent)
     values.put(REMOTE_ID, entry.id());
     values.put("type_id", entry.contentType().id());
-    db.insertWithOnConflict(escape(TABLE_ENTRY_TYPES), null, values.get(), CONFLICT_REPLACE);
+    insertWithOnConflict(escape(TABLE_ENTRY_TYPES), null, values.get(), CONFLICT_REPLACE);
+  }
+
+  private void processEntryForLocale(CDAEntry entry, String tableName, List<FieldMeta> fields,
+                                     AutoEscapeValues values, String locale) {
+    putResourceFields(entry, values);
+
+    for (FieldMeta field : fields) {
+      Object value = extractRawFieldValue(entry, locale, field.id());
+      if (field.isLink()) {
+        processLink(entry, locale, field.id(), (Map<?, ?>) value, 0);
+      } else if (field.isArray()) {
+        processArray(entry, locale, values, field);
+      } else if ("BLOB".equals(field.sqliteType())) {
+        saveBlob(entry, values, field, (Serializable) value);
+      } else if ("BOOL".equals(field.sqliteType())) {
+        saveBoolean(values, field, (Boolean) value);
+      } else {
+        String stringValue = null;
+        if (value != null) {
+          stringValue = value.toString();
+        }
+        values.put(field.name(), stringValue);
+      }
+    }
+
+    insertWithOnConflict(escape(localizeName(tableName, locale)), null, values.get(),
+            CONFLICT_REPLACE);
   }
 
   private void saveBoolean(AutoEscapeValues values, FieldMeta field, Boolean value) {
@@ -458,13 +504,19 @@ public final class SyncRunnable implements Runnable {
     values.put("position", position);
     values.put("is_asset", CDAType.valueOf(linkType.toUpperCase(Vault.LOCALE)) == ASSET);
 
-    db.insertWithOnConflict(escape(localizeName(TABLE_LINKS, locale)), null, values.get(),
+    insertWithOnConflict(escape(localizeName(TABLE_LINKS, locale)), null, values.get(),
             CONFLICT_REPLACE);
   }
 
   private void deleteResourceLinks(String parentId, String field) {
-    for (String locale : spaceHelper.getLocales()) {
-      deleteResourceLinks(parentId, field, locale);
+    if (config.isSingleLocale()) {
+      // Process only the default locale
+      deleteResourceLinks(parentId, field, spaceHelper.getDefaultLocale());
+    } else {
+      // Process all locales
+      for (String locale : spaceHelper.getLocales()) {
+        deleteResourceLinks(parentId, field, locale);
+      }
     }
   }
 

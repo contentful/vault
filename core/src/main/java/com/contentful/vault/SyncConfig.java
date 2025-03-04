@@ -28,31 +28,13 @@ public final class SyncConfig {
 
   private final Integer limit;
 
+  private final boolean singleLocale;
+
   SyncConfig(Builder builder) {
+    this.client = builder.client;
     this.invalidate = builder.invalidate;
     this.limit = builder.limit;
-
-    if (builder.client == null) {
-      if (builder.accessToken == null) {
-        throw new IllegalStateException("Cannot create a CDA client with no access token. " +
-                "Please set it.");
-      }
-
-      if (builder.spaceId == null) {
-        throw new IllegalStateException("Cannot create a CDA client with no space id. " +
-                "Please set it.");
-      }
-
-      this.client = CDAClient
-              .builder()
-              .setToken(builder.accessToken)
-              .setSpace(builder.spaceId)
-              .setEnvironment(builder.environment)
-              .setIntegration("Vault", PROJECT_VERSION)
-              .build();
-    } else {
-      this.client = builder.client;
-    }
+    this.singleLocale = builder.singleLocale;
   }
 
   public CDAClient client() {
@@ -67,6 +49,10 @@ public final class SyncConfig {
     return limit;
   }
 
+  public boolean isSingleLocale() {
+    return singleLocale;
+  }
+
   public static Builder builder() {
     return new Builder();
   }
@@ -78,10 +64,11 @@ public final class SyncConfig {
 
     CDAClient client;
     boolean invalidate;
-    String accessToken;
+    Integer limit;
+    boolean singleLocale;
     String spaceId;
     String environment;
-    Integer limit;
+    String accessToken;
 
     public Builder setAccessToken(String accessToken) {
       if (client != null) {
@@ -114,11 +101,9 @@ public final class SyncConfig {
       if (spaceId != null) {
         throw new IllegalStateException(format(FIELD_ALREADY_EXISTS, "client", "space id"));
       }
-
       if (environment != null) {
         throw new IllegalStateException(format(FIELD_ALREADY_EXISTS, "client", "environment"));
       }
-
       this.client = client;
       return this;
     }
@@ -129,14 +114,28 @@ public final class SyncConfig {
     }
 
     public Builder setLimit(Integer limit) {
-      if (limit != null && limit <= 0) {
-        throw new IllegalArgumentException("Limit must be greater than 0");
-      }
       this.limit = limit;
       return this;
     }
 
+    public Builder setSingleLocale(boolean singleLocale) {
+      this.singleLocale = singleLocale;
+      return this;
+    }
+
     public SyncConfig build() {
+      if (client == null && (accessToken == null || spaceId == null || environment == null)) {
+        throw new IllegalStateException("Either a client or access token, space id, and environment must be set.");
+      }
+      if (client == null) {
+        this.client = CDAClient
+                .builder()
+                .setToken(accessToken)
+                .setSpace(spaceId)
+                .setEnvironment(environment)
+                .setIntegration("Vault", PROJECT_VERSION)
+                .build();
+      }
       return new SyncConfig(this);
     }
   }
