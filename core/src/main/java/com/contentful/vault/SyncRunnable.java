@@ -35,6 +35,11 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 import okhttp3.HttpUrl;
 
@@ -100,8 +105,11 @@ public final class SyncRunnable implements Runnable {
 
       db.beginTransaction();
       try {
+        // First process deleted resources to ensure clean state
         processDeleted(syncedSpace);
-        processResources(syncedSpace);
+
+        // Process entries in order: child models first, then parent models
+        processResourcesInOrder(syncedSpace);
 
         saveSyncInfo(HttpUrl.parse(syncedSpace.nextSyncUrl()).queryParameter("sync_token"));
         db.setTransactionSuccessful();
@@ -125,13 +133,92 @@ public final class SyncRunnable implements Runnable {
     }
   }
 
-  private void processResources(SynchronizedSpace syncedSpace) {
+  private void processResourcesInOrder(SynchronizedSpace syncedSpace) {
+    // First process deleted resources
+    for (String deletedId : syncedSpace.deletedEntries()) {
+      deleteEntry(deletedId);
+    }
+
+    // Group entries by content type
+    Map<String, List<CDAEntry>> entriesByType = new HashMap<>();
+    for (CDAEntry entry : syncedSpace.entries().values()) {
+      String contentTypeId = entry.contentType().id();
+      List<CDAEntry> entries = entriesByType.get(contentTypeId);
+      if (entries == null) {
+        entries = new ArrayList<>();
+        entriesByType.put(contentTypeId, entries);
+      }
+      entries.add(entry);
+    }
+
+    // Process entries in order: assets first, then child models, then parent models
+    Set<String> processedIds = new HashSet<>();
+
+    // Process assets first
     for (CDAAsset asset : syncedSpace.assets().values()) {
       processResource(asset);
+      processedIds.add(asset.id());
     }
-    for (CDAEntry entry : syncedSpace.entries().values()) {
-      processResource(entry);
+
+    // Process entries in dependency order
+    while (!entriesByType.isEmpty()) {
+      boolean processedAny = false;
+      Iterator<Map.Entry<String, List<CDAEntry>>> it = entriesByType.entrySet().iterator();
+
+      while (it.hasNext()) {
+        Map.Entry<String, List<CDAEntry>> entry = it.next();
+        String contentTypeId = entry.getKey();
+
+        if (areDependenciesSatisfied(contentTypeId, processedIds)) {
+          for (CDAEntry contentEntry : entry.getValue()) {
+            processResource(contentEntry);
+            processedIds.add(contentEntry.id());
+          }
+          it.remove();
+          processedAny = true;
+        }
+      }
+
+      if (!processedAny && !entriesByType.isEmpty()) {
+        // If we couldn't process any entries and there are still entries left,
+        // we have a circular dependency. Process remaining entries in any order.
+        for (Map.Entry<String, List<CDAEntry>> entry : entriesByType.entrySet()) {
+          for (CDAEntry contentEntry : entry.getValue()) {
+            processResource(contentEntry);
+            processedIds.add(contentEntry.id());
+          }
+        }
+        break;
+      }
     }
+  }
+
+  private boolean areDependenciesSatisfied(String contentTypeId, Set<String> processedIds) {
+    // Check if all content types this one depends on have been processed
+    Class<?> modelClass = spaceHelper.getTypes().get(contentTypeId);
+    if (modelClass == null) {
+      return true;
+    }
+
+    ModelHelper<?> modelHelper = spaceHelper.getModels().get(modelClass);
+    for (FieldMeta field : modelHelper.getFields()) {
+      if (field.isLink() || field.isArrayOfLinks()) {
+        String referencedType = getReferencedType(field);
+        if (!processedIds.contains(referencedType)) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  private String getReferencedType(FieldMeta fieldMeta) {
+    if (fieldMeta.isLink()) {
+      return fieldMeta.linkType();
+    } else if (fieldMeta.isArrayOfLinks()) {
+      return fieldMeta.arrayType();
+    }
+    return null;
   }
 
   private void processDeleted(SynchronizedSpace syncedSpace) {
