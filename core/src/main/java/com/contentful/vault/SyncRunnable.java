@@ -81,19 +81,19 @@ public final class SyncRunnable implements Runnable {
     db = sqliteHelper.getWritableDatabase();
     try {
       String token = null;
-      Integer limit = null;
       if (config.shouldInvalidate()) {
         SqliteHelper.clearRecords(spaceHelper, db);
       } else {
         token = fetchSyncToken();
       }
-      if (config.limit != null) {
-        limit = config.limit;
-      }
 
       SynchronizedSpace syncedSpace;
       if (token == null) {
-        syncedSpace = config.client().sync(limit).fetch();
+        if (config.getLimit() != null) {
+          syncedSpace = config.client().sync(config.getLimit()).fetch();
+        } else {
+          syncedSpace = config.client().sync().fetch();
+        }
       } else {
         syncedSpace = config.client().sync(token).fetch();
       }
@@ -113,7 +113,7 @@ public final class SyncRunnable implements Runnable {
     } finally {
       // Notify via broadcast
       context.sendBroadcast(new Intent(Vault.ACTION_SYNC_COMPLETE)
-          .putExtra(Vault.EXTRA_SUCCESS, error == null));
+              .putExtra(Vault.EXTRA_SUCCESS, error == null));
 
       SyncResult syncResult = new SyncResult(spaceHelper.getSpaceId(), error);
 
@@ -207,8 +207,8 @@ public final class SyncRunnable implements Runnable {
     // links
     String linksWhere = "`parent` = ? OR `child` = ?";
     String linkArgs[] = new String[]{
-        remoteId,
-        remoteId
+            remoteId,
+            remoteId
     };
 
     for (String locale : spaceHelper.getLocales()) {
@@ -238,13 +238,13 @@ public final class SyncRunnable implements Runnable {
           value = BlobUtils.toBlob(fileMap);
         } catch (IOException e) {
           throw new RuntimeException(
-              String.format("Failed converting field map for asset with id '%s'.", asset.id()));
+                  String.format("Failed converting field map for asset with id '%s'.", asset.id()));
         }
       }
       values.put(Asset.Fields.FILE, value);
 
       db.insertWithOnConflict(escape(localizeName(TABLE_ASSETS, locale)), null, values.get(),
-          CONFLICT_REPLACE);
+              CONFLICT_REPLACE);
 
       values.clear();
     }
@@ -296,7 +296,7 @@ public final class SyncRunnable implements Runnable {
       }
 
       db.insertWithOnConflict(escape(localizeName(tableName, locale)), null, values.get(),
-          CONFLICT_REPLACE);
+              CONFLICT_REPLACE);
 
       values.clear();
     }
@@ -356,8 +356,8 @@ public final class SyncRunnable implements Runnable {
       values.put(field.name(), BlobUtils.toBlob(value));
     } catch (IOException e) {
       throw new RuntimeException(
-          String.format("Failed converting value to BLOB for entry id %s field %s.", entry.id(),
-              field.name()));
+              String.format("Failed converting value to BLOB for entry id %s field %s.", entry.id(),
+                      field.name()));
     }
   }
 
@@ -372,7 +372,7 @@ public final class SyncRunnable implements Runnable {
     values.put("is_asset", CDAType.valueOf(linkType.toUpperCase(Vault.LOCALE)) == ASSET);
 
     db.insertWithOnConflict(escape(localizeName(TABLE_LINKS, locale)), null, values.get(),
-        CONFLICT_REPLACE);
+            CONFLICT_REPLACE);
   }
 
   private void deleteResourceLinks(String parentId, String field) {

@@ -48,7 +48,7 @@
 
     <android.platform>30</android.platform>
     <android.version>4.1.1.4</android.version>
-    <cda.version>10.5.20</cda.version>
+    <cda.version>10.5.21</cda.version>
     <commons-codec.version>1.10</commons-codec.version>
     <commons-io.version>2.5</commons-io.version>
     <commons-lang3.version>3.4</commons-lang3.version>

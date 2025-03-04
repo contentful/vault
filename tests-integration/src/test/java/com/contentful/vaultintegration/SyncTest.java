@@ -94,8 +94,8 @@ public class SyncTest extends SyncBase {
     sync();
 
     List<Asset> assets = vault.fetch(Asset.class)
-        .order(CREATED_AT)
-        .all();
+            .order(CREATED_AT)
+            .all();
 
     assertThat(assets).isNotNull();
     assertThat(assets).hasSize(4);
@@ -124,11 +124,11 @@ public class SyncTest extends SyncBase {
     enqueue("assets/initial.json");
 
     final CDAClient localClient = CDAClient.builder()
-        .setSpace("space")
-        .setToken("token")
-        .setEnvironment("environment")
-        .setEndpoint(getServerUrl()) // only used for testing: leave blank if not white labeling
-        .build();
+            .setSpace("space")
+            .setToken("token")
+            .setEnvironment("environment")
+            .setEndpoint(getServerUrl()) // only used for testing: leave blank if not white labeling
+            .build();
 
     final SyncConfig config = new SyncConfig.Builder().setClient(localClient).build();
 
@@ -142,5 +142,79 @@ public class SyncTest extends SyncBase {
 
     request = server.takeRequest();
     assertThat(request.getPath()).startsWith("/spaces/space/environments/environment/sync");
+  }
+
+  @Test public void testSyncInPreviewNotInitialDoesInitial() throws Exception {
+    enqueue("demo/locales.json");
+    enqueue("demo/types.json");
+    enqueue("demo/initial.json");
+
+    sync();
+    assertSyncInitial();
+
+    enqueue("demo/locales.json");
+    enqueue("demo/types.json");
+    enqueue("demo/initial.json");
+
+    sync();
+    assertSyncInitial();
+  }
+
+  @Test public void testSyncWithLimit() throws Exception {
+    // Initial sync with limit
+    enqueue("demo/locales.json");
+    enqueue("demo/types.json");
+    enqueue("demo/initial.json");
+
+    sync(SyncConfig.builder().setClient(client).setLimit(1000).build());
+    assertSyncInitial();
+
+    // Verify the request URL contains the limit parameter
+    server.takeRequest(); // ignore locales request
+    server.takeRequest(); // ignore content types request
+    RecordedRequest request = server.takeRequest();
+    assertThat(request.getPath()).isEqualTo("/spaces/space/environments/master/sync?initial=true&limit=1000");
+
+    // Subsequent sync without limit (should use the limit from token)
+    enqueue("demo/locales.json");
+    enqueue("demo/types.json");
+    enqueue("demo/update.json");
+
+    sync(SyncConfig.builder().setClient(client).build());
+    assertSyncUpdate();
+
+    // Verify the request URL doesn't contain the limit parameter
+    server.takeRequest(); // ignore locales request
+    server.takeRequest(); // ignore content types request
+    request = server.takeRequest();
+    assertThat(request.getPath()).isEqualTo("/spaces/space/environments/master/sync?sync_token=st1");
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testSyncWithInvalidLimit() throws Exception {
+    SyncConfig.builder()
+            .setClient(client)
+            .setLimit(0)  // Invalid limit
+            .build();
+  }
+
+  @Test public void testSyncWithLimitAndInvalidate() throws Exception {
+    // Initial sync with limit and invalidate
+    enqueue("demo/locales.json");
+    enqueue("demo/types.json");
+    enqueue("demo/initial.json");
+
+    sync(SyncConfig.builder()
+            .setClient(client)
+            .setLimit(1000)
+            .setInvalidate(true)
+            .build());
+    assertSyncInitial();
+
+    // Verify the request URL contains both initial and limit parameters
+    server.takeRequest(); // ignore locales request
+    server.takeRequest(); // ignore content types request
+    RecordedRequest request = server.takeRequest();
+    assertThat(request.getPath()).isEqualTo("/spaces/space/environments/master/sync?initial=true&limit=1000");
   }
 }

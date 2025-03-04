@@ -26,7 +26,7 @@ public final class SyncConfig {
 
   private final boolean invalidate;
 
-  final Integer limit;
+  private final Integer limit;
 
   SyncConfig(Builder builder) {
     this.invalidate = builder.invalidate;
@@ -35,21 +35,21 @@ public final class SyncConfig {
     if (builder.client == null) {
       if (builder.accessToken == null) {
         throw new IllegalStateException("Cannot create a CDA client with no access token. " +
-            "Please set it.");
+                "Please set it.");
       }
 
       if (builder.spaceId == null) {
         throw new IllegalStateException("Cannot create a CDA client with no space id. " +
-            "Please set it.");
+                "Please set it.");
       }
 
       this.client = CDAClient
-          .builder()
-          .setToken(builder.accessToken)
-          .setSpace(builder.spaceId)
-          .setEnvironment(builder.environment)
-          .setIntegration("Vault", PROJECT_VERSION)
-          .build();
+              .builder()
+              .setToken(builder.accessToken)
+              .setSpace(builder.spaceId)
+              .setEnvironment(builder.environment)
+              .setIntegration("Vault", PROJECT_VERSION)
+              .build();
     } else {
       this.client = builder.client;
     }
@@ -61,6 +61,10 @@ public final class SyncConfig {
 
   public boolean shouldInvalidate() {
     return invalidate;
+  }
+
+  public Integer getLimit() {
+    return limit;
   }
 
   public static Builder builder() {
@@ -77,7 +81,6 @@ public final class SyncConfig {
     String accessToken;
     String spaceId;
     String environment;
-
     Integer limit;
 
     public Builder setAccessToken(String accessToken) {
@@ -126,6 +129,9 @@ public final class SyncConfig {
     }
 
     public Builder setLimit(Integer limit) {
+      if (limit != null && limit <= 0) {
+        throw new IllegalArgumentException("Limit must be greater than 0");
+      }
       this.limit = limit;
       return this;
     }
