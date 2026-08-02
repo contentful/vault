@@ -64,7 +64,7 @@
     <mockito.version>2.8.47</mockito.version>
 
     <!-- Build Dependencies -->
-    <build-helper.version>3.3.0</build-helper.version>
+    <build-helper.version>3.6.1</build-helper.version>
   </properties>
 
   <dependencyManagement>
