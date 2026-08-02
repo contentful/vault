@@ -50,7 +50,7 @@
     <android.platform>30</android.platform>
     <android.version>4.1.1.4</android.version>
     <cda.version>10.6.0</cda.version>
-    <commons-codec.version>1.10</commons-codec.version>
+    <commons-codec.version>1.22.1</commons-codec.version>
     <commons-io.version>2.14.0</commons-io.version>
     <commons-lang3.version>3.18.0</commons-lang3.version>
     <compile-testing.version>0.23.0</compile-testing.version>
