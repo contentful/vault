@@ -53,7 +53,7 @@
     <commons-codec.version>1.10</commons-codec.version>
     <commons-io.version>2.14.0</commons-io.version>
     <commons-lang3.version>3.18.0</commons-lang3.version>
-    <compile-testing.version>0.9</compile-testing.version>
+    <compile-testing.version>0.23.0</compile-testing.version>
     <guava.version>32.0.0-android</guava.version>
     <javapoet.version>1.2.0</javapoet.version>
     <junit.version>4.13.2</junit.version>
