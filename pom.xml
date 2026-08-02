@@ -209,7 +209,7 @@
         <inherited>true</inherited>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
-        <version>3.0.0-M1</version>
+        <version>3.6.3</version>
         <executions>
           <execution>
             <id>enforce-maven-3</id>
