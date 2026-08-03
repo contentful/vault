@@ -24,6 +24,8 @@ public final class Test$AwesomeModel$$ModelHelper extends ModelHelper<Test.Aweso
     fields.add(FieldMeta.builder().setId("arrayOfModels").setName("arrayOfModels").setArrayType("Test.AwesomeModel").build());
     fields.add(FieldMeta.builder().setId("arrayOfSymbols").setName("arrayOfSymbols").setSqliteType(
         "BLOB").setArrayType("java.lang.String").build());
+    fields.add(FieldMeta.builder().setId("privateField").setName("privateField").setSetter("setPrivateField").setSqliteType("TEXT").build());
+    fields.add(FieldMeta.builder().setId("privateFluentField").setName("privateFluentField").setSetter("privateFluentField").setSqliteType("TEXT").build());
   }
 
   @Override
@@ -40,7 +42,7 @@ public final class Test$AwesomeModel$$ModelHelper extends ModelHelper<Test.Aweso
   public List<String> getCreateStatements(SpaceHelper spaceHelper) {
     List<String> list = new ArrayList<String>();
     for (String code : spaceHelper.getLocales()) {
-      list.add("CREATE TABLE `entry_y2lk$" + code + "` (`remote_id` STRING NOT NULL UNIQUE, `created_at` STRING NOT NULL, `updated_at` STRING, `textField` TEXT, `booleanField` BOOL, `integerField` INT, `doubleField` DOUBLE, `mapField` BLOB, `arrayOfSymbols` BLOB);");
+      list.add("CREATE TABLE `entry_y2lk$" + code + "` (`remote_id` STRING NOT NULL UNIQUE, `created_at` STRING NOT NULL, `updated_at` STRING, `textField` TEXT, `booleanField` BOOL, `integerField` INT, `doubleField` DOUBLE, `mapField` BLOB, `arrayOfSymbols` BLOB, `privateField` TEXT, `privateFluentField` TEXT);");
     }
     return list;
   }
@@ -56,6 +58,8 @@ public final class Test$AwesomeModel$$ModelHelper extends ModelHelper<Test.Aweso
     result.doubleField = cursor.getDouble(6);
     result.mapField = fieldFromBlob(HashMap.class, cursor, 7);
     result.arrayOfSymbols = fieldFromBlob(ArrayList.class, cursor, 8);
+    result.setPrivateField(cursor.getString(9));
+    result.privateFluentField(cursor.getString(10));
     return result;
   }
 
@@ -91,6 +95,12 @@ public final class Test$AwesomeModel$$ModelHelper extends ModelHelper<Test.Aweso
     }
     else if ("arrayOfSymbols".equals(name)) {
       resource.arrayOfSymbols = (List<String>) value;
+    }
+    else if ("privateField".equals(name)) {
+      resource.setPrivateField((String) value);
+    }
+    else if ("privateFluentField".equals(name)) {
+      resource.privateFluentField((String) value);
     }
     else {
       return false;
