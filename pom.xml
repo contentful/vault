@@ -57,7 +57,7 @@
     <guava.version>33.6.0-jre</guava.version>
     <javapoet.version>1.13.0</javapoet.version>
     <junit.version>4.13.2</junit.version>
-    <okhttp.version>3.14.9</okhttp.version>
+    <okhttp.version>5.4.0</okhttp.version>
     <robolectric.version>4.16.1</robolectric.version>
     <rxjava.version>3.1.12</rxjava.version>
     <truth.version>1.4.5</truth.version>
