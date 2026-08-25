@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.contentful.vault</groupId>
     <artifactId>vault-parent</artifactId>
-    <version>3.2.7-SNAPSHOT</version>
+    <version>3.2.11</version>
   </parent>
 
   <artifactId>tests-integration</artifactId>
@@ -91,6 +91,22 @@
         <groupId>com.simpligility.maven.plugins</groupId>
         <artifactId>android-maven-plugin</artifactId>
         <extensions>true</extensions>
+        <dependencies>
+          <!--
+            android-maven-plugin 4.6.0 uses JAXB, which was removed from the JDK in
+            Java 11. Supply it explicitly so the plugin runs on modern JDKs.
+          -->
+          <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.3.1</version>
+          </dependency>
+          <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+            <version>2.3.9</version>
+          </dependency>
+        </dependencies>
       </plugin>
 
       <plugin>
@@ -102,10 +118,18 @@
       </plugin>
 
       <plugin>
-        <groupId>org.sonatype.plugins</groupId>
-        <artifactId>nexus-staging-maven-plugin</artifactId>
+        <groupId>org.sonatype.central</groupId>
+        <artifactId>central-publishing-maven-plugin</artifactId>
         <configuration>
-          <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
+          <skipPublishing>true</skipPublishing>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-gpg-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
         </configuration>
       </plugin>
     </plugins>
