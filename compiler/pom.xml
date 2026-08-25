@@ -10,6 +10,10 @@
 
   <artifactId>compiler</artifactId>
 
+  <name>${project.groupId}:${project.artifactId}</name>
+  <description>Vault annotation processor: generates model and space bindings at compile time.</description>
+  <url>http://github.com/contentful/vault</url>
+
   <dependencies>
     <dependency>
       <groupId>commons-codec</groupId>
