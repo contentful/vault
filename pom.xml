@@ -58,7 +58,7 @@
       Robolectric 3.8 reflects into java.base internals, which the module system
       blocks on JDK 9+. These opens keep the existing tests runnable on modern JDKs.
     -->
-    <surefire.argLine>--add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED --add-opens java.base/java.io=ALL-UNNAMED --add-opens java.base/java.net=ALL-UNNAMED --add-opens java.base/java.text=ALL-UNNAMED</surefire.argLine>
+    <surefire.argLine>--add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED --add-opens java.base/java.io=ALL-UNNAMED --add-opens java.base/java.net=ALL-UNNAMED --add-opens java.base/java.text=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</surefire.argLine>
 
     <android.platform>30</android.platform>
     <android.version>4.1.1.4</android.version>
@@ -67,11 +67,12 @@
     <commons-io.version>2.5</commons-io.version>
     <commons-lang3.version>3.4</commons-lang3.version>
     <compile-testing.version>0.9</compile-testing.version>
-    <guava.version>22.0-android</guava.version>
+    <guava.version>32.1.3-android</guava.version>
     <javapoet.version>1.2.0</javapoet.version>
     <junit.version>4.12</junit.version>
     <okhttp.version>3.10.0</okhttp.version>
-    <robolectric.version>3.8</robolectric.version>
+    <robolectric.version>4.11.1</robolectric.version>
+    <androidx.test.version>1.5.0</androidx.test.version>
     <rxjava.version>3.1.6</rxjava.version>
     <truth.version>0.34</truth.version>
     <mockito.version>2.8.47</mockito.version>
@@ -79,6 +80,17 @@
     <!-- Build Dependencies -->
     <build-helper.version>3.3.0</build-helper.version>
   </properties>
+
+  <repositories>
+    <!--
+      Robolectric 4.x pulls AndroidX artifacts (androidx.test:monitor,
+      espresso-idling-resource) that are only published to Google's Maven repo.
+    -->
+    <repository>
+      <id>google</id>
+      <url>https://maven.google.com</url>
+    </repository>
+  </repositories>
 
   <dependencyManagement>
     <dependencies>
@@ -155,6 +167,37 @@
         <artifactId>robolectric</artifactId>
         <version>${robolectric.version}</version>
         <scope>test</scope>
+      </dependency>
+
+      <!--
+        Robolectric 4.x resolves the application context through
+        androidx.test.platform.app.InstrumentationRegistry, which ships in
+        androidx.test:core rather than the robolectric artifact itself.
+      -->
+      <dependency>
+        <groupId>androidx.test</groupId>
+        <artifactId>monitor</artifactId>
+        <version>1.6.1</version>
+        <type>aar</type>
+        <scope>test</scope>
+        <exclusions>
+          <exclusion>
+            <groupId>androidx.test.services</groupId>
+            <artifactId>storage</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>androidx.tracing</groupId>
+            <artifactId>tracing</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>androidx.annotation</groupId>
+            <artifactId>annotation-experimental</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>androidx.test</groupId>
+            <artifactId>annotation</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
 
       <dependency>
