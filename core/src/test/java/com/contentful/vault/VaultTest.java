@@ -37,7 +37,7 @@ import static org.junit.Assert.assertTrue;
  * this instance's own space only.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(manifest = "src/test/resources/AndroidManifest.xml", sdk = 23)
+@Config(sdk = 23)
 public class VaultTest {
 
   static class SpaceA {

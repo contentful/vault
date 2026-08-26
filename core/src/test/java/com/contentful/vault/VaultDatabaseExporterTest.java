@@ -33,7 +33,7 @@ import static org.junit.Assert.fail;
  * blocking {@code CountDownLatch.await()} could never be released.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(manifest = "src/test/resources/AndroidManifest.xml", sdk = 23)
+@Config(sdk = 23)
 public class VaultDatabaseExporterTest {
 
   /** Any class works: the main-thread guard must fire before this is ever looked up. */

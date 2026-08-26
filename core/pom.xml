@@ -39,7 +39,7 @@
     <dependency>
       <groupId>io.reactivex.rxjava3</groupId>
       <artifactId>rxjava</artifactId>
-      <version>3.0.0</version>
+      <version>3.1.12</version>
       <scope>provided</scope>
     </dependency>
 
@@ -59,6 +59,13 @@
     <dependency>
       <groupId>org.robolectric</groupId>
       <artifactId>robolectric</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.robolectric</groupId>
+      <artifactId>android-all-instrumented</artifactId>
+      <version>14-robolectric-10818077-i7</version>
       <scope>test</scope>
     </dependency>
 

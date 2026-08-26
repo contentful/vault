@@ -37,7 +37,7 @@ import static org.junit.Assert.assertNotNull;
  * against a pre-API-33 Android stub) and falls back safely to the legacy call otherwise.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(manifest = "src/test/resources/AndroidManifest.xml", sdk = 23)
+@Config(sdk = 23)
 public class AssetTest {
 
   @Test public void readFileMapRoundTripsOnLegacySdk() {
