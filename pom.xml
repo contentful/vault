@@ -49,7 +49,7 @@
 
     <android.platform>30</android.platform>
     <android.version>4.1.1.4</android.version>
-    <cda.version>10.6.0</cda.version>
+    <cda.version>10.6.1</cda.version>
     <commons-codec.version>1.22.1</commons-codec.version>
     <commons-io.version>2.22.0</commons-io.version>
     <commons-lang3.version>3.20.0</commons-lang3.version>
