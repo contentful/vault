@@ -1,0 +1,34 @@
+{
+  "name": "📄 page - Product",
+  "description": "To output data for a single product",
+  "displayField": "internalName",
+  "fields": [
+    {
+      "id": "internalName",
+      "name": "Internal name",
+      "type": "Symbol",
+      "localized": false,
+      "required": true,
+      "validations": [
+        {
+          "unique": true
+        }
+      ],
+      "disabled": false,
+      "omitted": false
+    },
+    {
+      "id": "slug",
+      "name": "Slug",
+      "type": "Symbol",
+      "localized": false,
+      "required": true,
+      "validations": [
+        {
+          "unique": true
+        }
+      ],
+      "disabled": false,
+      "omitted": false
+    },
+    {
