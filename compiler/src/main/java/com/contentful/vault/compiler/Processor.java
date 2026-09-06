@@ -23,8 +23,6 @@ import com.contentful.vault.Resource;
 import com.contentful.vault.Space;
 import com.google.common.base.Joiner;
 import com.squareup.javapoet.ClassName;
-import com.sun.tools.javac.code.Attribute;
-import com.sun.tools.javac.code.Type;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.annotation.Annotation;
@@ -172,7 +170,8 @@ public class Processor extends AbstractProcessor {
 
             Set<String> modelIds = new LinkedHashSet<>();
             for (Object model : l) {
-              TypeElement e = (TypeElement) ((Type) ((Attribute) model).getValue()).asElement();
+              TypeMirror modelTypeMirror = (TypeMirror) ((AnnotationValue) model).getValue();
+              TypeElement e = (TypeElement) ((DeclaredType) modelTypeMirror).asElement();
               ModelInjection modelInjection = models.get(e);
               if (modelInjection == null) {
                 return;

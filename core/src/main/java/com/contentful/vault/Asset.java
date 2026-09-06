@@ -16,8 +16,10 @@
 
 package com.contentful.vault;
 
+import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -184,8 +186,29 @@ public final class Asset extends Resource implements Parcelable {
     if (in.readInt() == -1) {
       this.file = null;
     } else {
-      this.file = (HashMap<String, Object>) in.readSerializable();
+      this.file = readFileMap(in);
     }
+  }
+
+  // 33 == Build.VERSION_CODES.TIRAMISU. The symbolic constant is unavailable because this
+  // module compiles against the legacy com.google.android:android:4.1.1.4 stub (API 16), so
+  // the typed overload below (added in API 33) is invoked reflectively and guarded by SDK_INT,
+  // falling back to the legacy call if it's ever unavailable at runtime.
+  private static final int SDK_INT_TIRAMISU = 33;
+
+  @SuppressWarnings("unchecked")
+  static HashMap<String, Object> readFileMap(Parcel in) {
+    if (Build.VERSION.SDK_INT >= SDK_INT_TIRAMISU) {
+      try {
+        Method method = Parcel.class.getMethod("readSerializable", ClassLoader.class, Class.class);
+        return (HashMap<String, Object>) method.invoke(in, Asset.class.getClassLoader(), HashMap.class);
+      } catch (ReflectiveOperationException e) {
+        e.printStackTrace(System.err);
+        // Fall through to the legacy call below.
+      }
+    }
+    //noinspection deprecation
+    return (HashMap<String, Object>) in.readSerializable();
   }
 
   public static final class Fields extends BaseFields {

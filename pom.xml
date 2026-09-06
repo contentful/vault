@@ -1,16 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>org.sonatype.oss</groupId>
-    <artifactId>oss-parent</artifactId>
-    <version>9</version>
-  </parent>
-
   <groupId>com.contentful.vault</groupId>
   <artifactId>vault-parent</artifactId>
-  <version>3.2.7-SNAPSHOT</version>
+  <version>3.2.12</version>
   <packaging>pom</packaging>
+
+  <name>${project.groupId}:${project.artifactId}</name>
+  <description>Android library for persisting and querying Contentful content locally.</description>
+  <url>http://github.com/contentful/vault</url>
 
   <modules>
     <module>compiler</module>
@@ -43,9 +41,24 @@
     <url>http://contentful.com</url>
   </organization>
 
+  <developers>
+    <developer>
+      <id>contentful</id>
+      <name>Contentful</name>
+      <email>opensource@contentful.com</email>
+    </developer>
+  </developers>
+
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <java.version>1.7</java.version>
+    <project.reporting.sourceEncoding>UTF-8</project.reporting.sourceEncoding>
+    <java.version>1.8</java.version>
+
+    <!--
+      Robolectric 3.8 reflects into java.base internals, which the module system
+      blocks on JDK 9+. These opens keep the existing tests runnable on modern JDKs.
+    -->
+    <surefire.argLine>--add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED --add-opens java.base/java.io=ALL-UNNAMED --add-opens java.base/java.net=ALL-UNNAMED --add-opens java.base/java.text=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</surefire.argLine>
 
     <android.platform>30</android.platform>
     <android.version>4.1.1.4</android.version>
@@ -59,6 +72,7 @@
     <junit.version>4.13.2</junit.version>
     <okhttp.version>5.5.0</okhttp.version>
     <robolectric.version>4.16.1</robolectric.version>
+    <androidx.test.version>1.5.0</androidx.test.version>
     <rxjava.version>3.1.12</rxjava.version>
     <truth.version>1.4.5</truth.version>
     <mockito.version>5.23.0</mockito.version>
@@ -66,6 +80,17 @@
     <!-- Build Dependencies -->
     <build-helper.version>3.6.1</build-helper.version>
   </properties>
+
+  <repositories>
+    <!--
+      Robolectric 4.x pulls AndroidX artifacts (androidx.test:monitor,
+      espresso-idling-resource) that are only published to Google's Maven repo.
+    -->
+    <repository>
+      <id>google</id>
+      <url>https://maven.google.com</url>
+    </repository>
+  </repositories>
 
   <dependencyManagement>
     <dependencies>
@@ -144,6 +169,37 @@
         <scope>test</scope>
       </dependency>
 
+      <!--
+        Robolectric 4.x resolves the application context through
+        androidx.test.platform.app.InstrumentationRegistry, which ships in
+        androidx.test:core rather than the robolectric artifact itself.
+      -->
+      <dependency>
+        <groupId>androidx.test</groupId>
+        <artifactId>monitor</artifactId>
+        <version>1.6.1</version>
+        <type>aar</type>
+        <scope>test</scope>
+        <exclusions>
+          <exclusion>
+            <groupId>androidx.test.services</groupId>
+            <artifactId>storage</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>androidx.tracing</groupId>
+            <artifactId>tracing</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>androidx.annotation</groupId>
+            <artifactId>annotation-experimental</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>androidx.test</groupId>
+            <artifactId>annotation</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+
       <dependency>
         <groupId>com.squareup.okhttp3</groupId>
         <artifactId>mockwebserver</artifactId>
@@ -194,14 +250,64 @@
       </plugin>
 
       <plugin>
-        <groupId>org.sonatype.plugins</groupId>
-        <artifactId>nexus-staging-maven-plugin</artifactId>
-        <version>1.7.0</version>
+        <groupId>org.sonatype.central</groupId>
+        <artifactId>central-publishing-maven-plugin</artifactId>
+        <version>0.8.0</version>
         <extensions>true</extensions>
         <configuration>
-          <nexusUrl>https://oss.sonatype.org</nexusUrl>
-          <serverId>sonatype-nexus-staging</serverId>
-          <stagingProfileId>6c692a1d2981a9</stagingProfileId>
+          <publishingServerId>central</publishingServerId>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <version>3.3.0</version>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>3.6.3</version>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-gpg-plugin</artifactId>
+        <version>3.1.0</version>
+        <executions>
+          <execution>
+            <id>sign-artifacts</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>sign</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.22.2</version>
+        <configuration>
+          <argLine>${surefire.argLine}</argLine>
         </configuration>
       </plugin>
 

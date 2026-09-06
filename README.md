@@ -1,100 +1,157 @@
 <p align="center">
-  <img src="assets/feature_graphic.png" alt="Contentful Java SDK"/><br/>
+  <img src="assets/feature_graphic.png" alt="Contentful Vault Library">
+</p>
+
+<p align="center">
   <a href="https://www.contentful.com/slack/">
     <img src="https://img.shields.io/badge/-Join%20Community%20Slack-2AB27B.svg?logo=slack&maxAge=31557600" alt="Join Contentful Community Slack">
   </a>
   &nbsp;
   <a href="https://www.contentfulcommunity.com/">
-    <img src="https://img.shields.io/badge/-Join%20Community%20Forum-3AB2E6.svg?logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MiA1OSI+CiAgPHBhdGggZmlsbD0iI0Y4RTQxOCIgZD0iTTE4IDQxYTE2IDE2IDAgMCAxIDAtMjMgNiA2IDAgMCAwLTktOSAyOSAyOSAwIDAgMCAwIDQxIDYgNiAwIDEgMCA5LTkiIG1hc2s9InVybCgjYikiLz4KICA8cGF0aCBmaWxsPSIjNTZBRUQyIiBkPSJNMTggMThhMTYgMTYgMCAwIDEgMjMgMCA2IDYgMCAxIDAgOS05QTI5IDI5IDAgMCAwIDkgOWE2IDYgMCAwIDAgOSA5Ii8+CiAgPHBhdGggZmlsbD0iI0UwNTM0RSIgZD0iTTQxIDQxYTE2IDE2IDAgMCAxLTIzIDAgNiA2IDAgMSAwLTkgOSAyOSAyOSAwIDAgMCA0MSAwIDYgNiAwIDAgMC05LTkiLz4KICA8cGF0aCBmaWxsPSIjMUQ3OEE0IiBkPSJNMTggMThhNiA2IDAgMSAxLTktOSA2IDYgMCAwIDEgOSA5Ii8+CiAgPHBhdGggZmlsbD0iI0JFNDMzQiIgZD0iTTE4IDUwYTYgNiAwIDEgMS05LTkgNiA2IDAgMCAxIDkgOSIvPgo8L3N2Zz4K&maxAge=31557600" alt="Join Contentful Community Forum"/>
+    <img src="https://img.shields.io/badge/-Join%20Community%20Forum-3AB2E6.svg?logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MiA1OSI+CiAgPHBhdGggZmlsbD0iI0Y4RTQxOCIgZD0iTTE4IDQxYTE2IDE2IDAgMCAxIDAtMjMgNiA2IDAgMCAwLTktOSAyOSAyOSAwIDAgMCAwIDQxIDYgNiAwIDEgMCA5LTkiIG1hc2s9InVybCgjYikiLz4KICA8cGF0aCBmaWxsPSIjNTZBRUQyIiBkPSJNMTggMThhMTYgMTYgMCAwIDEgMjMgMCA2IDYgMCAxIDAgOS05QTI5IDI5IDAgMCAwIDkgOWE2IDYgMCAwIDAgOSA5Ii8+CiAgPHBhdGggZmlsbD0iI0UwNTM0RSIgZD0iTTQxIDQxYTE2IDE2IDAgMCAxLTIzIDAgNiA2IDAgMSAwLTkgOSAyOSAyOSAwIDAgMCA0MSAwIDYgNiAwIDAgMC05LTkiLz4KICA8cGF0aCBmaWxsPSIjMUQ3OEE0IiBkPSJNMTggMThhNiA2IDAgMSAxLTktOSA2IDYgMCAwIDEgOSA5Ii8+CiAgPHBhdGggZmlsbD0iI0JFNDMzQiIgZD0iTTE4IDUwYTYgNiAwIDEgMS05LTkgNiA2IDAgMCAxIDkgOSIvPgo8L3N2Zz4K&maxAge=31557600" alt="Join Contentful Community Forum">
   </a>
 </p>
 
-vault - Contentful Offline Persistence for Android
-==================================================
+# vault - Contentful Offline Persistence for Android
 
-[![Build Status](https://travis-ci.org/contentful/vault.svg)](https://travis-ci.org/contentful/vault/builds#)
+> Vault is an Android library that simplifies persisting data from [Contentful](https://www.contentful.com/) to SQLite. It defines a Java representation of your Contentful models, and at compile-time generates the corresponding database schema plus all the required boilerplate. It ships with a complementary lightweight runtime that exposes a simple ORM-like API for pulling resources back out of the generated database.
 
-> Vault is an Android library that simplifies persistence of Resources from Contentful via SQLite. It defines a Java representation of Contentful models. At compile-time Vault creates a corresponding database schema by generating all the required boilerplate code and injecting it into the classpath. It is also bundled with a complementary lightweight runtime which exposes a simple ORM-like API for pulling resources from the generated database.
+<p align="center">
+  <img src="https://img.shields.io/badge/Status-Maintained-green.svg" alt="This repository is actively maintained" />
+  &nbsp;
+  <a href="LICENSE">
+    <img src="https://img.shields.io/badge/license-Apache%202.0-brightgreen.svg" alt="Apache 2.0 License" />
+  </a>
+  &nbsp;
+  <a href="https://travis-ci.org/contentful/vault">
+    <img src="https://travis-ci.org/contentful/vault.svg" alt="Build Status">
+  </a>
+</p>
 
-What is Contentful?
--------------------
+**What is Contentful?**
 
-[Contentful](https://www.contentful.com) provides a content infrastructure for digital teams to power content in websites, apps, and devices. 	Contentful, unlike any other CMS, is built to integrate with the modern software stack. It offers a central hub for structured content, powerful management and delivery APIs, and a customizable web app that enable developers and content creators to ship digital products faster.
-
+[Contentful](https://www.contentful.com/) provides content infrastructure for digital teams to power websites, apps, and devices. Unlike a CMS, Contentful was built to integrate with the modern software stack. It offers a central hub for structured content, powerful management and delivery APIs, and a customizable web app that enable developers and content creators to ship their products faster.
 
 <details open>
-  <summary>Table of contents</summary>
-  <!-- TOC -->
+<summary>Table of contents</summary>
+<!-- TOC -->
 
-- [Setup](#setup)
-  - [Snapshots](#snapshots)
-- [Usage](#usage)
-  - [Models and Fields](#models-and-fields)
-  - [Spaces](#spaces)
-  - [Synchronization](#synchronization)
-  - [Queries](#queries)
-  - [Migrations](#migrations)
-  - [Preseeding](#preseeding)
-- [Documentation](#documentation)
-- [Licence](#licence)
-- [Reaching Contentful](#reaching-contentful)
-  - [Bugs and Feature Requests](#bugs-and-feature-requests)
-  - [Sharing Confidential Information](#sharing-confidential-information)
-  - [Getting involved](#getting-involved)
-- [Code of Conduct](#code-of-conduct)
-  <!-- /TOC -->
+- [vault - Contentful Offline Persistence for Android](#vault---contentful-offline-persistence-for-android)
+  - [Core Features](#core-features)
+  - [Getting started](#getting-started)
+    - [Requirements](#requirements)
+    - [Installation](#installation)
+    - [Your first sync](#your-first-sync)
+  - [Using the SDK](#using-the-sdk)
+    - [Models and fields](#models-and-fields)
+    - [Spaces](#spaces)
+    - [Synchronization](#synchronization)
+    - [Queries](#queries)
+    - [Migrations](#migrations)
+    - [Preseeding](#preseeding)
+  - [Advanced configuration](#advanced-configuration)
+    - [Proguard](#proguard)
+  - [Documentation & References](#documentation--references)
+  - [Reach out to us](#reach-out-to-us)
+    - [Have questions about how to use this library?](#have-questions-about-how-to-use-this-library)
+    - [You found a bug or want to propose a feature?](#you-found-a-bug-or-want-to-propose-a-feature)
+    - [You need to share confidential information or have other questions?](#you-need-to-share-confidential-information-or-have-other-questions)
+  - [Get involved](#get-involved)
+  - [License](#license)
+  - [Code of Conduct](#code-of-conduct)
+
+<!-- /TOC -->
+
 </details>
 
+## Core Features
 
-Setup
-=====
+- Defines a Java representation of your Contentful content model as plain classes annotated with `@ContentType` and `@Field`.
+- Generates the corresponding SQLite schema and all persistence boilerplate at compile time via an annotation processor — no manual `SQLiteOpenHelper` code required.
+- Keeps your local database in sync with Contentful using the [Sync API](https://www.contentful.com/developers/docs/references/content-delivery-api/#/reference/synchronization), fetching only what changed since the last call.
+- A simple, ORM-like query API (`.fetch(Type.class).where(…).first()` / `.all()`) for reading persisted resources back out.
+- RxJava support: `.observe(Type.class)` returns an `Observable` for reactive queries, and `Vault.observeSyncResults()` reports sync completion reactively.
+- Multi-locale support: declare which locales to persist per `@Space`, and query resources by locale.
+- Schema migrations via a simple `dbVersion` bump on your `@Space` annotation.
+- Preseeding support: ship a pre-built SQLite database in your APK to avoid the cost of an initial sync on first launch.
 
-Install the dependency by 
+## Getting started
+
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Your first sync](#your-first-sync)
+
+### Requirements
+
+| Requirement | Version |
+| --- | --- |
+| Java | 8 or higher |
+| Android | Support depends on the [`contentful.java`](https://github.com/contentful/contentful.java) SDK version in use |
+
+Vault depends on the [contentful.java](https://github.com/contentful/contentful.java) SDK for all network access to the Content Delivery API.
+
+### Installation
 
 * _Maven_
+
 ```xml
 <dependency>
   <groupId>com.contentful.vault</groupId>
   <artifactId>compiler</artifactId>
-  <version>3.2.6</version>
+  <version>3.2.12</version>
 </dependency>
 <dependency>
   <groupId>com.contentful.vault</groupId>
   <artifactId>core</artifactId>
-  <version>3.2.6</version>
+  <version>3.2.12</version>
 </dependency>
 ```
 
 * _Gradle_
 
 ```groovy
-apt 'com.contentful.vault:compiler:3.2.6'
-compile 'com.contentful.vault:core:3.2.6'
-```
-* _Gradle 3.+_
-```groovy
-annotationProcessor 'com.contentful.vault:compiler:3.2.6'
-annotationProcessor 'com.contentful.vault:core:3.2.6'
-compile 'com.contentful.vault:core:3.2.6'
+annotationProcessor 'com.contentful.vault:compiler:3.2.12'
+implementation 'com.contentful.vault:core:3.2.12'
 ```
 
-> Note for Gradle: Use the [android-apt][apt] Gradle plugin, which configures compile-time dependencies only.
-> Note for Gradle 3.0 and newer: Use the `annotationProcessor` instead of `apt`.
+> Note: Development snapshots are available through [Sonatype's `snapshots` repository](https://oss.sonatype.org/content/repositories/snapshots/).
 
-Snapshots
----------
+### Your first sync
 
-Snapshots of the development version are available in [Sonatype's `snapshots` repository][snap].
+Define a model, group it into a `@Space`, then request a sync:
 
-Usage
-=====
+```java
+@ContentType("cat")
+public class Cat extends Resource {
+  @Field public String name;
+}
 
-Models and Fields
------------------
+@Space(
+    value = "cfexampleapi",
+    models = { Cat.class },
+    locales = { "en-US" }
+)
+public class DemoSpace { }
+```
 
-Models are defined by declaring a subclass of the `Resource` class. Annotate the class with `@ContentType`, which takes the Content Type's ID as its value.
+```java
+CDAClient client = CDAClient.builder()
+    .setSpace("cfexampleapi")
+    .setToken("b4c0n73n7fu1")
+    .build();
 
-Fields are defined by annotating class attributes with the `@Field` annotation:
+Vault.with(context, DemoSpace.class).requestSync(client);
+```
+
+Vault runs the sync on a worker thread and reflects the changes in its local database. Once complete, it broadcasts `Vault.ACTION_SYNC_COMPLETE`.
+
+## Using the SDK
+
+### Models and fields
+
+Models are defined by declaring a subclass of `Resource`. Annotate the class with `@ContentType`, passing the Content Type's ID as its value.
+
+Fields are defined by annotating class attributes with `@Field`:
 
 ```java
 @ContentType("cat")
@@ -105,14 +162,14 @@ public class Cat extends Resource {
 }
 ```
 
-By default, the name of the attribute is used as the field's ID, but can also be specified explicitly:
+By default, the attribute name is used as the field's id, but it can also be specified explicitly:
 
 ```java
-@Field("field-id-goes-here") 
-public String someField; 
+@Field("field-id-goes-here")
+public String someField;
 ```
 
-Field ids are escaped, however when making queries with a `WHERE` condition it is up to the caller to escape the field name in case it is a reserved keyword. For example:
+Field ids are escaped automatically, but when writing a `WHERE` condition it's up to the caller to escape field names that collide with reserved SQL keywords:
 
 ```java
 @ContentType("...")
@@ -121,18 +178,17 @@ public class Foo extends Resource {
 }
 ```
 
-Since `order` is a reserved SQLite keyword, making a query which references that field is done as following:
+Since `order` is a reserved SQLite keyword, a query referencing that field looks like this:
 
 ```java
 vault.fetch(Foo.class)
-    .where("`" + Foo$Fields.ORDER "` = ?", "bar")
+    .where("`" + Foo$Fields.ORDER + "` = ?", "bar")
     .first();
 ```
 
-Spaces
-------
+### Spaces
 
-Spaces are classes annotated with the `@Space` annotation. It is required to specify the Space ID, an array of _Model_ classes and an array of locale codes wanted to be persisted:
+Spaces are classes annotated with `@Space`. Specify the Space ID, an array of model classes, and an array of locale codes to persist:
 
 ```java
 @Space(
@@ -143,34 +199,32 @@ Spaces are classes annotated with the `@Space` annotation. It is required to spe
 public class DemoSpace { }
 ```
 
-Synchronization
----------------
+### Synchronization
 
-Once a Space is defined, Vault is invoked to synchronize the local database with Contentful:
+Once a Space is defined, invoke Vault to synchronize the local database with Contentful:
 
 ```java
-// Client
+// Client.
 CDAClient client = CDAClient.builder()
     .setSpace("cfexampleapi")
     .setToken("b4c0n73n7fu1")
     .build();
 
-// Sync
+// Sync.
 Vault.with(context, DemoSpace.class).requestSync(client);
 ```
 
-Vault uses a worker thread to request updates from the Sync API and reflect the changes in its database.
-Once sync is completed, Vault fires a broadcast with the action `Vault.ACTION_SYNC_COMPLETE`.
+Vault uses a worker thread to request updates from the Sync API and reflect the changes in its database. Once sync completes, Vault broadcasts `Vault.ACTION_SYNC_COMPLETE`.
 
-Providing a `SyncCallback` results in it beeing invoked once sync is completed:
+Providing a `SyncCallback` invokes it once sync completes:
 
 ```java
 class SomeActivity extends Activity {
   SyncCallback callback;
-  
+
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    
+
     Vault.with(this, DemoSpace.class).requestSync(client, callback = new SyncCallback() {
       @Override public void onResult(SyncResult result) {
         if (result.isSuccessful()) {
@@ -181,7 +235,7 @@ class SomeActivity extends Activity {
       }
     });
   }
-  
+
   @Override protected void onDestroy() {
     Vault.cancel(callback);
     super.onDestroy();
@@ -189,65 +243,64 @@ class SomeActivity extends Activity {
 }
 ```
 
-> Note: Extra care needs to be taken for the lifecycle: Cancelling the callback on lifecycle events is important.
+> Note: Extra care needs to be taken for the lifecycle — cancel the callback on lifecycle events.
 
-Similarly using _RxJava_ notifies of sync results via an `Observable`:
+RxJava users can subscribe to sync results via an `Observable`:
 
 ```java
-Vault.observeSyncResults() // returns Observable<SyncResult>
+Vault.observeSyncResults() // Returns Observable<SyncResult>.
 ```
 
-Queries
--------
+### Queries
 
-Vault provides a wrapper around its generated database which fetches persisted objects:
+Vault wraps its generated database with a query API for fetching persisted objects:
 
 ```java
 Vault vault = Vault.with(context, DemoSpace.class);
 
-// Fetch the first Cat
+// Fetch the first Cat.
 vault.fetch(Cat.class).first();
-    
-// Fetch the most recently updated Cat
+
+// Fetch the most recently updated Cat.
 vault.fetch(Cat.class)
     .order(Cat$Fields.UPDATED_AT + " DESC")
     .first();
 
-// Fetch a Cat with a specific name
+// Fetch a Cat with a specific name.
 vault.fetch(Cat.class)
     .where(Cat$Fields.NAME + " = ?", "Nyan Cat")
     .first();
 
-// Fetch a Cat with a specific name pattern
+// Fetch a Cat with a specific name pattern.
 vault.fetch(Cat.class)
     .where(Cat$Fields.NAME + " LIKE ?", "%Nyan%")
     .first();
 
-// Fetch a Cat with a specific boolean field
-// SQLite is storing booleans as 0/1 
+// Fetch a Cat with a specific boolean field.
+// SQLite stores booleans as 0/1.
 vault.fetch(Cat.class)
     .where(Cat$Fields.IS_GRUMPY + " = ?", "1")
     .first();
-    
-// Fetch all Cats, ordered by creation date:
+
+// Fetch all Cats, ordered by creation date.
 vault.fetch(Cat.class)
     .order(Cat$Fields.CREATED_AT)
     .all();
 
-// Fetch all Cats, using the Klingon locale:
+// Fetch all Cats, using the Klingon locale.
 vault.fetch(Cat.class)
     .all("tlh");
 ```
 
-Using RxJava queries are created by the `observe()` method, for example:
+RxJava queries are created via `.observe()`:
 
 ```java
 vault.observe(Cat.class)
     .where(Cat$Fields.NAME + " = ?", "Happy Cat")
-    .all() // returns Observable<Cat>
+    .all() // Returns Observable<Cat>.
 ```
 
-The above example creates an `Observable` that subscribes and observes on the same thread initiating the query. However, it changes if this typical use-case is used:
+The example above creates an `Observable` that subscribes and observes on the thread that initiated the query. Chain `.subscribeOn(…)`/`.observeOn(…)` if you need a different threading model:
 
 ```java
 vault.observe(Cat.class)
@@ -256,42 +309,38 @@ vault.observe(Cat.class)
     .observeOn(AndroidSchedulers.mainThread())
 ```
 
-Migrations
-----------
+### Migrations
 
-Whenever changes are introduced to any of the previously used Models, a migration has to be applied. Increment the version number to trigger a migration:
+Whenever a previously used model changes, apply a migration by incrementing the version number on your `@Space`:
 
 ```java
 @Space(value = "cfexampleapi", models = { Cat.class }, dbVersion = 2)
 public class DemoSpace { }
 ```
 
-> Note: this deletes any previously persisted data and reaquires them.
+> Note: this deletes any previously persisted data and re-acquires it on the next sync.
 
-Preseeding
-----------
+### Preseeding
 
-Depending on the amount of content in a given space, initial synchronization might take some time. For that support to pre-seed the database with static content got added. 
+Depending on the amount of content in a given space, initial synchronization can take some time. To avoid that cost, pre-seed the database with static content instead.
 
-For creating an initial database file, use the `VaultDatabaseExporter`. This class takes an Android Context and a Vault Space. Calling the `.export(..)` method, it  creates a sqlite database in `src/main/assets/initial_seed.db`. Vault is instructed to use this as follows:
+Use `VaultDatabaseExporter` to create the initial database file. It takes an Android `Context` and a Vault Space; calling `.export(…)` creates a SQLite database at `src/main/assets/initial_seed.db`. Point Vault at it as follows:
 
 ```java
 @Space(
-    value = "{spaceid}", // space id of the space to use
-    models = { Cat.class },  // model classes to be used
-    copyPath = "initial_seed.db" // name of the just created database file.
+    value = "{spaceid}",        // Space id of the space to use.
+    models = { Cat.class },     // Model classes to be used.
+    copyPath = "initial_seed.db" // Name of the just-created database file.
 )
 public class VaultSpace { }
 ```
 
-The database file is updated by leveraging a [robolectric](robolectric.org) test before releasing. This test syncs Contentful data to the existing database.
-
-A simple test suite looks like this:
+Keep the bundled database up to date by running a [Robolectric](http://robolectric.org) test before each release, which syncs live Contentful data into the existing database file:
 
 ```java
 @RunWith(RobolectricTestRunner.class)
 public class TestSeedDB {
- @literal @Test
+  @Test
   public void testSyncDBtoSqlite() throws Exception {
     final Activity activity = Robolectric.setupActivity(Activity.class);
 
@@ -300,70 +349,63 @@ public class TestSeedDB {
 }
 ```
 
-The database content will always be uptodate when those tests get executed. If an error happens this test will fail and information about next steps will be given.
+If this test fails, that indicates the bundled database content is out of date; follow the guidance in the failure message.
 
-> Note: In order to add this functionality to an already shipped app, the **dbVersion** value has to be increased, as it causes invalidation of any pre-existing content.
+> Note: To add preseeding to an already-shipped app, increment `dbVersion` — this invalidates any pre-existing content on device so the new bundled database takes effect.
 
-ProGuard
---------
+## Advanced configuration
 
-Grab the [ProGuard configuration file][proguard] and apply to your project. 
+### Proguard
 
-Documentation
-=============
+Grab the [ProGuard configuration file](proguard-vault.cfg) and apply it to your project.
 
-Javadoc is available [here][javadoc].
+## Documentation & References
 
-License
-=======
+Browse the [Javadoc](https://contentful.github.io/vault) for the full API reference of this library. Every released change is recorded in the [CHANGELOG.md](CHANGELOG.md).
 
-    Copyright 2017 Contentful, GmbH.
+Vault is built on top of the [contentful.java](https://github.com/contentful/contentful.java) SDK; consult its README for details on `CDAClient` and the underlying Content Delivery API.
 
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
+## Reach out to us
 
-       http://www.apache.org/licenses/LICENSE-2.0
+### Have questions about how to use this library?
 
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
+* Reach out to our community forum: [![Contentful Community Forum](https://img.shields.io/badge/-Join%20Community%20Forum-3AB2E6.svg?logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MiA1OSI+CiAgPHBhdGggZmlsbD0iI0Y4RTQxOCIgZD0iTTE4IDQxYTE2IDE2IDAgMCAxIDAtMjMgNiA2IDAgMCAwLTktOSAyOSAyOSAwIDAgMCAwIDQxIDYgNiAwIDEgMCA5LTkiIG1hc2s9InVybCgjYikiLz4KICA8cGF0aCBmaWxsPSIjNTZBRUQyIiBkPSJNMTggMThhMTYgMTYgMCAwIDEgMjMgMCA2IDYgMCAxIDAgOS05QTI5IDI5IDAgMCAwIDkgOWE2IDYgMCAwIDAgOSA5Ii8+CiAgPHBhdGggZmlsbD0iI0UwNTM0RSIgZD0iTTQxIDQxYTE2IDE2IDAgMCAxLTIzIDAgNiA2IDAgMSAwLTkgOSAyOSAyOSAwIDAgMCA0MSAwIDYgNiAwIDAgMC05LTkiLz4KICA8cGF0aCBmaWxsPSIjMUQ3OEE0IiBkPSJNMTggMThhNiA2IDAgMSAxLTktOSA2IDYgMCAwIDEgOSA5Ii8+CiAgPHBhdGggZmlsbD0iI0JFNDMzQiIgZD0iTTE4IDUwYTYgNiAwIDEgMS05LTkgNiA2IDAgMCAxIDkgOSIvPgo8L3N2Zz4K&maxAge=31557600)](https://support.contentful.com/)
+* Jump into our community slack channel: [![Contentful Community Slack](https://img.shields.io/badge/-Join%20Community%20Slack-2AB27B.svg?logo=slack&maxAge=31557600)](https://www.contentful.com/slack/)
 
-Reaching Contentful
-===================
+### You found a bug or want to propose a feature?
 
-Questions
----------
+* File an issue here on GitHub: [![File an issue](https://img.shields.io/badge/-Create%20Issue-6cc644.svg?logo=github&maxAge=31557600)](https://github.com/contentful/vault/issues/new). Make sure to remove any credential from your code before sharing it.
 
-* Use the community forum: [![Contentful Community Forum](https://img.shields.io/badge/-Join%20Community%20Forum-3AB2E6.svg?logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MiA1OSI+CiAgPHBhdGggZmlsbD0iI0Y4RTQxOCIgZD0iTTE4IDQxYTE2IDE2IDAgMCAxIDAtMjMgNiA2IDAgMCAwLTktOSAyOSAyOSAwIDAgMCAwIDQxIDYgNiAwIDEgMCA5LTkiIG1hc2s9InVybCgjYikiLz4KICA8cGF0aCBmaWxsPSIjNTZBRUQyIiBkPSJNMTggMThhMTYgMTYgMCAwIDEgMjMgMCA2IDYgMCAxIDAgOS05QTI5IDI5IDAgMCAwIDkgOWE2IDYgMCAwIDAgOSA5Ii8+CiAgPHBhdGggZmlsbD0iI0UwNTM0RSIgZD0iTTQxIDQxYTE2IDE2IDAgMCAxLTIzIDAgNiA2IDAgMSAwLTkgOSAyOSAyOSAwIDAgMCA0MSAwIDYgNiAwIDAgMC05LTkiLz4KICA8cGF0aCBmaWxsPSIjMUQ3OEE0IiBkPSJNMTggMThhNiA2IDAgMSAxLTktOSA2IDYgMCAwIDEgOSA5Ii8+CiAgPHBhdGggZmlsbD0iI0JFNDMzQiIgZD0iTTE4IDUwYTYgNiAwIDEgMS05LTkgNiA2IDAgMCAxIDkgOSIvPgo8L3N2Zz4K&maxAge=31557600)](https://support.contentful.com/)
-* Use the community slack channel: [![Contentful Community Slack](https://img.shields.io/badge/-Join%20Community%20Slack-2AB27B.svg?logo=slack&maxAge=31557600)](https://www.contentful.com/slack/)
+### You need to share confidential information or have other questions?
 
-Bugs and Feature Requests
--------------------------
+* File a support ticket at our Contentful Customer Support: [![File support ticket](https://img.shields.io/badge/-Submit%20Support%20Ticket-3AB2E6.svg?logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MiA1OSI+CiAgPHBhdGggZmlsbD0iI0Y4RTQxOCIgZD0iTTE4IDQxYTE2IDE2IDAgMCAxIDAtMjMgNiA2IDAgMCAwLTktOSAyOSAyOSAwIDAgMCAwIDQxIDYgNiAwIDEgMCA5LTkiIG1hc2s9InVybCgjYikiLz4KICA8cGF0aCBmaWxsPSIjNTZBRUQyIiBkPSJNMTggMThhMTYgMTYgMCAwIDEgMjMgMCA2IDYgMCAxIDAgOS05QTI5IDI5IDAgMCAwIDkgOWE2IDYgMCAwIDAgOSA5Ii8+CiAgPHBhdGggZmlsbD0iI0UwNTM0RSIgZD0iTTQxIDQxYTE2IDE2IDAgMCAxLTIzIDAgNiA2IDAgMSAwLTkgOSAyOSAyOSAwIDAgMCA0MSAwIDYgNiAwIDAgMC05LTkiLz4KICA8cGF0aCBmaWxsPSIjMUQ3OEE0IiBkPSJNMTggMThhNiA2IDAgMSAxLTktOSA2IDYgMCAwIDEgOSA5Ii8+CiAgPHBhdGggZmlsbD0iI0JFNDMzQiIgZD0iTTE4IDUwYTYgNiAwIDEgMS05LTkgNiA2IDAgMCAxIDkgOSIvPgo8L3N2Zz4K&maxAge=31557600)](https://www.contentful.com/support/)
 
-* File an issue here [![File an issue](https://img.shields.io/badge/-Create%20Issue-6cc644.svg?logo=github&maxAge=31557600)](https://github.com/contentful/vault/issues/new).
-
-Sharing Confidential Information
---------------------------------
-
-* File a support ticket at Contentful Customer Support: [![File support ticket](https://img.shields.io/badge/-Submit%20Support%20Ticket-3AB2E6.svg?logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MiA1OSI+CiAgPHBhdGggZmlsbD0iI0Y4RTQxOCIgZD0iTTE4IDQxYTE2IDE2IDAgMCAxIDAtMjMgNiA2IDAgMCAwLTktOSAyOSAyOSAwIDAgMCAwIDQxIDYgNiAwIDEgMCA5LTkiIG1hc2s9InVybCgjYikiLz4KICA8cGF0aCBmaWxsPSIjNTZBRUQyIiBkPSJNMTggMThhMTYgMTYgMCAwIDEgMjMgMCA2IDYgMCAxIDAgOS05QTI5IDI5IDAgMCAwIDkgOWE2IDYgMCAwIDAgOSA5Ii8+CiAgPHBhdGggZmlsbD0iI0UwNTM0RSIgZD0iTTQxIDQxYTE2IDE2IDAgMCAxLTIzIDAgNiA2IDAgMSAwLTkgOSAyOSAyOSAwIDAgMCA0MSAwIDYgNiAwIDAgMC05LTkiLz4KICA8cGF0aCBmaWxsPSIjMUQ3OEE0IiBkPSJNMTggMThhNiA2IDAgMSAxLTktOSA2IDYgMCAwIDEgOSA5Ii8+CiAgPHBhdGggZmlsbD0iI0JFNDMzQiIgZD0iTTE4IDUwYTYgNiAwIDEgMS05LTkgNiA2IDAgMCAxIDkgOSIvPgo8L3N2Zz4K&maxAge=31557600)](https://www.contentful.com/support/)
-
-Getting involved
-----------------
+## Get involved
 
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?maxAge=31557600)](http://makeapullrequest.com)
 
-Code of Conduct
-===============
+We appreciate any help on our repositories. Feel free to open a pull request or an issue.
 
-Contentful wants to provide a safe, inclusive, welcoming, and harassment-free space and experience for all participants, regardless of gender identity and expression, sexual orientation, disability, physical appearance, socioeconomic status, body size, ethnicity, nationality, level of experience, age, religion (or lack thereof), or other identity markers.
+## License
 
-[Full Code of Conduct](https://github.com/contentful-developer-relations/community-code-of-conduct).
+```
+Copyright 2017 Contentful, GmbH.
 
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
- [snap]: https://oss.sonatype.org/content/repositories/snapshots/
- [apt]: https://bitbucket.org/hvisser/android-apt
- [proguard]: proguard-vault.cfg
- [javadoc]: https://contentful.github.io/vault
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+```
+
+## Code of Conduct
+
+We want to provide a safe, inclusive, welcoming, and harassment-free space and experience for all participants, regardless of gender identity and expression, sexual orientation, disability, physical appearance, socioeconomic status, body size, ethnicity, nationality, level of experience, age, religion (or lack thereof), or other identity markers.
+
+[Read our full Code of Conduct](https://github.com/contentful-developer-relations/community-code-of-conduct).
