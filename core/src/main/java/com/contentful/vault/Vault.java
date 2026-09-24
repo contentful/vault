@@ -143,6 +143,35 @@ public class Vault {
     }
   }
 
+  /**
+   * Releases the database connection associated with this instance's space only.
+   *
+   * <p>Unlike {@link #releaseAll()}, this is scoped to this instance's space and is
+   * safe to call in multi-space applications without affecting other spaces' active
+   * connections.
+   *
+   * <p>Do not keep using this or any other existing {@link Vault} instance for the same
+   * space after releasing it: obtain a new one with {@link #with(Context, Class)}, which
+   * opens a fresh connection.
+   */
+  public void release() {
+    synchronized (SQLITE_HELPERS) {
+      SqliteHelper helper = SQLITE_HELPERS.remove(space);
+      if (helper != null) {
+        helper.close();
+      }
+    }
+  }
+
+  /**
+   * Closes and removes the database connections for <strong>every</strong> registered
+   * space, globally, across all {@link Vault} instances in this process.
+   *
+   * @deprecated This affects all spaces, not just the one associated with this
+   * instance, and can unintentionally invalidate other spaces' active connections in
+   * multi-space applications. Use {@link #release()} instead.
+   */
+  @Deprecated
   public void releaseAll() {
     synchronized (SQLITE_HELPERS) {
       for (SqliteHelper spaceHelper : SQLITE_HELPERS.values()) {

@@ -5,10 +5,14 @@
   <parent>
     <groupId>com.contentful.vault</groupId>
     <artifactId>vault-parent</artifactId>
-    <version>3.2.7-SNAPSHOT</version>
+    <version>3.2.13-SNAPSHOT</version>
   </parent>
 
   <artifactId>compiler</artifactId>
+
+  <name>${project.groupId}:${project.artifactId}</name>
+  <description>Vault annotation processor: generates model and space bindings at compile time.</description>
+  <url>https://github.com/contentful/vault</url>
 
   <dependencies>
     <dependency>
@@ -37,19 +41,16 @@
       <scope>provided</scope>
     </dependency>
 
+    <!--
+      Not "provided": the processor loads Vault's annotations (@Space, @ContentType, …) from core,
+      and Android's annotationProcessor classpath only contains the processor's own dependencies.
+      With "provided", `annotationProcessor 'com.contentful.vault:compiler'` failed with
+      NoClassDefFoundError: com/contentful/vault/ContentType.
+    -->
     <dependency>
       <groupId>com.contentful.vault</groupId>
       <artifactId>core</artifactId>
       <version>${project.version}</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>sun.jdk</groupId>
-      <artifactId>tools</artifactId>
-      <version>1.8.0</version>
-      <scope>system</scope>
-      <systemPath>${java.home}/../lib/tools.jar</systemPath>
     </dependency>
 
     <!-- Test dependencies -->
@@ -63,6 +64,17 @@
       <groupId>com.google.testing.compile</groupId>
       <artifactId>compile-testing</artifactId>
       <scope>test</scope>
+      <exclusions>
+        <!--
+          compile-testing 0.9 declares com.sun:tools (tools.jar), which no longer
+          exists as a filesystem artifact on JDK 9+. The compiler APIs it needs are
+          part of the JDK module graph instead.
+        -->
+        <exclusion>
+          <groupId>com.sun</groupId>
+          <artifactId>tools</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>

@@ -20,6 +20,15 @@ import com.contentful.vault.Asset;
 import com.contentful.vault.Vault;
 import com.contentful.vaultintegration.lib.allthethings.AllTheThingsResource;
 import com.contentful.vaultintegration.lib.allthethings.AllTheThingsSpace;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+
+import okhttp3.mockwebserver.MockResponse;
 
 import org.junit.Test;
 import org.robolectric.RuntimeEnvironment;
@@ -29,8 +38,39 @@ import static com.contentful.vault.BaseFields.REMOTE_ID;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
-@Config(manifest = "src/main/AndroidManifest.xml", sdk = 23)
+@Config(manifest = "AndroidManifest.xml", sdk = 23)
 public class AllTheThingsTest extends BaseTest {
+  @Test public void localizedSymbolsAndAssetMetadataUseRequestedLocale() throws Exception {
+    final JsonObject response;
+    try (InputStreamReader reader = new InputStreamReader(
+        getClass().getClassLoader().getResourceAsStream("allthethings/initial.json"),
+        StandardCharsets.UTF_8)) {
+      response = JsonParser.parseReader(reader).getAsJsonObject();
+    }
+    for (JsonElement item : response.getAsJsonArray("items")) {
+      JsonObject fields = item.getAsJsonObject().getAsJsonObject("fields");
+      if (fields.has("symbols")) {
+        JsonArray symbols = new JsonArray();
+        symbols.add("localized symbol");
+        fields.getAsJsonObject("symbols").add("tlh", symbols);
+      }
+      if (fields.has("file")) {
+        JsonObject file = fields.getAsJsonObject("file").getAsJsonObject("en-US").deepCopy();
+        file.addProperty("url", "//localized.example/image.png");
+        fields.getAsJsonObject("file").add("tlh", file);
+      }
+    }
+    enqueue("demo/locales.json");
+    enqueue("allthethings/types.json");
+    server.enqueue(new MockResponse().setBody(response.toString()));
+    sync();
+    AllTheThingsResource resource = vault.fetch(AllTheThingsResource.class)
+        .where(REMOTE_ID + " = ?", "6K1Md1qADuOsoom2UIEKkq").first("tlh");
+    assertThat(resource.symbols()).containsExactly("localized symbol");
+    assertThat(resource.asset().url()).isEqualTo("https://localized.example/image.png");
+    assertThat(resource.asset().file().get("url")).isEqualTo("//localized.example/image.png");
+    checkEntryFoo();
+  }
   @Override protected void setupVault() {
     vault = Vault.with(RuntimeEnvironment.application, AllTheThingsSpace.class);
   }

@@ -16,20 +16,118 @@
 
 package com.contentful.vaultintegration;
 
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+
 import com.contentful.java.cda.CDAClient;
 import com.contentful.vault.Asset;
 import com.contentful.vault.SyncConfig;
+import com.contentful.vault.SyncException;
+import com.contentful.vaultintegration.lib.demo.Cat;
+import com.contentful.vaultintegration.lib.demo.DemoSpace$$SpaceHelper;
 
 import org.junit.Test;
+import org.robolectric.RuntimeEnvironment;
 
 import java.util.List;
 
+import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.RecordedRequest;
 
 import static com.contentful.vault.BaseFields.CREATED_AT;
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.fail;
 
 public class SyncTest extends SyncBase {
+
+  private SQLiteDatabase openDatabase() {
+    return RuntimeEnvironment.application.openOrCreateDatabase(
+        new DemoSpace$$SpaceHelper().getDatabaseName(), 0, null);
+  }
+
+  @Test public void localeModeChangesReplaceAllLocaleTables() throws Exception {
+    enqueueInitial();
+    sync();
+    assertSyncInitial();
+    assertThat(vault.fetch(Cat.class).all("tlh")).hasSize(3);
+
+    enqueueInitial();
+    sync(SyncConfig.builder().setClient(client).setSingleLocale(true).build());
+    assertRequestInitial();
+    assertThat(vault.fetch(Cat.class).all("tlh")).isEmpty();
+    assertInitialEntries();
+
+    enqueueInitial();
+    sync();
+    assertSyncInitial();
+    assertThat(vault.fetch(Cat.class).all("tlh")).hasSize(3);
+  }
+
+  @Test public void legacySyncSchemaResyncsWithoutLosingOfflineDataOnFailure() throws Exception {
+    enqueueInitial();
+    sync();
+    assertSyncInitial();
+    vault.release();
+    try (SQLiteDatabase database = openDatabase()) {
+      database.execSQL("DROP TABLE sync_info");
+      database.execSQL("CREATE TABLE sync_info (token TEXT NOT NULL, "
+          + "last_sync_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP)");
+      database.execSQL("INSERT INTO sync_info (token) VALUES ('st1')");
+    }
+    setupVault();
+
+    enqueue("demo/locales.json");
+    enqueue("demo/types.json");
+    server.enqueue(new MockResponse().setResponseCode(500));
+    try {
+      sync(SyncConfig.builder().setClient(client).setSingleLocale(true).build());
+      fail("Expected failed sync");
+    } catch (SyncException expected) {
+      assertInitialEntries();
+      assertThat(vault.fetch(Cat.class).all("tlh")).hasSize(3);
+    }
+    assertRequestInitial();
+
+    enqueueInitial();
+    sync(SyncConfig.builder().setClient(client).setSingleLocale(true).build());
+    assertRequestInitial();
+    assertThat(vault.fetch(Cat.class).all("tlh")).isEmpty();
+    try (SQLiteDatabase database = openDatabase();
+         Cursor cursor = database.rawQuery("SELECT single_locale FROM sync_info", null)) {
+      assertThat(cursor.moveToFirst()).isTrue();
+      assertThat(cursor.getInt(0)).isEqualTo(1);
+    }
+  }
+
+  @Test public void failedWriteRollsBackDataTokenAndLocaleMode() throws Exception {
+    enqueueInitial();
+    sync();
+    assertSyncInitial();
+    try (SQLiteDatabase database = openDatabase()) {
+      database.execSQL("CREATE TRIGGER reject_asset BEFORE INSERT ON `assets$en-US` "
+          + "BEGIN SELECT RAISE(FAIL, 'test write failure'); END");
+    }
+    enqueueInitial();
+    try {
+      sync(SyncConfig.builder().setClient(client).setSingleLocale(true).build());
+      fail("Expected failed write");
+    } catch (SyncException expected) {
+      assertInitialAssets();
+      assertInitialEntries();
+      assertThat(vault.fetch(Cat.class).all("tlh")).hasSize(3);
+    }
+    assertRequestInitial();
+    try (SQLiteDatabase database = openDatabase();
+         Cursor cursor = database.rawQuery("SELECT token, single_locale FROM sync_info", null)) {
+      assertThat(cursor.moveToFirst()).isTrue();
+      assertThat(cursor.getString(0)).isEqualTo("st1");
+      assertThat(cursor.getInt(1)).isEqualTo(0);
+      database.execSQL("DROP TRIGGER reject_asset");
+    }
+    enqueueUpdate();
+    sync();
+    assertSyncUpdate();
+  }
 
   @Test public void testAssetFallback() throws Exception {
     enqueue("assets/locales.json");
@@ -94,8 +192,8 @@ public class SyncTest extends SyncBase {
     sync();
 
     List<Asset> assets = vault.fetch(Asset.class)
-        .order(CREATED_AT)
-        .all();
+            .order(CREATED_AT)
+            .all();
 
     assertThat(assets).isNotNull();
     assertThat(assets).hasSize(4);
@@ -124,11 +222,11 @@ public class SyncTest extends SyncBase {
     enqueue("assets/initial.json");
 
     final CDAClient localClient = CDAClient.builder()
-        .setSpace("space")
-        .setToken("token")
-        .setEnvironment("environment")
-        .setEndpoint(getServerUrl()) // only used for testing: leave blank if not white labeling
-        .build();
+            .setSpace("space")
+            .setToken("token")
+            .setEnvironment("environment")
+            .setEndpoint(getServerUrl()) // only used for testing: leave blank if not white labeling
+            .build();
 
     final SyncConfig config = new SyncConfig.Builder().setClient(localClient).build();
 
@@ -142,5 +240,85 @@ public class SyncTest extends SyncBase {
 
     request = server.takeRequest();
     assertThat(request.getPath()).startsWith("/spaces/space/environments/environment/sync");
+  }
+
+  @Test public void testInvalidateForcesInitialSync() throws Exception {
+    enqueueInitial();
+    sync();
+    assertSyncInitial();
+
+    // Without invalidate this would be a delta sync with the stored token.
+    enqueueInitial();
+    sync(SyncConfig.builder().setClient(client).setInvalidate(true).build());
+    assertSyncInitial();
+  }
+
+  @Test public void testFailedInvalidateKeepsExistingData() throws Exception {
+    enqueueInitial();
+    sync();
+    assertSyncInitial();
+
+    // The locales and content types load, then the sync request fails.
+    enqueue("demo/locales.json");
+    enqueue("demo/types.json");
+    server.enqueue(new MockResponse().setResponseCode(500));
+    try {
+      sync(SyncConfig.builder().setClient(client).setInvalidate(true).build());
+      fail("The sync was expected to fail with HTTP 500.");
+    } catch (SyncException expected) {
+      // expected
+    }
+
+    // Nothing may be wiped when the new data could not be fetched.
+    assertInitialAssets();
+    assertInitialEntries();
+  }
+
+  @Test public void testSyncWithLimit() throws Exception {
+    // Initial sync: the limit is sent.
+    enqueueInitial();
+    sync(SyncConfig.builder().setClient(client).setLimit(1000).build());
+    assertRequestInitialWithLimit(1000);
+    assertInitialAssets();
+    assertInitialEntries();
+    assertSingleLink();
+
+    // Delta sync: continues from the stored token, the limit is not sent.
+    enqueueUpdate();
+    sync(SyncConfig.builder().setClient(client).setLimit(1000).build());
+    assertSyncUpdate();
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testSyncWithInvalidLimit() throws Exception {
+    SyncConfig.builder()
+            .setClient(client)
+            .setLimit(0)  // Invalid limit
+            .build();
+  }
+
+  @Test public void testSyncWithLimitAndInvalidate() throws Exception {
+    enqueueInitial();
+    sync();
+    assertSyncInitial();
+
+    // Invalidate discards the token, so this is an initial sync again, with the limit.
+    enqueueInitial();
+    sync(SyncConfig.builder()
+            .setClient(client)
+            .setLimit(1000)
+            .setInvalidate(true)
+            .build());
+    assertRequestInitialWithLimit(1000);
+    assertInitialAssets();
+    assertInitialEntries();
+  }
+
+  private void assertRequestInitialWithLimit(int limit) throws InterruptedException {
+    server.takeRequest(); // locales
+    server.takeRequest(); // content types
+    RecordedRequest request = server.takeRequest();
+    assertThat(request.getPath())
+        .isEqualTo("/spaces/space/environments/master/sync?initial=true&limit=" + limit);
   }
 }

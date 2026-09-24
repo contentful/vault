@@ -73,7 +73,7 @@ public class SyncBase extends BaseTest {
     Cat happyCat = nyanCat.bestFriend();
     assertThat(happyCat).isNotNull();
 
-    assertThat(nyanCat).isSameAs(happyCat.bestFriend());
+    assertThat(nyanCat).isSameInstanceAs(happyCat.bestFriend());
   }
 
   protected void assertInitialAssets() {
@@ -140,7 +140,7 @@ public class SyncBase extends BaseTest {
     Cat garfield = cats.get(2);
     assertThat(garfield).isNotNull();
     assertThat(garfield.remoteId()).isEqualTo("garfield");
-    assertThat(garfield.image()).isSameAs(happyCat.image());
+    assertThat(garfield.image()).isSameInstanceAs(happyCat.image());
     assertThat(garfield.bestFriend()).isNull();
 
     assertThat(nyanCat.bestFriend()).isEqualTo(happyCat);

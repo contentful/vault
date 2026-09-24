@@ -16,6 +16,7 @@
 
 package com.contentful.vaultintegration;
 
+import android.content.res.AssetManager;
 import com.contentful.vault.Asset;
 import com.contentful.vault.ContentType;
 import com.contentful.vault.Field;
@@ -30,15 +31,30 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
+import org.robolectric.annotation.Implementation;
+import org.robolectric.annotation.Implements;
+import org.robolectric.shadows.ShadowArscAssetManager;
 
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.List;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(manifest = "src/main/AndroidManifest.xml")
+@Config(manifest = "AndroidManifest.xml", sdk = 23, shadows = DatabaseCopyTest.TestAssetManager.class)
 public class DatabaseCopyTest extends BaseTest {
+  @Implements(AssetManager.class)
+  public static class TestAssetManager extends ShadowArscAssetManager {
+    @Implementation protected InputStream open(String fileName) throws FileNotFoundException {
+      InputStream stream = DatabaseCopyTest.class.getClassLoader().getResourceAsStream("assets/" + fileName);
+      if (stream == null) {
+        throw new FileNotFoundException(fileName);
+      }
+      return stream;
+    }
+  }
   @Space(
       value = "cfexampleapi",
       models = Cat.class,

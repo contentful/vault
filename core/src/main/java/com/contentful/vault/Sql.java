@@ -50,6 +50,7 @@ public final class Sql {
   static final String CREATE_SYNC_INFO = "CREATE TABLE "
       + escape(TABLE_SYNC_INFO) + " ("
       + declareField("token", "STRING", false, ", ")
+      + declareField("single_locale", "INTEGER", true, ", ")
       + declareField("last_sync_ts", "TIMESTAMP", false, " DEFAULT CURRENT_TIMESTAMP")
       + ");";
 

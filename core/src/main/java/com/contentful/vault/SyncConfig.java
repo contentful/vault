@@ -22,34 +22,28 @@ import static com.contentful.vault.build.GeneratedBuildParameters.PROJECT_VERSIO
 import static java.text.MessageFormat.format;
 
 public final class SyncConfig {
+  /** Environment used when only an access token and a space id are set (the CDA default). */
+  public static final String DEFAULT_ENVIRONMENT = "master";
+
+  /** Smallest page size accepted by {@link Builder#setLimit(Integer)}. */
+  public static final int MIN_LIMIT = 1;
+
+  /** Largest page size accepted by the Sync API and {@link Builder#setLimit(Integer)}. */
+  public static final int MAX_LIMIT = 1000;
+
   private final CDAClient client;
 
   private final boolean invalidate;
 
+  private final Integer limit;
+
+  private final boolean singleLocale;
+
   SyncConfig(Builder builder) {
+    this.client = builder.client;
     this.invalidate = builder.invalidate;
-
-    if (builder.client == null) {
-      if (builder.accessToken == null) {
-        throw new IllegalStateException("Cannot create a CDA client with no access token. " +
-            "Please set it.");
-      }
-
-      if (builder.spaceId == null) {
-        throw new IllegalStateException("Cannot create a CDA client with no space id. " +
-            "Please set it.");
-      }
-
-      this.client = CDAClient
-          .builder()
-          .setToken(builder.accessToken)
-          .setSpace(builder.spaceId)
-          .setEnvironment(builder.environment)
-          .setIntegration("Vault", PROJECT_VERSION)
-          .build();
-    } else {
-      this.client = builder.client;
-    }
+    this.limit = builder.limit;
+    this.singleLocale = builder.singleLocale;
   }
 
   public CDAClient client() {
@@ -58,6 +52,14 @@ public final class SyncConfig {
 
   public boolean shouldInvalidate() {
     return invalidate;
+  }
+
+  public Integer getLimit() {
+    return limit;
+  }
+
+  public boolean isSingleLocale() {
+    return singleLocale;
   }
 
   public static Builder builder() {
@@ -71,9 +73,11 @@ public final class SyncConfig {
 
     CDAClient client;
     boolean invalidate;
-    String accessToken;
+    Integer limit;
+    boolean singleLocale;
     String spaceId;
     String environment;
+    String accessToken;
 
     public Builder setAccessToken(String accessToken) {
       if (client != null) {
@@ -106,11 +110,9 @@ public final class SyncConfig {
       if (spaceId != null) {
         throw new IllegalStateException(format(FIELD_ALREADY_EXISTS, "client", "space id"));
       }
-
       if (environment != null) {
         throw new IllegalStateException(format(FIELD_ALREADY_EXISTS, "client", "environment"));
       }
-
       this.client = client;
       return this;
     }
@@ -120,7 +122,50 @@ public final class SyncConfig {
       return this;
     }
 
+    /**
+     * Sets the page size of the <em>initial</em> sync (the {@code limit} parameter of the Sync API).
+     * Later pages and subsequent syncs use the API default.
+     *
+     * @param limit between {@value #MIN_LIMIT} and {@value #MAX_LIMIT}, or {@code null} for the API
+     *              default.
+     * @throws IllegalArgumentException if {@code limit} is out of range.
+     */
+    public Builder setLimit(Integer limit) {
+      if (limit != null && (limit < MIN_LIMIT || limit > MAX_LIMIT)) {
+        throw new IllegalArgumentException(
+            String.format("Sync limit must be between %d and %d, but was %d.",
+                MIN_LIMIT, MAX_LIMIT, limit));
+      }
+      this.limit = limit;
+      return this;
+    }
+
+    /**
+     * Stores only the space's default locale. Queries for any other locale return no results.
+     * <p>
+     * Changing this value for an existing database triggers a full re-sync on the next
+     * {@link Vault#requestSync(SyncConfig)}, so stored data always matches the mode.
+     */
+    public Builder setSingleLocale(boolean singleLocale) {
+      this.singleLocale = singleLocale;
+      return this;
+    }
+
     public SyncConfig build() {
+      if (client == null && (accessToken == null || spaceId == null)) {
+        throw new IllegalStateException(
+            "Either a client, or an access token and a space id must be set.");
+      }
+      if (client == null) {
+        this.client = CDAClient
+                .builder()
+                .setToken(accessToken)
+                .setSpace(spaceId)
+                // Same default as the CDA SDK when no environment is given.
+                .setEnvironment(environment == null ? DEFAULT_ENVIRONMENT : environment)
+                .setIntegration("Vault", PROJECT_VERSION)
+                .build();
+      }
       return new SyncConfig(this);
     }
   }

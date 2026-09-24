@@ -5,10 +5,14 @@
   <parent>
     <groupId>com.contentful.vault</groupId>
     <artifactId>vault-parent</artifactId>
-    <version>3.2.7-SNAPSHOT</version>
+    <version>3.2.13-SNAPSHOT</version>
   </parent>
 
   <artifactId>core</artifactId>
+
+  <name>${project.groupId}:${project.artifactId}</name>
+  <description>Vault runtime: local persistence and querying of Contentful content on Android.</description>
+  <url>https://github.com/contentful/vault</url>
 
   <dependencies>
     <dependency>
@@ -17,13 +21,28 @@
     </dependency>
 
     <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>com.contentful.java</groupId>
       <artifactId>java-sdk</artifactId>
+      <exclusions>
+        <!--
+          java-sdk up to 10.6.1 declares okhttp-jvm as a required dependency, which clashes with
+          okhttp-android in Android apps. Vault is Android-only: exclude it. java-sdk's "okhttp"
+          dependency remains, and Gradle resolves it to okhttp-android. (No explicit okhttp here:
+          a newer version would force apps onto a newer compileSdk.)
+        -->
+        <exclusion>
+          <groupId>com.squareup.okhttp3</groupId>
+          <artifactId>okhttp-jvm</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <!-- OkHttp's classes for compiling and testing Vault itself; not passed on to apps. -->
+    <dependency>
+      <groupId>com.squareup.okhttp3</groupId>
+      <artifactId>okhttp-jvm</artifactId>
+      <version>${okhttp.version}</version>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
@@ -57,6 +76,20 @@
       <artifactId>robolectric</artifactId>
       <scope>test</scope>
     </dependency>
+
+    <dependency>
+      <groupId>org.robolectric</groupId>
+      <artifactId>android-all-instrumented</artifactId>
+      <version>14-robolectric-10818077-i7</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>androidx.test</groupId>
+      <artifactId>monitor</artifactId>
+      <type>aar</type>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -75,6 +108,55 @@
     </resources>
 
     <plugins>
+    <!-- Exposes each dependency's local file path as a property, so the antrun
+         step below can locate the androidx.test:monitor AAR. -->
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-dependency-plugin</artifactId>
+      <version>3.6.1</version>
+      <executions>
+        <execution>
+          <id>resolve-aar-paths</id>
+          <phase>process-test-classes</phase>
+          <goals>
+            <goal>properties</goal>
+          </goals>
+        </execution>
+      </executions>
+    </plugin>
+
+    <!--
+      androidx.test:monitor is published only as an AAR, and plain Maven cannot
+      read classes from an AAR. Robolectric 4.x loads
+      androidx.test.platform.app.InstrumentationRegistry from it, so extract the
+      AAR's classes.jar into target/test-classes to put it on the test classpath.
+    -->
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-antrun-plugin</artifactId>
+      <version>3.1.0</version>
+      <executions>
+        <execution>
+          <id>explode-monitor-aar</id>
+          <phase>process-test-classes</phase>
+          <goals>
+            <goal>run</goal>
+          </goals>
+          <configuration>
+            <target>
+              <!-- An AAR is a zip; pull classes.jar out of it, then explode that. -->
+              <unzip src="${androidx.test:monitor:aar}"
+                     dest="${project.build.directory}/monitor-aar">
+                <patternset><include name="classes.jar"/></patternset>
+              </unzip>
+              <unzip src="${project.build.directory}/monitor-aar/classes.jar"
+                     dest="${project.build.testOutputDirectory}"/>
+            </target>
+          </configuration>
+        </execution>
+      </executions>
+    </plugin>
+
     <plugin>
       <groupId>org.codehaus.mojo</groupId>
       <artifactId>build-helper-maven-plugin</artifactId>
