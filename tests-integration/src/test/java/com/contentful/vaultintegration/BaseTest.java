@@ -35,6 +35,7 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.LogManager;
 
 import okhttp3.mockwebserver.MockResponse;
@@ -126,7 +127,7 @@ public abstract class BaseTest {
     };
 
     vault.requestSync(config, callback, executor);
-    latch.await();
+    assertThat(latch.await(20, TimeUnit.SECONDS)).isTrue();
 
     assertThat(result[0]).isNotNull();
 

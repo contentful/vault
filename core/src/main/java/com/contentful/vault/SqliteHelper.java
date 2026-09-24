@@ -21,11 +21,12 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import org.apache.commons.io.FileUtils;
 
 import static com.contentful.vault.BaseFields.CREATED_AT;
 import static com.contentful.vault.BaseFields.REMOTE_ID;
@@ -205,9 +206,25 @@ final class SqliteHelper extends SQLiteOpenHelper {
     }
 
     try {
-      FileUtils.copyInputStreamToFile(context.getAssets().open(copyPath), dbPath);
+      copyToFile(context.getAssets().open(copyPath), dbPath);
     } catch (IOException e) {
       throw new RuntimeException("Failure while attempting to copy '" + copyPath + "'.", e);
+    }
+  }
+
+  static void copyToFile(InputStream source, File destination) throws IOException {
+    try (InputStream input = source) {
+      File parent = destination.getAbsoluteFile().getParentFile();
+      if (!parent.isDirectory() && !parent.mkdirs()) {
+        throw new IOException("Cannot create database directory: " + parent);
+      }
+      try (FileOutputStream output = new FileOutputStream(destination)) {
+        byte[] buffer = new byte[8192];
+        int count;
+        while ((count = input.read(buffer)) != -1) {
+          output.write(buffer, 0, count);
+        }
+      }
     }
   }
 

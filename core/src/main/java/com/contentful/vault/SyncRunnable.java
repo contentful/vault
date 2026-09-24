@@ -20,9 +20,9 @@ import android.annotation.TargetApi;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.os.Build;
 
 import com.contentful.java.cda.CDAAsset;
@@ -78,11 +78,6 @@ public final class SyncRunnable implements Runnable {
     return new Builder();
   }
 
-  /** Remembers, per database, which locale mode its stored data was synced with. */
-  static final String PREFS_NAME = "com.contentful.vault.sync";
-
-  static final String PREF_SINGLE_LOCALE_PREFIX = "single_locale:";
-
   /**
    * Decides whether a change of {@link SyncConfig#isSingleLocale()} requires wiping the database
    * and doing a full initial sync, so no locale table keeps stale rows.
@@ -95,22 +90,17 @@ public final class SyncRunnable implements Runnable {
    */
   static boolean requiresFullResync(Boolean previousSingleLocale, boolean hasExistingData,
       boolean singleLocale) {
-    if (!hasExistingData || previousSingleLocale == null) {
-      // Unknown mode (for example right after upgrading Vault): keep the data and just record
-      // the mode, so an upgrade never discards an app's offline content or pre-seeded database.
+    if (!hasExistingData) {
       return false;
     }
-    return previousSingleLocale != singleLocale;
+    return previousSingleLocale == null || previousSingleLocale != singleLocale;
   }
 
   @Override public void run() {
     SyncException error = null;
-    db = sqliteHelper.getWritableDatabase();
     try {
-      final SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-      final String localeModeKey = PREF_SINGLE_LOCALE_PREFIX + spaceHelper.getDatabaseName();
-      final Boolean previousSingleLocale =
-          prefs.contains(localeModeKey) ? prefs.getBoolean(localeModeKey, false) : null;
+      db = sqliteHelper.getWritableDatabase();
+      final Boolean previousSingleLocale = fetchSingleLocale();
 
       // Existing data is only cleared after the new data has been fetched (in the write
       // transaction below), so a failed sync never leaves the database empty.
@@ -148,7 +138,6 @@ public final class SyncRunnable implements Runnable {
       } finally {
         db.endTransaction();
       }
-      prefs.edit().putBoolean(localeModeKey, config.isSingleLocale()).apply();
     } catch (Throwable throwable) {
       error = new SyncException(throwable);
     } finally {
@@ -198,10 +187,26 @@ public final class SyncRunnable implements Runnable {
   }
 
   private void saveSyncInfo(String syncToken) {
+    try (Cursor cursor = db.rawQuery("SELECT * FROM sync_info LIMIT 0", null)) {
+      if (cursor.getColumnIndex("single_locale") == -1) {
+        db.execSQL("ALTER TABLE sync_info ADD COLUMN single_locale INTEGER");
+      }
+    }
     AutoEscapeValues values = new AutoEscapeValues();
     values.put("token", syncToken);
+    values.put("single_locale", config.isSingleLocale());
     db.delete(TABLE_SYNC_INFO, null, null);
-    db.insert(TABLE_SYNC_INFO, null, values.get());
+    db.insertOrThrow(TABLE_SYNC_INFO, null, values.get());
+  }
+
+  private Boolean fetchSingleLocale() {
+    try (Cursor cursor = db.rawQuery("SELECT * FROM sync_info LIMIT 1", null)) {
+      int column = cursor.getColumnIndex("single_locale");
+      if (column != -1 && cursor.moveToFirst() && !cursor.isNull(column)) {
+        return cursor.getInt(column) != 0;
+      }
+      return null;
+    }
   }
 
   private void processResource(CDAResource resource) {
@@ -267,7 +272,9 @@ public final class SyncRunnable implements Runnable {
   }
 
   private void insertWithOnConflict(String table, String nullColumnHack, ContentValues values, int conflictAlgorithm) {
-    db.insertWithOnConflict(table, nullColumnHack, values, conflictAlgorithm);
+    if (db.insertWithOnConflict(table, nullColumnHack, values, conflictAlgorithm) == -1) {
+      throw new SQLiteException("Failed to persist synced resource in " + table);
+    }
   }
 
   @TargetApi(Build.VERSION_CODES.FROYO)
@@ -298,7 +305,7 @@ public final class SyncRunnable implements Runnable {
     values.put(Asset.Fields.DESCRIPTION, localizer.<String>getField("description"));
 
     byte[] value = null;
-    Serializable fileMap = asset.getField("file");
+    Serializable fileMap = localizer.getField("file");
     if (fileMap != null) {
       try {
         value = BlobUtils.toBlob(fileMap);
@@ -392,7 +399,7 @@ public final class SyncRunnable implements Runnable {
 
   private void processArray(CDAEntry entry, String locale, AutoEscapeValues values, FieldMeta field) {
     if (field.isArrayOfSymbols()) {
-      List<?> list = entry.getField(field.id());
+      List<?> list = extractRawFieldValue(entry, locale, field.id());
       if (list == null) {
         list = Collections.emptyList();
       }

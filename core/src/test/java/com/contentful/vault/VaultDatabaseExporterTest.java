@@ -21,6 +21,14 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
+import org.junit.Rule;
+import org.junit.rules.TemporaryFolder;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.nio.file.Files;
+
+import static org.junit.Assert.assertArrayEquals;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -35,6 +43,15 @@ import static org.junit.Assert.fail;
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 23)
 public class VaultDatabaseExporterTest {
+  @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+  @Test public void copyCreatesParentDirectoriesAndPreservesBytes() throws Exception {
+    byte[] expected = new byte[20000];
+    new java.util.Random(42).nextBytes(expected);
+    File destination = new File(temporaryFolder.getRoot(), "nested/database.db");
+    SqliteHelper.copyToFile(new ByteArrayInputStream(expected), destination);
+    assertArrayEquals(expected, Files.readAllBytes(destination.toPath()));
+  }
 
   /** Any class works: the main-thread guard must fire before this is ever looked up. */
   static class FakeSpace {

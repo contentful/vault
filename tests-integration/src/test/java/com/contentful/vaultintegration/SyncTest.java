@@ -16,12 +16,18 @@
 
 package com.contentful.vaultintegration;
 
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+
 import com.contentful.java.cda.CDAClient;
 import com.contentful.vault.Asset;
 import com.contentful.vault.SyncConfig;
 import com.contentful.vault.SyncException;
+import com.contentful.vaultintegration.lib.demo.Cat;
+import com.contentful.vaultintegration.lib.demo.DemoSpace$$SpaceHelper;
 
 import org.junit.Test;
+import org.robolectric.RuntimeEnvironment;
 
 import java.util.List;
 
@@ -33,6 +39,95 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
 public class SyncTest extends SyncBase {
+
+  private SQLiteDatabase openDatabase() {
+    return RuntimeEnvironment.application.openOrCreateDatabase(
+        new DemoSpace$$SpaceHelper().getDatabaseName(), 0, null);
+  }
+
+  @Test public void localeModeChangesReplaceAllLocaleTables() throws Exception {
+    enqueueInitial();
+    sync();
+    assertSyncInitial();
+    assertThat(vault.fetch(Cat.class).all("tlh")).hasSize(3);
+
+    enqueueInitial();
+    sync(SyncConfig.builder().setClient(client).setSingleLocale(true).build());
+    assertRequestInitial();
+    assertThat(vault.fetch(Cat.class).all("tlh")).isEmpty();
+    assertInitialEntries();
+
+    enqueueInitial();
+    sync();
+    assertSyncInitial();
+    assertThat(vault.fetch(Cat.class).all("tlh")).hasSize(3);
+  }
+
+  @Test public void legacySyncSchemaResyncsWithoutLosingOfflineDataOnFailure() throws Exception {
+    enqueueInitial();
+    sync();
+    assertSyncInitial();
+    vault.release();
+    try (SQLiteDatabase database = openDatabase()) {
+      database.execSQL("DROP TABLE sync_info");
+      database.execSQL("CREATE TABLE sync_info (token TEXT NOT NULL, "
+          + "last_sync_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP)");
+      database.execSQL("INSERT INTO sync_info (token) VALUES ('st1')");
+    }
+    setupVault();
+
+    enqueue("demo/locales.json");
+    enqueue("demo/types.json");
+    server.enqueue(new MockResponse().setResponseCode(500));
+    try {
+      sync(SyncConfig.builder().setClient(client).setSingleLocale(true).build());
+      fail("Expected failed sync");
+    } catch (SyncException expected) {
+      assertInitialEntries();
+      assertThat(vault.fetch(Cat.class).all("tlh")).hasSize(3);
+    }
+    assertRequestInitial();
+
+    enqueueInitial();
+    sync(SyncConfig.builder().setClient(client).setSingleLocale(true).build());
+    assertRequestInitial();
+    assertThat(vault.fetch(Cat.class).all("tlh")).isEmpty();
+    try (SQLiteDatabase database = openDatabase();
+         Cursor cursor = database.rawQuery("SELECT single_locale FROM sync_info", null)) {
+      assertThat(cursor.moveToFirst()).isTrue();
+      assertThat(cursor.getInt(0)).isEqualTo(1);
+    }
+  }
+
+  @Test public void failedWriteRollsBackDataTokenAndLocaleMode() throws Exception {
+    enqueueInitial();
+    sync();
+    assertSyncInitial();
+    try (SQLiteDatabase database = openDatabase()) {
+      database.execSQL("CREATE TRIGGER reject_asset BEFORE INSERT ON `assets$en-US` "
+          + "BEGIN SELECT RAISE(FAIL, 'test write failure'); END");
+    }
+    enqueueInitial();
+    try {
+      sync(SyncConfig.builder().setClient(client).setSingleLocale(true).build());
+      fail("Expected failed write");
+    } catch (SyncException expected) {
+      assertInitialAssets();
+      assertInitialEntries();
+      assertThat(vault.fetch(Cat.class).all("tlh")).hasSize(3);
+    }
+    assertRequestInitial();
+    try (SQLiteDatabase database = openDatabase();
+         Cursor cursor = database.rawQuery("SELECT token, single_locale FROM sync_info", null)) {
+      assertThat(cursor.moveToFirst()).isTrue();
+      assertThat(cursor.getString(0)).isEqualTo("st1");
+      assertThat(cursor.getInt(1)).isEqualTo(0);
+      database.execSQL("DROP TRIGGER reject_asset");
+    }
+    enqueueUpdate();
+    sync();
+    assertSyncUpdate();
+  }
 
   @Test public void testAssetFallback() throws Exception {
     enqueue("assets/locales.json");

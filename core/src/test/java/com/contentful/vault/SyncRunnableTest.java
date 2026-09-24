@@ -40,9 +40,8 @@ public class SyncRunnableTest {
     assertTrue(requiresFullResync(true, true, false));
   }
 
-  @Test public void unknownModeNeverResets() {
-    // Right after upgrading Vault the mode is unknown: keep the offline data, just record the mode.
-    assertFalse(requiresFullResync(null, true, true));
-    assertFalse(requiresFullResync(null, true, false));
+  @Test public void unknownModeRequiresFullSync() {
+    assertTrue(requiresFullResync(null, true, true));
+    assertTrue(requiresFullResync(null, true, false));
   }
 }

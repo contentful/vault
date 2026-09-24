@@ -3,9 +3,14 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased (3.2.13)
+- Fix: Copy and export databases without requiring Android 26 file APIs from commons-io
+- Fix: Store locale mode atomically with the sync token; safely re-sync legacy databases with unknown locale mode
+- Fix: Roll back sync data and token changes when a database insert fails
+- Fix: Persist localized asset file metadata and symbol arrays for each locale
+- Fix: Preserve typed Parcel deserialization failures instead of attempting a second read
 - Fix: `SyncConfig` defaults the environment to `master` when only an access token and a space id are set (3.2.9 - 3.2.12 threw `IllegalStateException`)
 - Change: `SyncConfig.Builder#setLimit` validates the range 1-1000 and throws `IllegalArgumentException` **when the config is built** (before, an invalid limit only failed the sync)
-- Fix: changing `setSingleLocale` for an existing database triggers a full re-sync, so no locale table keeps stale rows. Upgrading Vault never triggers it
+- Fix: changing `setSingleLocale` for an existing database triggers a full re-sync, so no locale table keeps stale rows
 - Fix: `invalidate` (and a locale-mode re-sync) clears the old data only after the new data has been fetched, so a failed sync no longer leaves the database empty
 - Fix: `annotationProcessor 'com.contentful.vault:compiler'` works on its own; `compiler` depended on `core` as `provided`, which failed with `NoClassDefFoundError: com/contentful/vault/ContentType`
 - Fix: Android apps no longer receive the JVM-only `okhttp-jvm` artifact through `java-sdk` (duplicate `okhttp3` classes); Gradle resolves `okhttp-android`

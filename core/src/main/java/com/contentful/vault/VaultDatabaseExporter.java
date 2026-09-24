@@ -5,9 +5,8 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Looper;
 
-import org.apache.commons.io.FileUtils;
-
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
@@ -135,7 +134,11 @@ public class VaultDatabaseExporter {
       );
 
       try {
-        FileUtils.copyFile(new File(readableDatabase.getPath()), outputDatabase);
+        File source = new File(readableDatabase.getPath());
+        if (source.getCanonicalFile().equals(outputDatabase.getCanonicalFile())) {
+          throw new IOException("The export destination must differ from the database.");
+        }
+        SqliteHelper.copyToFile(new FileInputStream(source), outputDatabase);
       } catch (IOException e) {
         e.printStackTrace(System.err);
         successful = false;

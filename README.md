@@ -265,7 +265,7 @@ Vault.with(context, DemoSpace.class).requestSync(config);
 ```
 
 - `setLimit` only applies to the first page of an *initial* sync. Later pages and delta syncs use the API default. Values outside 1-1000 throw `IllegalArgumentException`.
-- `setSingleLocale(true)` stores only the default locale, and queries for any other locale return no results. Changing this setting for an existing database makes the next sync replace all data with a fresh initial sync, so no locale keeps stale rows. Upgrading Vault never triggers this.
+- `setSingleLocale(true)` stores only the default locale, and queries for any other locale return no results. Changing this setting, or opening an older database whose locale mode is unknown, makes the next sync replace all data with a fresh initial sync. Existing offline data remains available if fetching or saving the replacement fails. The locale mode and sync token are stored in the same database transaction.
 - `setInvalidate(true)` replaces local data with a fresh initial sync. The old data is only removed once the new data has been downloaded, so a failed sync keeps it.
 
 To close a space's database connection, call `vault.release()`. It only affects that space; `Vault.releaseAll()` is deprecated because it closes every space. Afterwards, get a new instance with `Vault.with(...)`.

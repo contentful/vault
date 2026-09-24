@@ -29,6 +29,7 @@ import org.robolectric.util.ReflectionHelpers;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 /**
  * Regression tests for VAULT-005: {@code Asset(Parcel)} used to call the deprecated,
@@ -39,6 +40,26 @@ import static org.junit.Assert.assertNotNull;
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 23)
 public class AssetTest {
+
+  @Test @Config(sdk = 33) public void typedReadFailurePreservesOriginalException() {
+    Parcel parcel = Parcel.obtain();
+    try {
+      parcel.writeSerializable("not a file map");
+      HashMap<String, Object> followingValue = new HashMap<>();
+      followingValue.put("url", "must not be returned");
+      parcel.writeSerializable(followingValue);
+      parcel.setDataPosition(0);
+      try {
+        Asset.readFileMap(parcel);
+        fail("Expected the typed read to reject the wrong type");
+      } catch (RuntimeException expected) {
+        org.junit.Assert.assertTrue(expected instanceof android.os.BadParcelableException);
+        org.junit.Assert.assertTrue(expected.getMessage().contains("java.util.HashMap"));
+      }
+    } finally {
+      parcel.recycle();
+    }
+  }
 
   @Test public void readFileMapRoundTripsOnLegacySdk() {
     HashMap<String, Object> file = new HashMap<>();

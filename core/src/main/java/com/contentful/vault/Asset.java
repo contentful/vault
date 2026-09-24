@@ -21,6 +21,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -203,7 +204,16 @@ public final class Asset extends Resource implements Parcelable {
       try {
         Method method = Parcel.class.getMethod("readSerializable", ClassLoader.class, Class.class);
         return (HashMap<String, Object>) method.invoke(in, Asset.class.getClassLoader(), HashMap.class);
-      } catch (ReflectiveOperationException e) {
+      } catch (InvocationTargetException e) {
+        Throwable cause = e.getCause();
+        if (cause instanceof RuntimeException) {
+          throw (RuntimeException) cause;
+        }
+        if (cause instanceof Error) {
+          throw (Error) cause;
+        }
+        throw new IllegalStateException("Failed reading asset file map.", cause);
+      } catch (NoSuchMethodException | IllegalAccessException e) {
         Log.w("Vault", "Typed Parcel#readSerializable unavailable, using the legacy call.", e);
         // Fall through to the legacy call below.
       }
