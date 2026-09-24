@@ -20,6 +20,7 @@ import android.annotation.TargetApi;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
@@ -77,15 +78,50 @@ public final class SyncRunnable implements Runnable {
     return new Builder();
   }
 
+  /** Remembers, per database, which locale mode its stored data was synced with. */
+  static final String PREFS_NAME = "com.contentful.vault.sync";
+
+  static final String PREF_SINGLE_LOCALE_PREFIX = "single_locale:";
+
+  /**
+   * Decides whether a change of {@link SyncConfig#isSingleLocale()} requires wiping the database
+   * and doing a full initial sync, so no locale table keeps stale rows.
+   *
+   * @param previousSingleLocale the mode the stored data was synced with, or {@code null} if
+   *                             unknown (never synced, or synced by an older Vault that did not
+   *                             record it).
+   * @param hasExistingData      whether the database already holds synced data.
+   * @param singleLocale         the mode requested for this sync.
+   */
+  static boolean requiresFullResync(Boolean previousSingleLocale, boolean hasExistingData,
+      boolean singleLocale) {
+    if (!hasExistingData || previousSingleLocale == null) {
+      // Unknown mode (for example right after upgrading Vault): keep the data and just record
+      // the mode, so an upgrade never discards an app's offline content or pre-seeded database.
+      return false;
+    }
+    return previousSingleLocale != singleLocale;
+  }
+
   @Override public void run() {
     SyncException error = null;
     db = sqliteHelper.getWritableDatabase();
     try {
+      final SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+      final String localeModeKey = PREF_SINGLE_LOCALE_PREFIX + spaceHelper.getDatabaseName();
+      final Boolean previousSingleLocale =
+          prefs.contains(localeModeKey) ? prefs.getBoolean(localeModeKey, false) : null;
+
+      // Existing data is only cleared after the new data has been fetched (in the write
+      // transaction below), so a failed sync never leaves the database empty.
+      boolean clearExisting = config.shouldInvalidate();
       String token = null;
-      if (config.shouldInvalidate()) {
-        SqliteHelper.clearRecords(spaceHelper, db);
-      } else {
+      if (!clearExisting) {
         token = fetchSyncToken();
+        if (requiresFullResync(previousSingleLocale, token != null, config.isSingleLocale())) {
+          clearExisting = true;
+          token = null;
+        }
       }
 
       SynchronizedSpace syncedSpace;
@@ -101,6 +137,9 @@ public final class SyncRunnable implements Runnable {
 
       db.beginTransaction();
       try {
+        if (clearExisting) {
+          SqliteHelper.clearRecords(spaceHelper, db);
+        }
         processDeleted(syncedSpace);
         processResources(syncedSpace);
 
@@ -109,6 +148,7 @@ public final class SyncRunnable implements Runnable {
       } finally {
         db.endTransaction();
       }
+      prefs.edit().putBoolean(localeModeKey, config.isSingleLocale()).apply();
     } catch (Throwable throwable) {
       error = new SyncException(throwable);
     } finally {

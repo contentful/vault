@@ -3,7 +3,7 @@
   <parent>
     <artifactId>vault-parent</artifactId>
     <groupId>com.contentful.vault</groupId>
-    <version>3.2.12</version>
+    <version>3.2.13-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -11,5 +11,5 @@
 
   <name>${project.groupId}:${project.artifactId}</name>
   <description>Vault build ordering placeholder module.</description>
-  <url>http://github.com/contentful/vault</url>
+  <url>https://github.com/contentful/vault</url>
 </project>

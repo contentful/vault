@@ -149,6 +149,10 @@ public class Vault {
    * <p>Unlike {@link #releaseAll()}, this is scoped to this instance's space and is
    * safe to call in multi-space applications without affecting other spaces' active
    * connections.
+   *
+   * <p>Do not keep using this or any other existing {@link Vault} instance for the same
+   * space after releasing it: obtain a new one with {@link #with(Context, Class)}, which
+   * opens a fresh connection.
    */
   public void release() {
     synchronized (SQLITE_HELPERS) {

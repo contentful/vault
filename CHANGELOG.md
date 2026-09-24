@@ -2,6 +2,46 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased (3.2.13)
+- Fix: `SyncConfig` defaults the environment to `master` when only an access token and a space id are set (3.2.9 - 3.2.12 threw `IllegalStateException`)
+- Change: `SyncConfig.Builder#setLimit` validates the range 1-1000 and throws `IllegalArgumentException` **when the config is built** (before, an invalid limit only failed the sync)
+- Fix: changing `setSingleLocale` for an existing database triggers a full re-sync, so no locale table keeps stale rows. Upgrading Vault never triggers it
+- Fix: `invalidate` (and a locale-mode re-sync) clears the old data only after the new data has been fetched, so a failed sync no longer leaves the database empty
+- Fix: `annotationProcessor 'com.contentful.vault:compiler'` works on its own; `compiler` depended on `core` as `provided`, which failed with `NoClassDefFoundError: com/contentful/vault/ContentType`
+- Fix: Android apps no longer receive the JVM-only `okhttp-jvm` artifact through `java-sdk` (duplicate `okhttp3` classes); Gradle resolves `okhttp-android`
+- Security: dependency updates, including commons-io 2.22.0 and commons-lang3 3.20.0 (3.2.12 shipped commons-io 2.5 and commons-lang3 3.4)
+- Build: signing, javadoc and Central publishing moved into a `release` profile; the integration tests run as plain Robolectric tests (no legacy Android SDK tools); JDK 11+ is required to build
+
+## Version [3.2.12] - (2026-08-25)
+- Restores `SyncConfig.Builder#setLimit` and `#setSingleLocale`, which 3.2.11 was missing
+- New: `Vault#release()` closes only this space's database; `Vault#releaseAll()` is deprecated
+- Fix: `VaultDatabaseExporter#export` fails fast on the main thread instead of deadlocking
+- Fix: `Asset` uses the typed `Parcel#readSerializable` API on Android 13+
+- Fix: the annotation processor no longer depends on `com.sun.tools.javac` internals (JDK 9+)
+- Publishing moved from OSSRH to the Maven Central Portal
+
+## Version [3.2.11] - (2026-08-25)
+- **Do not use.** Published from an older branch: it is missing `SyncConfig.Builder#setLimit` and `#setSingleLocale` (3.2.9) and the sync changes from 3.2.7 - 3.2.10. Use 3.2.12 or newer.
+
+## Version [3.2.10] - (2025-03-04)
+- Rollback of the changed entry and asset processing from 3.2.8
+
+## Version [3.2.9] - (2025-03-04)
+- New: `SyncConfig.Builder#setSingleLocale` stores only the default locale
+- Change: `SyncConfig` requires an environment when built from an access token and a space id (relaxed again in 3.2.13)
+
+## Version [3.2.8] - (2025-03-04)
+- Change: the way synced items are processed; `limit` is passed to the sync query; contentful.java updated
+
+## Version [3.2.7] - (2025-01-29)
+- New: `SyncConfig.Builder#setLimit` for the Sync API `limit` parameter
+
+## Version [3.2.6] - (2023-02-01)
+- Migration from RxJava 2 to RxJava 3
+
+## Version [3.2.4] - (2020-08-07)
+- New: environment parameter for `VaultDatabaseExporter#export`
+
 ## Version [3.2.3] - [2020-04-16]
 - Fix: SyncConfig has been extended by environment field
 

@@ -26,7 +26,7 @@ import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(manifest = "src/main/AndroidManifest.xml")
+@Config(manifest = "AndroidManifest.xml")
 public class UpgradeTest extends BaseTest {
   @Space(
       value = "cfexampleapi",

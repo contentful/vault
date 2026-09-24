@@ -43,7 +43,7 @@ import okhttp3.mockwebserver.MockWebServer;
 import static com.google.common.truth.Truth.assertThat;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(manifest = "src/main/AndroidManifest.xml", sdk = 23)
+@Config(manifest = "AndroidManifest.xml", sdk = 23)
 public abstract class BaseTest {
   MockWebServer server;
   CDAClient client;

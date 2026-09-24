@@ -3,12 +3,12 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.contentful.vault</groupId>
   <artifactId>vault-parent</artifactId>
-  <version>3.2.12</version>
+  <version>3.2.13-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>${project.groupId}:${project.artifactId}</name>
   <description>Android library for persisting and querying Contentful content locally.</description>
-  <url>http://github.com/contentful/vault</url>
+  <url>https://github.com/contentful/vault</url>
 
   <modules>
     <module>compiler</module>
@@ -18,7 +18,7 @@
   </modules>
 
   <scm>
-    <url>http://github.com/contentful/vault/</url>
+    <url>https://github.com/contentful/vault/</url>
     <connection>scm:git:git://github.com/contentful/vault.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/contentful/vault.git</developerConnection>
     <tag>HEAD</tag>
@@ -26,7 +26,7 @@
 
   <issueManagement>
     <system>GitHub Issues</system>
-    <url>http://github.com/contentful/vault/issues</url>
+    <url>https://github.com/contentful/vault/issues</url>
   </issueManagement>
 
   <licenses>
@@ -38,7 +38,7 @@
 
   <organization>
     <name>Contentful, GmbH.</name>
-    <url>http://contentful.com</url>
+    <url>https://www.contentful.com</url>
   </organization>
 
   <developers>
@@ -60,7 +60,6 @@
     -->
     <surefire.argLine>--add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED --add-opens java.base/java.io=ALL-UNNAMED --add-opens java.base/java.net=ALL-UNNAMED --add-opens java.base/java.text=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</surefire.argLine>
 
-    <android.platform>30</android.platform>
     <android.version>4.1.1.4</android.version>
     <cda.version>10.6.1</cda.version>
     <commons-codec.version>1.22.1</commons-codec.version>
@@ -241,6 +240,10 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-release-plugin</artifactId>
         <version>3.3.1</version>
+        <configuration>
+          <!-- Sign, attach sources/javadoc and publish to Central only when releasing. -->
+          <releaseProfiles>release</releaseProfiles>
+        </configuration>
       </plugin>
 
       <plugin>
@@ -249,58 +252,6 @@
         <version>3.1.4</version>
       </plugin>
 
-      <plugin>
-        <groupId>org.sonatype.central</groupId>
-        <artifactId>central-publishing-maven-plugin</artifactId>
-        <version>0.8.0</version>
-        <extensions>true</extensions>
-        <configuration>
-          <publishingServerId>central</publishingServerId>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-source-plugin</artifactId>
-        <version>3.3.0</version>
-        <executions>
-          <execution>
-            <id>attach-sources</id>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.6.3</version>
-        <executions>
-          <execution>
-            <id>attach-javadocs</id>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-gpg-plugin</artifactId>
-        <version>3.1.0</version>
-        <executions>
-          <execution>
-            <id>sign-artifacts</id>
-            <phase>verify</phase>
-            <goals>
-              <goal>sign</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -327,6 +278,11 @@
                 <requireMavenVersion>
                   <version>3.0</version>
                 </requireMavenVersion>
+                <!-- The surefire argLine uses JDK 9+ module flags; tests are verified on JDK 21 and 26. -->
+                <requireJavaVersion>
+                  <version>[11,)</version>
+                  <message>Building Vault needs JDK 11 or newer (JDK 21 recommended). The release artifacts still target Java 8.</message>
+                </requireJavaVersion>
               </rules>
             </configuration>
           </execution>
@@ -334,19 +290,72 @@
       </plugin>
     </plugins>
 
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>com.simpligility.maven.plugins</groupId>
-          <artifactId>android-maven-plugin</artifactId>
-          <version>4.6.0</version>
-          <configuration>
-            <sdk>
-              <platform>${android.platform}</platform>
-            </sdk>
-          </configuration>
-        </plugin>
-      </plugins>
-    </pluginManagement>
   </build>
+
+  <profiles>
+    <!--
+      Release-only steps: signing needs a GPG key, and javadoc is slow, so neither runs in
+      normal builds. maven-release-plugin activates this profile (see releaseProfiles);
+      for a manual deploy run: ./mvnw -Prelease deploy
+    -->
+    <profile>
+      <id>release</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.sonatype.central</groupId>
+            <artifactId>central-publishing-maven-plugin</artifactId>
+            <version>0.8.0</version>
+            <extensions>true</extensions>
+            <configuration>
+              <publishingServerId>central</publishingServerId>
+            </configuration>
+          </plugin>
+
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <version>3.3.0</version>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>3.6.3</version>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <version>3.1.0</version>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>

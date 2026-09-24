@@ -23,8 +23,8 @@
     <img src="https://img.shields.io/badge/license-Apache%202.0-brightgreen.svg" alt="Apache 2.0 License" />
   </a>
   &nbsp;
-  <a href="https://travis-ci.org/contentful/vault">
-    <img src="https://travis-ci.org/contentful/vault.svg" alt="Build Status">
+  <a href="https://github.com/contentful/vault/actions/workflows/test.yml">
+    <img src="https://github.com/contentful/vault/actions/workflows/test.yml/badge.svg" alt="Build Status">
   </a>
 </p>
 
@@ -114,7 +114,9 @@ annotationProcessor 'com.contentful.vault:compiler:3.2.12'
 implementation 'com.contentful.vault:core:3.2.12'
 ```
 
-> Note: Development snapshots are available through [Sonatype's `snapshots` repository](https://oss.sonatype.org/content/repositories/snapshots/).
+> Note: With **3.2.12 and older**, also add `annotationProcessor 'com.contentful.vault:core:<version>'` if the build fails with `NoClassDefFoundError: com/contentful/vault/ContentType`.
+
+> Note: Avoid **3.2.11**. It was published from an older branch and is missing `SyncConfig.Builder#setLimit` and `#setSingleLocale` (added in 3.2.9). Use 3.2.12 or newer.
 
 ### Your first sync
 
@@ -140,7 +142,7 @@ CDAClient client = CDAClient.builder()
     .setToken("b4c0n73n7fu1")
     .build();
 
-Vault.with(context, DemoSpace.class).requestSync(client);
+Vault.with(context, DemoSpace.class).requestSync(SyncConfig.builder().setClient(client).build());
 ```
 
 Vault runs the sync on a worker thread and reflects the changes in its local database. Once complete, it broadcasts `Vault.ACTION_SYNC_COMPLETE`.
@@ -211,7 +213,7 @@ CDAClient client = CDAClient.builder()
     .build();
 
 // Sync.
-Vault.with(context, DemoSpace.class).requestSync(client);
+Vault.with(context, DemoSpace.class).requestSync(SyncConfig.builder().setClient(client).build());
 ```
 
 Vault uses a worker thread to request updates from the Sync API and reflect the changes in its database. Once sync completes, Vault broadcasts `Vault.ACTION_SYNC_COMPLETE`.
@@ -225,7 +227,7 @@ class SomeActivity extends Activity {
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
-    Vault.with(this, DemoSpace.class).requestSync(client, callback = new SyncCallback() {
+    Vault.with(this, DemoSpace.class).requestSync(SyncConfig.builder().setClient(client).build(), callback = new SyncCallback() {
       @Override public void onResult(SyncResult result) {
         if (result.isSuccessful()) {
           // Success \o/
@@ -244,6 +246,29 @@ class SomeActivity extends Activity {
 ```
 
 > Note: Extra care needs to be taken for the lifecycle — cancel the callback on lifecycle events.
+
+#### Sync options
+
+`SyncConfig` takes either a `CDAClient`, or an access token and a space ID:
+
+```java
+SyncConfig config = SyncConfig.builder()
+    .setAccessToken("b4c0n73n7fu1")
+    .setSpaceId("cfexampleapi")
+    .setEnvironment("master")   // optional, defaults to "master"
+    .setLimit(500)              // optional: page size of the initial sync, 1-1000
+    .setSingleLocale(true)      // optional: store only the space's default locale
+    .setInvalidate(false)       // optional: true wipes local data and syncs from scratch
+    .build();
+
+Vault.with(context, DemoSpace.class).requestSync(config);
+```
+
+- `setLimit` only applies to the first page of an *initial* sync. Later pages and delta syncs use the API default. Values outside 1-1000 throw `IllegalArgumentException`.
+- `setSingleLocale(true)` stores only the default locale, and queries for any other locale return no results. Changing this setting for an existing database makes the next sync replace all data with a fresh initial sync, so no locale keeps stale rows. Upgrading Vault never triggers this.
+- `setInvalidate(true)` replaces local data with a fresh initial sync. The old data is only removed once the new data has been downloaded, so a failed sync keeps it.
+
+To close a space's database connection, call `vault.release()`. It only affects that space; `Vault.releaseAll()` is deprecated because it closes every space. Afterwards, get a new instance with `Vault.with(...)`.
 
 RxJava users can subscribe to sync results via an `Observable`:
 

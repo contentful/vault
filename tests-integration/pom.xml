@@ -5,11 +5,15 @@
   <parent>
     <groupId>com.contentful.vault</groupId>
     <artifactId>vault-parent</artifactId>
-    <version>3.2.12</version>
+    <version>3.2.13-SNAPSHOT</version>
   </parent>
 
   <artifactId>tests-integration</artifactId>
-  <packaging>apk</packaging>
+  <!--
+    Plain jar: these are Robolectric (JVM) tests. The former "apk" packaging needed
+    android-maven-plugin, which requires the legacy Android SDK "tools/" package.
+  -->
+  <packaging>jar</packaging>
 
   <dependencies>
     <dependency>
@@ -53,6 +57,25 @@
       <artifactId>mockwebserver</artifactId>
       <scope>test</scope>
     </dependency>
+    <!-- core excludes okhttp-jvm for Android consumers; the JVM tests need its classes. -->
+    <dependency>
+      <groupId>com.squareup.okhttp3</groupId>
+      <artifactId>okhttp-jvm</artifactId>
+      <version>${okhttp.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.robolectric</groupId>
+      <artifactId>android-all-instrumented</artifactId>
+      <version>14-robolectric-10818077-i7</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>androidx.test</groupId>
+      <artifactId>monitor</artifactId>
+      <type>aar</type>
+      <scope>test</scope>
+    </dependency>
 
     <dependency>
       <groupId>com.squareup.okhttp3</groupId>
@@ -86,29 +109,56 @@
   </dependencies>
 
   <build>
+    <testResources>
+      <testResource>
+        <directory>src/test/resources</directory>
+      </testResource>
+      <!-- Robolectric reads assets next to the classpath AndroidManifest.xml (the pre-seeded database). -->
+      <testResource>
+        <directory>src/main/assets</directory>
+        <targetPath>assets</targetPath>
+      </testResource>
+    </testResources>
     <plugins>
+      <!-- Same Robolectric 4 setup as core: put androidx.test:monitor's classes on the test classpath. -->
       <plugin>
-        <groupId>com.simpligility.maven.plugins</groupId>
-        <artifactId>android-maven-plugin</artifactId>
-        <extensions>true</extensions>
-        <dependencies>
-          <!--
-            android-maven-plugin 4.6.0 uses JAXB, which was removed from the JDK in
-            Java 11. Supply it explicitly so the plugin runs on modern JDKs.
-          -->
-          <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
-            <version>2.3.1</version>
-          </dependency>
-          <dependency>
-            <groupId>org.glassfish.jaxb</groupId>
-            <artifactId>jaxb-runtime</artifactId>
-            <version>2.3.9</version>
-          </dependency>
-        </dependencies>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>3.6.1</version>
+        <executions>
+          <execution>
+            <id>resolve-aar-paths</id>
+            <phase>process-test-classes</phase>
+            <goals>
+              <goal>properties</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
-
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>3.1.0</version>
+        <executions>
+          <execution>
+            <id>explode-monitor-aar</id>
+            <phase>process-test-classes</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <target>
+                <unzip src="${androidx.test:monitor:aar}"
+                       dest="${project.build.directory}/monitor-aar">
+                  <patternset><include name="classes.jar"/></patternset>
+                </unzip>
+                <unzip src="${project.build.directory}/monitor-aar/classes.jar"
+                       dest="${project.build.testOutputDirectory}"/>
+              </target>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-deploy-plugin</artifactId>
@@ -116,22 +166,31 @@
           <skip>true</skip>
         </configuration>
       </plugin>
-
-      <plugin>
-        <groupId>org.sonatype.central</groupId>
-        <artifactId>central-publishing-maven-plugin</artifactId>
-        <configuration>
-          <skipPublishing>true</skipPublishing>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-gpg-plugin</artifactId>
-        <configuration>
-          <skip>true</skip>
-        </configuration>
-      </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <!-- Never sign or publish the test module, even in a release build. -->
+    <profile>
+      <id>release</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.sonatype.central</groupId>
+            <artifactId>central-publishing-maven-plugin</artifactId>
+            <configuration>
+              <skipPublishing>true</skipPublishing>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <configuration>
+              <skip>true</skip>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>

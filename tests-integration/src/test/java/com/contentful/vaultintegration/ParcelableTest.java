@@ -58,12 +58,12 @@ public class ParcelableTest extends BaseTest {
     assertThat(source.description()).isEqualTo(reconstructed.description());
 
     assertThat((Iterable<String>) source.file().keySet())
-        .containsAllIn(reconstructed.file().keySet());
+        .containsAtLeastElementsIn(reconstructed.file().keySet());
 
     assertThat((Iterable) source.file().keySet()).hasSize(reconstructed.file().keySet().size());
 
     assertThat((Iterable<Object>) source.file().values())
-        .containsAllIn(reconstructed.file().values());
+        .containsAtLeastElementsIn(reconstructed.file().values());
 
     assertThat((Iterable) source.file().values()).hasSize(reconstructed.file().values().size());
   }

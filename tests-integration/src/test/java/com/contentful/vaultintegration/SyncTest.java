@@ -19,15 +19,18 @@ package com.contentful.vaultintegration;
 import com.contentful.java.cda.CDAClient;
 import com.contentful.vault.Asset;
 import com.contentful.vault.SyncConfig;
+import com.contentful.vault.SyncException;
 
 import org.junit.Test;
 
 import java.util.List;
 
+import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.RecordedRequest;
 
 import static com.contentful.vault.BaseFields.CREATED_AT;
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.fail;
 
 public class SyncTest extends SyncBase {
 
@@ -144,50 +147,51 @@ public class SyncTest extends SyncBase {
     assertThat(request.getPath()).startsWith("/spaces/space/environments/environment/sync");
   }
 
-  @Test public void testSyncInPreviewNotInitialDoesInitial() throws Exception {
-    enqueue("demo/locales.json");
-    enqueue("demo/types.json");
-    enqueue("demo/initial.json");
-
+  @Test public void testInvalidateForcesInitialSync() throws Exception {
+    enqueueInitial();
     sync();
     assertSyncInitial();
 
-    enqueue("demo/locales.json");
-    enqueue("demo/types.json");
-    enqueue("demo/initial.json");
-
-    sync();
+    // Without invalidate this would be a delta sync with the stored token.
+    enqueueInitial();
+    sync(SyncConfig.builder().setClient(client).setInvalidate(true).build());
     assertSyncInitial();
   }
 
-  @Test public void testSyncWithLimit() throws Exception {
-    // Initial sync with limit
-    enqueue("demo/locales.json");
-    enqueue("demo/types.json");
-    enqueue("demo/initial.json");
-
-    sync(SyncConfig.builder().setClient(client).setLimit(1000).build());
+  @Test public void testFailedInvalidateKeepsExistingData() throws Exception {
+    enqueueInitial();
+    sync();
     assertSyncInitial();
 
-    // Verify the request URL contains the limit parameter
-    server.takeRequest(); // ignore locales request
-    server.takeRequest(); // ignore content types request
-    RecordedRequest request = server.takeRequest();
-    assertThat(request.getPath()).isEqualTo("/spaces/space/environments/master/sync?initial=true&limit=1000");
-
-    // Subsequent sync without limit (should use the limit from token)
+    // The locales and content types load, then the sync request fails.
     enqueue("demo/locales.json");
     enqueue("demo/types.json");
-    enqueue("demo/update.json");
+    server.enqueue(new MockResponse().setResponseCode(500));
+    try {
+      sync(SyncConfig.builder().setClient(client).setInvalidate(true).build());
+      fail("The sync was expected to fail with HTTP 500.");
+    } catch (SyncException expected) {
+      // expected
+    }
 
-    sync(SyncConfig.builder().setClient(client).build());
+    // Nothing may be wiped when the new data could not be fetched.
+    assertInitialAssets();
+    assertInitialEntries();
+  }
+
+  @Test public void testSyncWithLimit() throws Exception {
+    // Initial sync: the limit is sent.
+    enqueueInitial();
+    sync(SyncConfig.builder().setClient(client).setLimit(1000).build());
+    assertRequestInitialWithLimit(1000);
+    assertInitialAssets();
+    assertInitialEntries();
+    assertSingleLink();
+
+    // Delta sync: continues from the stored token, the limit is not sent.
+    enqueueUpdate();
+    sync(SyncConfig.builder().setClient(client).setLimit(1000).build());
     assertSyncUpdate();
-
-    // Verify the request URL doesn't contain the limit parameter
-    server.takeRequest(); // ignore locales request
-    server.takeRequest(); // ignore content types request
-    request = server.takeRequest();
-    assertThat(request.getPath()).isEqualTo("/spaces/space/environments/master/sync?sync_token=st1");
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -199,22 +203,27 @@ public class SyncTest extends SyncBase {
   }
 
   @Test public void testSyncWithLimitAndInvalidate() throws Exception {
-    // Initial sync with limit and invalidate
-    enqueue("demo/locales.json");
-    enqueue("demo/types.json");
-    enqueue("demo/initial.json");
+    enqueueInitial();
+    sync();
+    assertSyncInitial();
 
+    // Invalidate discards the token, so this is an initial sync again, with the limit.
+    enqueueInitial();
     sync(SyncConfig.builder()
             .setClient(client)
             .setLimit(1000)
             .setInvalidate(true)
             .build());
-    assertSyncInitial();
+    assertRequestInitialWithLimit(1000);
+    assertInitialAssets();
+    assertInitialEntries();
+  }
 
-    // Verify the request URL contains both initial and limit parameters
-    server.takeRequest(); // ignore locales request
-    server.takeRequest(); // ignore content types request
+  private void assertRequestInitialWithLimit(int limit) throws InterruptedException {
+    server.takeRequest(); // locales
+    server.takeRequest(); // content types
     RecordedRequest request = server.takeRequest();
-    assertThat(request.getPath()).isEqualTo("/spaces/space/environments/master/sync?initial=true&limit=1000");
+    assertThat(request.getPath())
+        .isEqualTo("/spaces/space/environments/master/sync?initial=true&limit=" + limit);
   }
 }

@@ -29,7 +29,7 @@ import static com.contentful.vault.BaseFields.REMOTE_ID;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
-@Config(manifest = "src/main/AndroidManifest.xml", sdk = 23)
+@Config(manifest = "AndroidManifest.xml", sdk = 23)
 public class AllTheThingsTest extends BaseTest {
   @Override protected void setupVault() {
     vault = Vault.with(RuntimeEnvironment.application, AllTheThingsSpace.class);

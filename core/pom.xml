@@ -5,14 +5,14 @@
   <parent>
     <groupId>com.contentful.vault</groupId>
     <artifactId>vault-parent</artifactId>
-    <version>3.2.12</version>
+    <version>3.2.13-SNAPSHOT</version>
   </parent>
 
   <artifactId>core</artifactId>
 
   <name>${project.groupId}:${project.artifactId}</name>
   <description>Vault runtime: local persistence and querying of Contentful content on Android.</description>
-  <url>http://github.com/contentful/vault</url>
+  <url>https://github.com/contentful/vault</url>
 
   <dependencies>
     <dependency>
@@ -28,6 +28,26 @@
     <dependency>
       <groupId>com.contentful.java</groupId>
       <artifactId>java-sdk</artifactId>
+      <exclusions>
+        <!--
+          java-sdk up to 10.6.1 declares okhttp-jvm as a required dependency, which clashes with
+          okhttp-android in Android apps. Vault is Android-only: exclude it. java-sdk's "okhttp"
+          dependency remains, and Gradle resolves it to okhttp-android. (No explicit okhttp here:
+          a newer version would force apps onto a newer compileSdk.)
+        -->
+        <exclusion>
+          <groupId>com.squareup.okhttp3</groupId>
+          <artifactId>okhttp-jvm</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <!-- OkHttp's classes for compiling and testing Vault itself; not passed on to apps. -->
+    <dependency>
+      <groupId>com.squareup.okhttp3</groupId>
+      <artifactId>okhttp-jvm</artifactId>
+      <version>${okhttp.version}</version>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>

@@ -19,6 +19,7 @@ package com.contentful.vault;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
@@ -203,7 +204,7 @@ public final class Asset extends Resource implements Parcelable {
         Method method = Parcel.class.getMethod("readSerializable", ClassLoader.class, Class.class);
         return (HashMap<String, Object>) method.invoke(in, Asset.class.getClassLoader(), HashMap.class);
       } catch (ReflectiveOperationException e) {
-        e.printStackTrace(System.err);
+        Log.w("Vault", "Typed Parcel#readSerializable unavailable, using the legacy call.", e);
         // Fall through to the legacy call below.
       }
     }

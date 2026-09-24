@@ -56,6 +56,19 @@ public class AssetTest {
     assertEquals(1024.0, result.get("size"));
   }
 
+  @Test @Config(sdk = 33) public void readFileMapUsesTypedApiOnApi33() {
+    HashMap<String, Object> file = new HashMap<>();
+    file.put("url", "//images.contentful.com/typed.png");
+
+    Parcel parcel = Parcel.obtain();
+    parcel.writeSerializable(file);
+    parcel.setDataPosition(0);
+
+    HashMap<String, Object> result = Asset.readFileMap(parcel);
+    assertNotNull(result);
+    assertEquals("//images.contentful.com/typed.png", result.get("url"));
+  }
+
   @Test public void readFileMapFallsBackSafelyWhenApi33PathIsUnavailable() {
     HashMap<String, Object> file = new HashMap<>();
     file.put("url", "//images.contentful.com/bar.png");
