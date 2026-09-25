@@ -78,17 +78,16 @@ lookup in `8cd61d6`.
 - `java.version` is `1.7`, and `compiler` declares `sun.jdk:tools` at
   `${java.home}/../lib/tools.jar`. Both mean the build needs a **JDK 8**; `jitpack.yml`
   and `.travis.yml` pin JDK 8 accordingly.
-- `.travis.yml` is the only build/test pipeline in the repository. It runs the Maven
-  build and, on `master`, calls `.buildscript/deploy_snapshot.sh` to publish snapshots
-  to Sonatype and ping JitPack. This pipeline is **not active** — the badge in the
-  README points at `travis-ci.org`, and there is no `.github/workflows/` directory. The
-  checks that do run on pull requests are org-level (CodeQL, Wiz scanners, Governance
-  Controls); none of them compile the project. See AGENTS.md for the consequences.
-- Release publishing goes through `maven-release-plugin` and
-  `nexus-staging-maven-plugin` (`stagingProfileId` `6c692a1d2981a9` on
-  `oss.sonatype.org`).
+- CI is GitHub Actions: `.github/workflows/test.yml` (`./mvnw -B verify`, JDK 21) on every
+  push and PR. `.travis.yml` and `.buildscript/deploy_snapshot.sh` are dormant.
+- Releases: the manual `Release` workflow (`.github/workflows/release.yml`) runs
+  `.buildscript/release.sh`, which deploys with the `release` profile through
+  `central-publishing-maven-plugin` to the Sonatype Central Portal (auto-publish), then
+  tags `vault-parent-X.Y.Z` and creates the GitHub release. See `RELEASING.md`.
 
 ## Decision records
 
 - [`docs/ADRs/2026-08-25-empty-last-module-to-group-staged-artifacts.md`](docs/ADRs/2026-08-25-empty-last-module-to-group-staged-artifacts.md)
   — why `last-module/` exists and must stay last.
+- [`docs/ADRs/2026-09-24-release-from-github-actions.md`](docs/ADRs/2026-09-24-release-from-github-actions.md)
+  — why releases run from a manual workflow and `master` no longer carries `-SNAPSHOT`.
