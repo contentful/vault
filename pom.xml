@@ -69,7 +69,7 @@
     <guava.version>33.7.2-jre</guava.version>
     <javapoet.version>1.13.0</javapoet.version>
     <junit.version>4.13.2</junit.version>
-    <okhttp.version>5.5.0</okhttp.version>
+    <okhttp.version>5.5.1</okhttp.version>
     <robolectric.version>4.17</robolectric.version>
     <androidx.test.version>1.5.0</androidx.test.version>
     <rxjava.version>3.1.12</rxjava.version>
