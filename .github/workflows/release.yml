@@ -1,0 +1,92 @@
+name: Release
+
+# Manual: Actions -> Release -> Run workflow (branch master), type the version from pom.xml.
+# Tests, then publish core and compiler to Maven Central, tag vault-parent-X.Y.Z and create the GitHub release. See RELEASING.md.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version to release. Must equal the version in pom.xml.
+        required: true
+        type: string
+      dry-run:
+        description: Dry run. Build and sign, but upload, tag and release nothing (any branch).
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: Validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Releases run from master only
+        if: ${{ github.ref != 'refs/heads/master' && !inputs.dry-run }}
+        run: |
+          echo "::error::Run the Release workflow on master (it ran on ${GITHUB_REF_NAME}), or tick dry run."
+          exit 1
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+
+      - name: Validate release
+        env:
+          EXPECTED_VERSION: ${{ inputs.version }}
+          RELEASE_COMMIT: ${{ github.sha }}
+          DRY_RUN: ${{ inputs.dry-run && '1' || '0' }}
+        run: .buildscript/release.sh validate
+
+  test:
+    name: Test
+    needs: validate
+    uses: ./.github/workflows/test.yml
+
+  publish:
+    name: Publish
+    needs: [validate, test]
+    runs-on: ubuntu-latest
+    # Holds the secrets below. Add required reviewers to it for a second pair of eyes.
+    environment: maven-central
+    permissions:
+      contents: write
+    env:
+      DRY_RUN: ${{ inputs.dry-run && '1' || '0' }}
+      RELEASE_COMMIT: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+
+      # Writes ~/.m2/settings.xml with the "central" server read from the two env variables below.
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+          server-id: central
+          server-username: CENTRAL_USERNAME
+          server-password: CENTRAL_PASSWORD
+
+      - name: Publish to Maven Central
+        env:
+          CENTRAL_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
+          CENTRAL_PASSWORD: ${{ secrets.CENTRAL_PASSWORD }}
+          MAVEN_GPG_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: .buildscript/release.sh deploy
+
+      - name: Tag
+        run: .buildscript/release.sh tag
+
+      - name: GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: .buildscript/release.sh github-release
