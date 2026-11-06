@@ -67,7 +67,7 @@
     <dependency>
       <groupId>org.robolectric</groupId>
       <artifactId>android-all-instrumented</artifactId>
-      <version>17-robolectric-15733970-i7</version>
+      <version>17-robolectric-16653203-i7</version>
       <scope>test</scope>
     </dependency>
     <dependency>
